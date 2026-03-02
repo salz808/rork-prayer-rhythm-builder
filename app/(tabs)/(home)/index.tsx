@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRouter, Redirect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Play, Check, Flame, RotateCcw, Sun, Moon, Sunrise, Sunset, Settings2, AlertTriangle } from 'lucide-react-native';
+import { Play, Check, Flame, RotateCcw, Sun, Moon, Sunrise, Sunset, Settings2, AlertTriangle, Heart, Globe } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/providers/AppProvider';
@@ -237,6 +237,27 @@ export default function HomeScreen() {
               <Text style={[styles.phaseTagText, { color: C.accentDark }]}>{phaseLabel}</Text>
             </View>
             <Text style={[styles.dayTitle, { color: C.text }]}>{dayContent.title}</Text>
+          </Animated.View>
+
+          <Animated.View style={[styles.supportSection, { opacity: fadeAnim }]}>
+            <TouchableOpacity
+              style={[styles.supportCauseBtn, { backgroundColor: C.surface, borderColor: C.border }]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/paywall');
+              }}
+              activeOpacity={0.8}
+              testID="support-cause-home"
+            >
+              <View style={[styles.supportCauseIcon, { backgroundColor: C.warmLight }]}>
+                <Heart size={16} color={C.warmDeep} fill={C.warmDeep} />
+              </View>
+              <View style={styles.supportCauseText}>
+                <Text style={[styles.supportCauseTitle, { color: C.text }]}>Support This Cause</Text>
+                <Text style={[styles.supportCauseSub, { color: C.textMuted }]}>Fund development & global missions</Text>
+              </View>
+              <Globe size={16} color={C.textMuted} />
+            </TouchableOpacity>
           </Animated.View>
 
           <Animated.View
@@ -542,6 +563,38 @@ const styles = StyleSheet.create({
   completionButtonSecondaryText: {
     fontSize: 16,
     fontWeight: '600' as const,
+  },
+  supportSection: {
+    width: '100%',
+    marginBottom: 24,
+  },
+  supportCauseBtn: {
+    flexDirection: 'row' as const,
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: 12,
+  },
+  supportCauseIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  supportCauseText: {
+    flex: 1,
+  },
+  supportCauseTitle: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    letterSpacing: -0.1,
+    marginBottom: 2,
+  },
+  supportCauseSub: {
+    fontSize: 12,
+    fontWeight: '400' as const,
   },
   loadingContainer: {
     flex: 1,

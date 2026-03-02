@@ -9,25 +9,23 @@ import Colors from '@/constants/colors';
 
 SplashScreen.preventAutoHideAsync();
 
-if (Platform.OS !== 'web') {
-  try {
-    const Purchases = require('react-native-purchases').default;
-    const getRCToken = () => {
-      if (__DEV__) return process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY ?? '';
-      return Platform.select({
-        ios: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ?? '',
-        android: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
-        default: process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY ?? '',
-      });
-    };
-    const rcToken = getRCToken();
-    if (rcToken) {
-      Purchases.configure({ apiKey: rcToken });
-      console.log('[RevenueCat] Configured');
-    }
-  } catch (e) {
-    console.log('[RevenueCat] Failed to configure:', e);
+try {
+  const Purchases = require('react-native-purchases').default;
+  const getRCToken = () => {
+    if (__DEV__ || Platform.OS === 'web') return process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY ?? '';
+    return Platform.select({
+      ios: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ?? '',
+      android: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
+      default: process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY ?? '',
+    });
+  };
+  const rcToken = getRCToken();
+  if (rcToken) {
+    Purchases.configure({ apiKey: rcToken });
+    console.log('[RevenueCat] Configured');
   }
+} catch (e) {
+  console.log('[RevenueCat] Failed to configure:', e);
 }
 
 const queryClient = new QueryClient();

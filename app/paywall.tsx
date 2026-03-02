@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
-  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -32,7 +31,6 @@ type PurchasesOffering = {
 };
 
 const getPurchases = () => {
-  if (Platform.OS === 'web') return null;
   try {
     return require('react-native-purchases').default;
   } catch {
@@ -134,11 +132,11 @@ export default function PaywallScreen() {
       const isMissions = id.includes('missions');
       return {
         pkg,
-        title: isMissions ? 'Support Missions' : 'Support Development',
+        title: isMissions ? 'Share the Gospel' : 'Support Development',
         price,
         description: isMissions
-          ? '100% of this goes toward funding missions around the world.'
-          : 'Help keep this app alive and growing for everyone.',
+          ? '$9.99/mo — 100% goes toward missions around the world to share the Gospel of Jesus Christ.'
+          : '$0.99/mo — Help us keep building and improving this app for everyone.',
         impact: isMissions
           ? 'Fund global missions'
           : 'Keep the app free for all',
@@ -178,9 +176,9 @@ export default function PaywallScreen() {
               <Sparkles size={28} color={C.accentDark} />
             </View>
 
-            <Text style={[styles.title, { color: C.text }]}>Partner With Us</Text>
+            <Text style={[styles.title, { color: C.text }]}>Support This Cause</Text>
             <Text style={[styles.subtitle, { color: C.textSecondary }]}>
-              First 30 is free — and always will be. But if it{"'"}s helped you, consider supporting the work.
+              This app is free and always will be. Your support keeps it alive and helps share the Gospel of Jesus Christ with the world.
             </Text>
 
             <View style={[styles.divider, { backgroundColor: C.border }]} />
@@ -272,7 +270,7 @@ export default function PaywallScreen() {
 
             <View style={[styles.noteBox, { backgroundColor: C.sageBg, borderColor: C.sageLight }]}>
               <Text style={[styles.noteText, { color: C.sageDark }]}>
-                Both subscriptions go directly to building this app and funding missions. No investors. No ads. Just people who pray, supporting people who pray.
+                No investors. No ads. Every dollar goes directly to app development or global missions. Just people who pray, supporting people who pray.
               </Text>
             </View>
 
