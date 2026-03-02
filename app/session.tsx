@@ -459,13 +459,16 @@ export default function SessionScreen() {
                 ]}
               >
                 <View style={[styles.completeBadgeOuter, { backgroundColor: C.sageBg }]}>
-                  <View style={[styles.completeBadge, { backgroundColor: C.sageLight }]}>
-                    <Heart size={26} color={C.sage} fill={C.sage} />
+                  <View style={[styles.completeBadgeRing, { borderColor: C.sageLight }]}>
+                    <View style={[styles.completeBadge, { backgroundColor: C.sageLight }]}>
+                      <Heart size={26} color={C.sage} fill={C.sage} />
+                    </View>
                   </View>
                 </View>
 
+                <Text style={[styles.completeDayLabel, { color: C.textMuted }]}>DAY {completedDay}</Text>
                 <Text style={[styles.completeTitle, { color: C.text }]}>
-                  Day {completedDay} Complete
+                  Prayer Complete
                 </Text>
                 <Text style={[styles.completeSubtitle, { color: C.textSecondary }]}>
                   {encouragementForDay(completedDay)}
@@ -473,7 +476,12 @@ export default function SessionScreen() {
 
                 {isMilestoneDay && milestone && (
                   <View style={[styles.milestoneRecapCard, { backgroundColor: C.accentBg, borderColor: C.accentLight }]}>
-                    <Text style={styles.milestoneRecapEmoji}>&#127942;</Text>
+                    <LinearGradient
+                      colors={[C.accentDark, C.accentDeep]}
+                      style={styles.milestoneRecapBadge}
+                    >
+                      <Text style={styles.milestoneRecapEmoji}>&#127942;</Text>
+                    </LinearGradient>
                     <View style={styles.milestoneRecapTextWrap}>
                       <Text style={[styles.milestoneRecapLabel, { color: C.accentDark }]}>MILESTONE REACHED</Text>
                       <Text style={[styles.milestoneRecapMessage, { color: C.text }]}>{milestone.message}</Text>
@@ -481,7 +489,7 @@ export default function SessionScreen() {
                   </View>
                 )}
 
-                <View style={[styles.recapSection, { borderColor: C.border }]}>
+                <View style={[styles.recapSection, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
                   <Text style={[styles.recapSectionTitle, { color: C.textMuted }]}>WHAT YOU COVERED</Text>
                   {[
                     { label: 'Settle', color: sectionColorMap.settle, bg: sectionBgMap.settle },
@@ -490,11 +498,12 @@ export default function SessionScreen() {
                     { label: 'Silence', color: sectionColorMap.silence, bg: sectionBgMap.silence },
                     { label: 'Activate', color: sectionColorMap.act, bg: sectionBgMap.act },
                   ].map((item, i) => (
-                    <View key={i} style={styles.recapPhaseRow}>
+                    <View key={i} style={[styles.recapPhaseRow, i < 4 && { borderBottomWidth: 1, borderBottomColor: C.borderLight }]}>
                       <View style={[styles.recapPhaseCheck, { backgroundColor: item.bg }]}>
                         <Check size={12} color={item.color} strokeWidth={2.5} />
                       </View>
                       <Text style={[styles.recapPhaseTitle, { color: C.text }]}>{item.label}</Text>
+                      <Check size={14} color={C.sage} style={styles.recapCheckmark} />
                     </View>
                   ))}
                 </View>
@@ -758,12 +767,12 @@ const styles = StyleSheet.create({
     maxWidth: 200,
   },
   phaseDot: {
-    width: 16,
+    width: 18,
     height: 3,
     borderRadius: 2,
   },
   phaseDotActive: {
-    width: 28,
+    width: 32,
   },
   scrollContent: {
     flexGrow: 1,
@@ -808,7 +817,7 @@ const styles = StyleSheet.create({
   },
   phaseText: {
     fontSize: 17,
-    lineHeight: 28,
+    lineHeight: 30,
     letterSpacing: 0.15,
   },
   phaseTextLarge: {
@@ -912,15 +921,15 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   nextButton: {
-    borderRadius: 20,
+    borderRadius: 22,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 6,
   },
   nextButtonGradient: {
-    paddingVertical: 18,
+    paddingVertical: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -941,12 +950,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   completeBadgeOuter: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
+  },
+  completeBadgeRing: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
   },
   completeBadge: {
     width: 64,
@@ -955,11 +972,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  completeDayLabel: {
+    fontSize: 11,
+    fontWeight: '800' as const,
+    letterSpacing: 3,
+    marginBottom: 6,
+    textTransform: 'uppercase' as const,
+  },
   completeTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '700' as const,
     marginBottom: 8,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   completeSubtitle: {
     fontSize: 16,
@@ -970,16 +994,28 @@ const styles = StyleSheet.create({
   },
   milestoneRecapCard: {
     width: '100%',
-    borderRadius: 18,
-    padding: 18,
+    borderRadius: 20,
+    padding: 20,
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 24,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  milestoneRecapBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   milestoneRecapEmoji: {
-    fontSize: 28,
+    fontSize: 22,
   },
   milestoneRecapTextWrap: {
     flex: 1,
@@ -997,10 +1033,15 @@ const styles = StyleSheet.create({
   },
   recapSection: {
     width: '100%',
-    borderTopWidth: 1,
-    paddingTop: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 20,
     marginBottom: 32,
-    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
   },
   recapSectionTitle: {
     fontSize: 10,
@@ -1012,6 +1053,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    paddingVertical: 12,
+  },
+  recapCheckmark: {
+    marginLeft: 'auto' as const,
   },
   recapPhaseCheck: {
     width: 28,
@@ -1027,15 +1072,15 @@ const styles = StyleSheet.create({
   },
   doneButton: {
     width: '100%',
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 6,
   },
   doneButtonGradient: {
-    paddingVertical: 18,
+    paddingVertical: 20,
     alignItems: 'center',
   },
   doneButtonText: {

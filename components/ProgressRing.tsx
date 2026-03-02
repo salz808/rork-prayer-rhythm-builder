@@ -51,7 +51,8 @@ export default function ProgressRing({
         { width: size, height: size, transform: [{ scale: pulseAnim }] },
       ]}
     >
-      <View style={[styles.glowRing, { width: size + 20, height: size + 20, borderRadius: (size + 20) / 2, backgroundColor: C.accentBg }]} />
+      <View style={[styles.glowRing, { width: size + 28, height: size + 28, borderRadius: (size + 28) / 2, backgroundColor: C.accentBg }]} />
+      <View style={[styles.innerGlow, { width: size - 20, height: size - 20, borderRadius: (size - 20) / 2, backgroundColor: C.surfaceElevated }]} />
       <Svg width={size} height={size} style={styles.svg}>
         <Defs>
           <LinearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
@@ -94,7 +95,15 @@ const styles = StyleSheet.create({
   },
   glowRing: {
     position: 'absolute' as const,
-    opacity: 0.5,
+    opacity: 0.6,
+  },
+  innerGlow: {
+    position: 'absolute' as const,
+    opacity: 0.3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
   },
   svg: {
     position: 'absolute' as const,

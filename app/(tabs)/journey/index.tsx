@@ -7,7 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Check, Lock, Flame, Calendar, Clock, Award, TrendingUp } from 'lucide-react-native';
+import { Check, Lock, Flame, Calendar, Clock, Award, TrendingUp, Sparkles } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/providers/AppProvider';
 import { useColors } from '@/hooks/useColors';
@@ -134,7 +134,15 @@ export default function JourneyScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: headerSlide }] }}>
-            <Text style={[styles.screenTitle, { color: C.text }]}>Your Journey</Text>
+            <View style={styles.titleRow}>
+              <Text style={[styles.screenTitle, { color: C.text }]}>Your Journey</Text>
+              {completedDays > 0 && (
+                <View style={[styles.completedBadge, { backgroundColor: C.sageBg }]}>
+                  <Sparkles size={12} color={C.sage} />
+                  <Text style={[styles.completedBadgeText, { color: C.sageDark }]}>{completedDays}/30</Text>
+                </View>
+              )}
+            </View>
             <Text style={[styles.screenSubtitle, { color: C.textSecondary }]}>
               {completedDays === 0
                 ? 'Your story begins today.'
@@ -172,7 +180,9 @@ export default function JourneyScreen() {
           <Animated.View style={{ opacity: fadeAnim }}>
             <View style={[styles.overallProgressCard, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
               <View style={styles.overallProgressHeader}>
-                <TrendingUp size={14} color={C.accentDark} />
+                <View style={[styles.overallProgressIconWrap, { backgroundColor: C.accentBg }]}>
+                  <TrendingUp size={14} color={C.accentDark} />
+                </View>
                 <Text style={[styles.overallProgressLabel, { color: C.accentDark }]}>OVERALL PROGRESS</Text>
                 <Text style={[styles.overallProgressPercent, { color: C.text }]}>{progressPercent}%</Text>
               </View>
@@ -484,11 +494,28 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 40,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
   screenTitle: {
     fontSize: 30,
     fontWeight: '700' as const,
     letterSpacing: -0.5,
-    marginBottom: 4,
+  },
+  completedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  completedBadgeText: {
+    fontSize: 13,
+    fontWeight: '700' as const,
   },
   screenSubtitle: {
     fontSize: 15,
@@ -532,21 +559,28 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   overallProgressCard: {
-    borderRadius: 18,
-    padding: 18,
+    borderRadius: 20,
+    padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    gap: 10,
+    gap: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
   },
   overallProgressHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+  },
+  overallProgressIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   overallProgressLabel: {
     fontSize: 11,
@@ -561,13 +595,13 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   overallProgressTrack: {
-    height: 6,
-    borderRadius: 3,
+    height: 8,
+    borderRadius: 4,
     overflow: 'hidden',
   },
   overallProgressFill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 4,
   },
   overallProgressNote: {
     fontSize: 12,
@@ -621,15 +655,15 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
   nextMilestoneCard: {
-    borderRadius: 18,
-    padding: 20,
+    borderRadius: 20,
+    padding: 22,
     marginBottom: 28,
     borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
   },
   nextMilestoneHeader: {
     flexDirection: 'row',
@@ -664,10 +698,10 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '700' as const,
     marginBottom: 14,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
   },
   weeksContainer: {
     gap: 16,
@@ -727,12 +761,17 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   dayCell: {
-    width: 36,
-    height: 36,
+    width: 37,
+    height: 37,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
   },
   dayCellText: {
     fontSize: 12,
@@ -781,11 +820,16 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   graceNote: {
-    borderRadius: 18,
-    padding: 20,
+    borderRadius: 20,
+    padding: 22,
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
     borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
   },
   graceNoteAccent: {
     width: 3,
@@ -793,8 +837,9 @@ const styles = StyleSheet.create({
   },
   graceNoteText: {
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 23,
     flex: 1,
     fontWeight: '500' as const,
+    fontStyle: 'italic' as const,
   },
 });

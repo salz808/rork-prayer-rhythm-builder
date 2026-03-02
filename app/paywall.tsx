@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Heart, Globe, RefreshCw, Check, Sparkles } from 'lucide-react-native';
+import { X, Heart, Globe, RefreshCw, Check, Sparkles, ArrowRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useColors } from '@/hooks/useColors';
@@ -172,8 +172,11 @@ export default function PaywallScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-            <View style={[styles.iconWrap, { backgroundColor: C.accentBg }]}>
-              <Sparkles size={28} color={C.accentDark} />
+            <View style={styles.iconOuter}>
+              <View style={[styles.iconGlow, { backgroundColor: C.accentBg }]} />
+              <View style={[styles.iconWrap, { backgroundColor: C.accentBg }]}>
+                <Sparkles size={28} color={C.accentDark} />
+              </View>
             </View>
 
             <Text style={[styles.title, { color: C.text }]}>Support This Cause</Text>
@@ -256,12 +259,15 @@ export default function PaywallScreen() {
                         {isPurchasing ? (
                           <ActivityIndicator color={info.highlight ? C.white : C.accentDark} size="small" />
                         ) : (
-                          <Text style={[
-                            styles.cardButtonText,
-                            { color: info.highlight ? C.white : C.accentDark }
-                          ]}>
-                            Subscribe
-                          </Text>
+                          <View style={styles.cardButtonInner}>
+                            <Text style={[
+                              styles.cardButtonText,
+                              { color: info.highlight ? C.white : C.accentDark }
+                            ]}>
+                              Subscribe
+                            </Text>
+                            <ArrowRight size={14} color={info.highlight ? C.white : C.accentDark} />
+                          </View>
                         )}
                       </View>
                     </TouchableOpacity>
@@ -332,18 +338,29 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
   },
-  iconWrap: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+  iconOuter: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
+  },
+  iconGlow: {
+    position: 'absolute' as const,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    opacity: 0.5,
+  },
+  iconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '700' as const,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -365,10 +382,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    borderRadius: 20,
-    padding: 18,
+    borderRadius: 22,
+    padding: 20,
     position: 'relative' as const,
     overflow: 'hidden' as const,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
   },
   badge: {
     paddingHorizontal: 8,
@@ -424,7 +446,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   price: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700' as const,
     letterSpacing: -0.5,
   },
@@ -439,28 +461,39 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   cardButton: {
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 14,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardButtonInner: {
+    flexDirection: 'row' as const,
+    alignItems: 'center',
+    gap: 6,
+  },
   cardButtonText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700' as const,
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
   noteBox: {
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 18,
+    padding: 20,
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 24,
     width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
   },
   noteText: {
     fontSize: 13,
-    lineHeight: 21,
+    lineHeight: 22,
     textAlign: 'center',
     fontStyle: 'italic' as const,
+    letterSpacing: 0.1,
   },
   restoreBtn: {
     flexDirection: 'row' as const,

@@ -10,12 +10,13 @@ import {
 } from 'react-native';
 import { useRouter, Redirect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Play, Check, Flame, RotateCcw, Sun, Moon, Sunrise, Sunset, Settings2, AlertTriangle, Heart, Globe } from 'lucide-react-native';
+import { Play, Check, Flame, RotateCcw, Sun, Moon, Sunrise, Sunset, Settings2, AlertTriangle, Heart, ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/providers/AppProvider';
 import { useColors } from '@/hooks/useColors';
 import { getDayContent, getPhaseLabel } from '@/mocks/content';
+import { getDailyEncouragement } from '@/mocks/encouragements';
 import ProgressRing from '@/components/ProgressRing';
 import SettingsSheet from '@/components/SettingsSheet';
 import AnimatedPressable from '@/components/AnimatedPressable';
@@ -38,9 +39,11 @@ export default function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(0)).current;
   const breatheAnim = useRef(new Animated.Value(0.3)).current;
+  const quoteAnim = useRef(new Animated.Value(0)).current;
 
   const timeOfDay = useMemo(() => getTimeOfDay(), []);
   const TimeIcon = timeOfDay.icon;
+  const encouragement = useMemo(() => getDailyEncouragement(), []);
 
   useEffect(() => {
     Animated.stagger(100, [
@@ -63,8 +66,13 @@ export default function HomeScreen() {
         friction: 8,
         useNativeDriver: true,
       }),
+      Animated.timing(quoteAnim, {
+        toValue: 1,
+        duration: 900,
+        useNativeDriver: true,
+      }),
     ]).start();
-  }, [scaleAnim, fadeAnim, buttonAnim]);
+  }, [scaleAnim, fadeAnim, buttonAnim, quoteAnim]);
 
   useEffect(() => {
     Animated.loop(
@@ -239,6 +247,20 @@ export default function HomeScreen() {
             <Text style={[styles.dayTitle, { color: C.text }]}>{dayContent.title}</Text>
           </Animated.View>
 
+          <Animated.View style={[styles.quoteSection, { opacity: quoteAnim }]}>
+            <View style={[styles.quoteCard, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
+              <View style={[styles.quoteAccent, { backgroundColor: C.accentDark }]} />
+              <View style={styles.quoteContent}>
+                <Text style={[styles.quoteText, { color: C.textSecondary }]}>
+                  {`\u201C${encouragement.text}\u201D`}
+                </Text>
+                <Text style={[styles.quoteAuthor, { color: C.textMuted }]}>
+                  — {encouragement.author}
+                </Text>
+              </View>
+            </View>
+          </Animated.View>
+
           <Animated.View style={[styles.supportSection, { opacity: fadeAnim }]}>
             <TouchableOpacity
               style={[styles.supportCauseBtn, { backgroundColor: C.surface, borderColor: C.border }]}
@@ -256,7 +278,7 @@ export default function HomeScreen() {
                 <Text style={[styles.supportCauseTitle, { color: C.text }]}>Support This Cause</Text>
                 <Text style={[styles.supportCauseSub, { color: C.textMuted }]}>Fund development & global missions</Text>
               </View>
-              <Globe size={16} color={C.textMuted} />
+              <ChevronRight size={16} color={C.textMuted} />
             </TouchableOpacity>
           </Animated.View>
 
@@ -281,7 +303,7 @@ export default function HomeScreen() {
                 <View style={[styles.completedIcon, { backgroundColor: C.sage }]}>
                   <Check size={18} color="#FFFFFF" strokeWidth={2.5} />
                 </View>
-                <View>
+                <View style={styles.completedTextWrap}>
                   <Text style={[styles.completedTodayText, { color: C.sageDark }]}>Today{"'"}s prayer complete</Text>
                   <Text style={[styles.completedTodaySubtext, { color: C.sage }]}>Come back tomorrow</Text>
                 </View>
@@ -413,7 +435,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   dayNumber: {
-    fontSize: 52,
+    fontSize: 56,
     fontWeight: '200' as const,
     letterSpacing: -3,
   },
@@ -439,10 +461,11 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
   },
   dayTitle: {
-    fontSize: 26,
+    fontSize: 27,
     fontWeight: '700' as const,
     letterSpacing: -0.5,
     textAlign: 'center',
+    lineHeight: 34,
   },
   buttonContainer: {
     alignItems: 'center',
@@ -451,15 +474,15 @@ const styles = StyleSheet.create({
   },
   beginButton: {
     width: '100%',
-    borderRadius: 22,
+    borderRadius: 24,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 24,
+    elevation: 8,
   },
   beginButtonGradient: {
-    paddingVertical: 18,
+    paddingVertical: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -469,18 +492,21 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700' as const,
     color: '#FFFFFF',
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
   },
   completedToday: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingVertical: 16,
+    gap: 12,
+    paddingVertical: 18,
     paddingHorizontal: 28,
     borderRadius: 22,
     width: '100%',
     justifyContent: 'center',
     borderWidth: 1,
+  },
+  completedTextWrap: {
+    alignItems: 'flex-start',
   },
   completedIcon: {
     width: 28,
@@ -564,6 +590,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600' as const,
   },
+  quoteSection: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  quoteCard: {
+    borderRadius: 18,
+    padding: 18,
+    flexDirection: 'row',
+    borderWidth: 1,
+    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  quoteAccent: {
+    width: 3,
+    borderRadius: 2,
+    minHeight: 40,
+  },
+  quoteContent: {
+    flex: 1,
+    gap: 8,
+  },
+  quoteText: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontStyle: 'italic' as const,
+    letterSpacing: 0.1,
+  },
+  quoteAuthor: {
+    fontSize: 11,
+    fontWeight: '600' as const,
+    letterSpacing: 0.3,
+  },
   supportSection: {
     width: '100%',
     marginBottom: 24,
@@ -575,6 +637,11 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
   },
   supportCauseIcon: {
     width: 38,

@@ -16,19 +16,19 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: C.surfaceElevated,
           borderTopColor: C.borderLight,
-          borderTopWidth: 1,
+          borderTopWidth: 0.5,
           ...(Platform.OS === 'web' ? {} : {
-            shadowColor: C.text,
-            shadowOffset: { width: 0, height: -4 },
-            shadowOpacity: 0.04,
-            shadowRadius: 12,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -6 },
+            shadowOpacity: 0.08,
+            shadowRadius: 16,
           }),
-          elevation: 8,
+          elevation: 12,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600' as const,
-          letterSpacing: 0.2,
+          letterSpacing: 0.3,
         },
         tabBarIconStyle: {
           marginBottom: -2,
