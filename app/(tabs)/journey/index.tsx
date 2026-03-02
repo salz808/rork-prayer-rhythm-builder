@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,17 +15,26 @@ import { milestones } from '@/mocks/content';
 import { DayProgress } from '@/types';
 
 function useAnimatedCounter(targetValue: number, duration: number = 800) {
+  const [displayValue, setDisplayValue] = useState(0);
   const animValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    const listenerId = animValue.addListener(({ value }) => {
+      setDisplayValue(Math.round(value));
+    });
+
     Animated.timing(animValue, {
       toValue: targetValue,
       duration,
       useNativeDriver: false,
     }).start();
+
+    return () => {
+      animValue.removeListener(listenerId);
+    };
   }, [targetValue, animValue, duration]);
 
-  return animValue;
+  return displayValue;
 }
 
 function AnimatedStatCard({
@@ -46,7 +55,7 @@ function AnimatedStatCard({
   const C = useColors();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
-  const counterAnim = useAnimatedCounter(value);
+  const displayValue = useAnimatedCounter(value);
 
   useEffect(() => {
     Animated.sequence([
@@ -57,14 +66,6 @@ function AnimatedStatCard({
       ]),
     ]).start();
   }, [fadeAnim, slideAnim, delay]);
-
-  const displayValue = useMemo(() => {
-    return counterAnim.interpolate({
-      inputRange: [0, value || 1],
-      outputRange: ['0', String(value)],
-      extrapolate: 'clamp',
-    });
-  }, [counterAnim, value]);
 
   return (
     <Animated.View
@@ -81,9 +82,9 @@ function AnimatedStatCard({
       <View style={[styles.statIcon, { backgroundColor: iconBg }]}>
         <Icon size={16} color={iconColor} />
       </View>
-      <Animated.Text style={[styles.statValue, { color: C.text }]}>
+      <Text style={[styles.statValue, { color: C.text }]}>
         {displayValue}
-      </Animated.Text>
+      </Text>
       <Text style={[styles.statLabel, { color: C.textMuted }]}>{label}</Text>
     </Animated.View>
   );
