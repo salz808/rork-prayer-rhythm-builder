@@ -1,0 +1,106 @@
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { useColors } from '@/hooks/useColors';
+
+interface ProgressRingProps {
+  progress: number;
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
+  backgroundColor?: string;
+  children?: React.ReactNode;
+}
+
+export default function ProgressRing({
+  progress,
+  size = 200,
+  strokeWidth = 6,
+  color,
+  backgroundColor,
+  children,
+}: ProgressRingProps) {
+  const C = useColors();
+  const ringBg = backgroundColor ?? C.borderLight;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const radius = (size - strokeWidth * 2) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const clampedProgress = Math.min(Math.max(progress, 0), 1);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.02,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [pulseAnim]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        { width: size, height: size, transform: [{ scale: pulseAnim }] },
+      ]}
+    >
+      <View style={[styles.glowRing, { width: size + 20, height: size + 20, borderRadius: (size + 20) / 2, backgroundColor: C.accentBg }]} />
+      <Svg width={size} height={size} style={styles.svg}>
+        <Defs>
+          <LinearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor={C.accent} stopOpacity="1" />
+            <Stop offset="1" stopColor={C.accentDeep} stopOpacity="1" />
+          </LinearGradient>
+        </Defs>
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={ringBg}
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="url(#ringGrad)"
+          strokeWidth={strokeWidth + 1}
+          fill="none"
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={circumference * (1 - clampedProgress)}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+      <View style={styles.content}>
+        {children}
+      </View>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glowRing: {
+    position: 'absolute' as const,
+    opacity: 0.5,
+  },
+  svg: {
+    position: 'absolute' as const,
+  },
+  content: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
