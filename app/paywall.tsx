@@ -217,12 +217,6 @@ export default function PaywallScreen() {
                       disabled={purchaseMutation.isPending || restoreMutation.isPending}
                       testID={`purchase-${info.pkg.identifier}`}
                     >
-                      {info.highlight && (
-                        <View style={[styles.badge, { backgroundColor: C.accentDark }]}>
-                          <Text style={styles.badgeText}>MISSIONS</Text>
-                        </View>
-                      )}
-
                       <View style={styles.cardTop}>
                         <View style={[
                           styles.cardIcon,
@@ -231,18 +225,26 @@ export default function PaywallScreen() {
                           <Icon size={20} color={info.highlight ? C.white : C.accentDark} />
                         </View>
                         <View style={styles.cardTitleGroup}>
-                          <Text style={[styles.cardTitle, { color: C.text }]}>{info.title}</Text>
+                          <View style={styles.titleRow}>
+                            <Text style={[styles.cardTitle, { color: C.text }]}>{info.title}</Text>
+                            {info.highlight && (
+                              <View style={[styles.badge, { backgroundColor: C.accentDark }]}>
+                                <Text style={styles.badgeText}>MISSIONS</Text>
+                              </View>
+                            )}
+                          </View>
                           <View style={styles.impactRow}>
                             <Check size={11} color={C.sage} strokeWidth={2.5} />
                             <Text style={[styles.cardImpact, { color: C.sageDark }]}>{info.impact}</Text>
                           </View>
                         </View>
-                        <View style={styles.priceGroup}>
-                          <Text style={[styles.price, { color: info.highlight ? C.accentDark : C.text }]}>
-                            {info.price}
-                          </Text>
-                          <Text style={[styles.priceFreq, { color: C.textMuted }]}>/mo</Text>
-                        </View>
+                      </View>
+
+                      <View style={styles.priceRow}>
+                        <Text style={[styles.price, { color: info.highlight ? C.accentDark : C.text }]}>
+                          {info.price}
+                        </Text>
+                        <Text style={[styles.priceFreq, { color: C.textMuted }]}>/mo</Text>
                       </View>
 
                       <Text style={[styles.cardDesc, { color: C.textSecondary }]}>{info.description}</Text>
@@ -369,12 +371,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden' as const,
   },
   badge: {
-    position: 'absolute' as const,
-    top: 14,
-    right: 14,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
+    marginLeft: 8,
   },
   badgeText: {
     fontSize: 9,
@@ -399,6 +399,10 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 3,
   },
+  titleRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center',
+  },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
@@ -413,8 +417,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500' as const,
   },
-  priceGroup: {
-    alignItems: 'flex-end',
+  priceRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'baseline',
+    gap: 2,
+    marginBottom: 6,
   },
   price: {
     fontSize: 22,
