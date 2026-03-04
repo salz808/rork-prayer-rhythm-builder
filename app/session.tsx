@@ -113,6 +113,8 @@ export default function SessionScreen() {
   const breathLoopAnim = useRef<Animated.CompositeAnimation | null>(null);
   const completeScaleAnim = useRef(new Animated.Value(0.8)).current;
   const soundRef = useRef<Audio.Sound | null>(null);
+  const audioStartedRef = useRef(false);
+  const fadeInIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentStep = steps[currentStepIndex];
   const totalSteps = steps.length;
@@ -143,6 +145,11 @@ export default function SessionScreen() {
 
   const audioUrl = SOUNDSCAPE_URLS[state.soundscape] ?? null;
 
+  const isInPrayerZone = useMemo(() => {
+    const firstTriadIndex = steps.findIndex(s => s.type === 'triad');
+    return currentStepIndex >= firstTriadIndex;
+  }, [currentStepIndex, steps]);
+
   useEffect(() => {
     if (!audioUrl) return;
     let mounted = true;
@@ -156,9 +163,9 @@ export default function SessionScreen() {
         const { sound } = await Audio.Sound.createAsync(
           { uri: audioUrl },
           {
-            shouldPlay: !state.ambientMuted,
+            shouldPlay: false,
             isLooping: true,
-            volume: state.ambientMuted ? 0 : 0.3,
+            volume: 0,
           }
         );
         if (!mounted) {
@@ -166,7 +173,7 @@ export default function SessionScreen() {
           return;
         }
         soundRef.current = sound;
-        console.log('[Session] Ambient audio loaded:', state.soundscape);
+        console.log('[Session] Ambient audio loaded (waiting for prayer zone):', state.soundscape);
       } catch (e) {
         console.log('[Session] Failed to load ambient audio:', e);
       }
@@ -174,6 +181,10 @@ export default function SessionScreen() {
     loadAudio();
     return () => {
       mounted = false;
+      if (fadeInIntervalRef.current) {
+        clearInterval(fadeInIntervalRef.current);
+        fadeInIntervalRef.current = null;
+      }
       if (soundRef.current) {
         soundRef.current.unloadAsync();
         soundRef.current = null;
@@ -182,12 +193,50 @@ export default function SessionScreen() {
   }, []);
 
   useEffect(() => {
+    if (!isInPrayerZone || audioStartedRef.current || !soundRef.current) return;
+    if (state.ambientMuted || state.soundscape === 'silence') {
+      audioStartedRef.current = true;
+      return;
+    }
+    audioStartedRef.current = true;
+    console.log('[Session] Starting audio with 3s fade-in');
+    const fadeIn = async () => {
+      try {
+        await soundRef.current!.setVolumeAsync(0);
+        await soundRef.current!.playAsync();
+        const TARGET = 0.3;
+        const STEPS = 15;
+        let s = 0;
+        fadeInIntervalRef.current = setInterval(async () => {
+          s++;
+          try {
+            await soundRef.current?.setVolumeAsync(Math.min((s / STEPS) * TARGET, TARGET));
+          } catch {}
+          if (s >= STEPS) {
+            if (fadeInIntervalRef.current) {
+              clearInterval(fadeInIntervalRef.current);
+              fadeInIntervalRef.current = null;
+            }
+          }
+        }, 200);
+      } catch (e) {
+        console.log('[Session] Error fading in audio:', e);
+      }
+    };
+    fadeIn();
+  }, [isInPrayerZone, state.ambientMuted, state.soundscape]);
+
+  useEffect(() => {
     const updateVolume = async () => {
-      if (!soundRef.current) return;
+      if (!soundRef.current || !audioStartedRef.current) return;
       try {
         if (state.ambientMuted) {
+          if (fadeInIntervalRef.current) {
+            clearInterval(fadeInIntervalRef.current);
+            fadeInIntervalRef.current = null;
+          }
           await soundRef.current.setVolumeAsync(0);
-        } else {
+        } else if (isInPrayerZone) {
           await soundRef.current.setVolumeAsync(0.3);
           const status = await soundRef.current.getStatusAsync();
           if (status.isLoaded && !status.isPlaying) {
@@ -199,7 +248,7 @@ export default function SessionScreen() {
       }
     };
     updateVolume();
-  }, [state.ambientMuted]);
+  }, [state.ambientMuted, isInPrayerZone]);
 
   useEffect(() => {
     const handlePause = async () => {

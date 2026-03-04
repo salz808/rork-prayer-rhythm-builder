@@ -23,7 +23,7 @@ const allDays: DayContent[] = [
     day: 1,
     title: 'You Were Made for Wholeness',
     phase: 'Days 1-7: Fully Scripted',
-    settle: "Close your eyes for just a moment. Let the weight fall from your shoulders. You are not approaching a distant God — you are stepping into the arms of a Father who has been waiting for you. Not with a list of your failures, but with a plan for your wholeness. Breathe in slowly. Spirit, soul, and body — He wants all of you well. Let that be real.",
+    settle: "Take a slow, deep breath. Let the weight fall from your shoulders. You are not approaching a distant God — you are stepping into the arms of a Father who has been waiting for you. Not with a list of your failures, but with a plan for your wholeness. Breathe in slowly. Spirit, soul, and body — He wants all of you well. Let that be real.",
     teach: "Prayer is not you trying harder to reach God. Prayer is you waking up to where He already is — and who He already made you to be. He's not on the other side of your performance. He never left. You're not climbing toward Him — He stepped into your brokenness and said, 'I came to make you whole.' 1 Thessalonians 5:23 says it plainly: May God Himself sanctify you completely — spirit, soul, and body. That's not a wish. That's His will. Today we pray together. Every word is a gift — receive it.",
     triad: [
       { label: 'Thank & Praise', text: "Father God, thank You. Not because I have it figured out — but because You are good and You are here. You didn't just come to save me — You came to make me whole. Every broken place, every wounded part of my spirit, soul, and body — You have a plan for all of it. I praise You because You are a God of complete restoration." },
@@ -119,7 +119,7 @@ const allDays: DayContent[] = [
     day: 7,
     title: 'One Week In — Something Is Shifting',
     phase: 'Days 1-7: Fully Scripted',
-    settle: "Seven days. Close your eyes and let that land. You showed up seven times. That is not normal. That is not average. That is someone who decided to pursue wholeness. And God noticed every single one.",
+    settle: "Seven days. Pause and let that settle. You showed up seven times. That is not normal. That is not average. That is someone who decided to pursue wholeness. And God noticed every single one.",
     teach: "Seven days of turning your heart toward God carves something deep — a groove in the soul. You are not the same person who started on Day 1. The seed is in the ground. You can't see the root system from above, but it's there. It's growing. Wholeness is not an event — it's a journey. It doesn't happen in one prayer or one week. But something has shifted. The strongholds are weaker. The access points are closing. Your spirit is more alive than it was seven days ago. Don't stop now.",
     triad: [
       { label: 'Thank & Praise', text: "Father God, I want to thank You for this week. Not just for blessings I can list — but for the conversations we've had. For the moments where I felt You near. For the days I didn't feel much and showed up anyway. You were in all of it. I praise You for faithfulness that doesn't fluctuate with my mood — and for a wholeness plan that is always in motion." },

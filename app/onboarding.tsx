@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, Clock, Sparkles } from 'lucide-react-native';
+import { ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/colors';
@@ -20,7 +20,7 @@ import { useApp, scheduleReminderNotification } from '@/providers/AppProvider';
 import { prayerLifeOptions } from '@/mocks/content';
 import { UserProfile } from '@/types';
 
-type Step = 'name' | 'prayerLife' | 'reminder';
+type Step = 'welcome' | 'name' | 'prayerLife' | 'reminder';
 
 const REMINDER_TIMES = [
   { label: 'Early Morning', value: '6:00 AM', description: 'Before the day begins', emoji: '🌅' },
@@ -30,43 +30,92 @@ const REMINDER_TIMES = [
   { label: 'Night', value: '9:00 PM', description: 'End the day in peace', emoji: '🌙' },
 ];
 
+const OPTION_EMOJIS = ['🌱', '🔄', '⛰️'];
+
 export default function OnboardingScreen() {
   const router = useRouter();
   const { completeOnboarding } = useApp();
-  const [step, setStep] = useState<Step>('name');
+  const [step, setStep] = useState<Step>('welcome');
   const [firstName, setFirstName] = useState('');
   const [prayerLife, setPrayerLife] = useState<UserProfile['prayerLife'] | null>(null);
   const [reminderTime, setReminderTime] = useState<string>('8:00 AM');
+
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const glowAnim = useRef(new Animated.Value(0.4)).current;
+
+  const orbScale1 = useRef(new Animated.Value(0.7)).current;
+  const orbScale2 = useRef(new Animated.Value(0.5)).current;
+  const orbOpacity1 = useRef(new Animated.Value(0.2)).current;
+  const orbOpacity2 = useRef(new Animated.Value(0.15)).current;
+
+  const welcomeTitleFade = useRef(new Animated.Value(0)).current;
+  const welcomeTitleSlide = useRef(new Animated.Value(30)).current;
+  const welcomeSubFade = useRef(new Animated.Value(0)).current;
+  const welcomeSubSlide = useRef(new Animated.Value(20)).current;
+  const welcomeFeatureFade = useRef(new Animated.Value(0)).current;
+  const welcomeButtonFade = useRef(new Animated.Value(0)).current;
+  const welcomeButtonSlide = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
+    if (step !== 'welcome') return;
+
     Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnim, { toValue: 0.8, duration: 2500, useNativeDriver: true }),
-        Animated.timing(glowAnim, { toValue: 0.4, duration: 2500, useNativeDriver: true }),
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(orbScale1, { toValue: 1.15, duration: 4000, useNativeDriver: true }),
+          Animated.timing(orbScale1, { toValue: 0.7, duration: 4000, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(orbScale2, { toValue: 0.95, duration: 3200, useNativeDriver: true }),
+          Animated.timing(orbScale2, { toValue: 0.5, duration: 3200, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(orbOpacity1, { toValue: 0.45, duration: 4000, useNativeDriver: true }),
+          Animated.timing(orbOpacity1, { toValue: 0.2, duration: 4000, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(orbOpacity2, { toValue: 0.35, duration: 3200, useNativeDriver: true }),
+          Animated.timing(orbOpacity2, { toValue: 0.15, duration: 3200, useNativeDriver: true }),
+        ]),
       ])
     ).start();
-  }, [glowAnim]);
+
+    Animated.stagger(350, [
+      Animated.parallel([
+        Animated.timing(welcomeTitleFade, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.spring(welcomeTitleSlide, { toValue: 0, tension: 40, friction: 10, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(welcomeSubFade, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.spring(welcomeSubSlide, { toValue: 0, tension: 50, friction: 10, useNativeDriver: true }),
+      ]),
+      Animated.timing(welcomeFeatureFade, { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.parallel([
+        Animated.timing(welcomeButtonFade, { toValue: 1, duration: 600, useNativeDriver: true }),
+        Animated.spring(welcomeButtonSlide, { toValue: 0, tension: 50, friction: 10, useNativeDriver: true }),
+      ]),
+    ]).start();
+  }, [step, orbScale1, orbScale2, orbOpacity1, orbOpacity2, welcomeTitleFade, welcomeTitleSlide, welcomeSubFade, welcomeSubSlide, welcomeFeatureFade, welcomeButtonFade, welcomeButtonSlide]);
 
   const transitionTo = (nextStep: Step) => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: -40, duration: 180, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: -50, duration: 200, useNativeDriver: true }),
     ]).start(() => {
       setStep(nextStep);
-      slideAnim.setValue(40);
+      slideAnim.setValue(50);
       Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 350, useNativeDriver: true }),
-        Animated.spring(slideAnim, { toValue: 0, tension: 60, friction: 10, useNativeDriver: true }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 10, useNativeDriver: true }),
       ]).start();
     });
   };
 
   const handleNext = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (step === 'name' && firstName.trim()) {
+    if (step === 'welcome') {
+      transitionTo('name');
+    } else if (step === 'name' && firstName.trim()) {
       transitionTo('prayerLife');
     } else if (step === 'prayerLife' && prayerLife) {
       transitionTo('reminder');
@@ -84,12 +133,13 @@ export default function OnboardingScreen() {
   };
 
   const canProceed = () => {
+    if (step === 'welcome') return true;
     if (step === 'name') return firstName.trim().length > 0;
     if (step === 'prayerLife') return prayerLife !== null;
     return true;
   };
 
-  const stepNumber = step === 'name' ? 1 : step === 'prayerLife' ? 2 : 3;
+  const stepIndex = step === 'welcome' ? 0 : step === 'name' ? 1 : step === 'prayerLife' ? 2 : 3;
 
   return (
     <>
@@ -103,139 +153,220 @@ export default function OnboardingScreen() {
             style={styles.flex}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           >
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
+            {step !== 'welcome' && (
               <View style={styles.stepIndicator}>
-                {[1, 2, 3].map(i => (
+                {[0, 1, 2, 3].map(i => (
                   <View
                     key={i}
                     style={[
                       styles.stepDot,
-                      i === stepNumber && styles.stepDotActive,
-                      i < stepNumber && styles.stepDotComplete,
+                      i === stepIndex && styles.stepDotActive,
+                      i < stepIndex && styles.stepDotComplete,
                     ]}
                   />
                 ))}
               </View>
+            )}
 
-              <Animated.View
-                style={[
-                  styles.content,
-                  { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-                ]}
-              >
-                {step === 'name' && (
-                  <View>
-                    <Animated.View style={[styles.welcomeGlow, { opacity: glowAnim }]} />
-                    <View style={styles.brandRow}>
-                      <Sparkles size={16} color={Colors.accentDark} />
-                      <Text style={styles.label}>Welcome to</Text>
-                    </View>
-                    <Text style={styles.title}>First 30</Text>
-                    <Text style={styles.subtitle}>
-                      30 days to build a prayer life{'\n'}that stays with you.
-                    </Text>
-                    <View style={styles.inputContainer}>
-                      <Text style={styles.inputLabel}>What's your first name?</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={firstName}
-                        onChangeText={setFirstName}
-                        placeholder="Your name"
-                        placeholderTextColor={Colors.textMuted}
-                        autoFocus
-                        autoCapitalize="words"
-                        returnKeyType="next"
-                        onSubmitEditing={handleNext}
-                        testID="onboarding-name-input"
-                      />
-                    </View>
+            <ScrollView
+              contentContainerStyle={[
+                styles.scrollContent,
+                step === 'welcome' && styles.welcomeScrollContent,
+              ]}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {step === 'welcome' ? (
+                <View style={styles.welcomeContainer}>
+                  <View style={styles.welcomeOrbContainer}>
+                    <Animated.View
+                      style={[
+                        styles.welcomeOrbOuter,
+                        { opacity: orbOpacity1, transform: [{ scale: orbScale1 }] },
+                      ]}
+                    />
+                    <Animated.View
+                      style={[
+                        styles.welcomeOrbMid,
+                        { opacity: orbOpacity2, transform: [{ scale: orbScale2 }] },
+                      ]}
+                    />
+                    <View style={styles.welcomeOrbCore} />
                   </View>
-                )}
 
-                {step === 'prayerLife' && (
-                  <View>
-                    <Text style={styles.title}>Hi, {firstName}.</Text>
-                    <Text style={styles.subtitle}>
-                      How would you describe{'\n'}your prayer life right now?
+                  <Animated.View
+                    style={[
+                      styles.welcomeBrand,
+                      { opacity: welcomeTitleFade, transform: [{ translateY: welcomeTitleSlide }] },
+                    ]}
+                  >
+                    <Text style={styles.welcomeFirstLabel}>FIRST</Text>
+                    <Text style={styles.welcomeNumber}>30</Text>
+                  </Animated.View>
+
+                  <Animated.View
+                    style={{ opacity: welcomeSubFade, transform: [{ translateY: welcomeSubSlide }] }}
+                  >
+                    <Text style={styles.welcomeTagline}>
+                      A 30-day guided journey{'\n'}into the heart of prayer
                     </Text>
-                    <View style={styles.optionsContainer}>
-                      {prayerLifeOptions.map(option => {
-                        const isSelected = prayerLife === option.value;
-                        return (
-                          <TouchableOpacity
-                            key={option.value}
-                            style={[
-                              styles.optionCard,
-                              isSelected && styles.optionCardSelected,
-                            ]}
-                            onPress={() => {
-                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                              setPrayerLife(option.value);
-                            }}
-                            activeOpacity={0.7}
-                            testID={`option-${option.value}`}
-                          >
-                            <View style={[styles.optionRadio, isSelected && styles.optionRadioSelected]}>
-                              {isSelected && <View style={styles.optionRadioDot} />}
-                            </View>
-                            <View style={styles.optionTextWrap}>
-                              <Text
-                                style={[
-                                  styles.optionLabel,
-                                  isSelected && styles.optionLabelSelected,
-                                ]}
-                              >
-                                {option.label}
-                              </Text>
-                              <Text
-                                style={[
-                                  styles.optionDescription,
-                                  isSelected && styles.optionDescriptionSelected,
-                                ]}
-                              >
-                                {option.description}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      })}
+                  </Animated.View>
+
+                  <Animated.View style={[styles.welcomeFeatures, { opacity: welcomeFeatureFade }]}>
+                    <Text style={styles.welcomeFeatureText}>spirit</Text>
+                    <View style={styles.welcomeFeatureDot} />
+                    <Text style={styles.welcomeFeatureText}>soul</Text>
+                    <View style={styles.welcomeFeatureDot} />
+                    <Text style={styles.welcomeFeatureText}>body</Text>
+                  </Animated.View>
+
+                  <Animated.View style={[styles.welcomePhases, { opacity: welcomeFeatureFade }]}>
+                    {['Guided Prayer', 'Finding Your Voice', 'You Lead', 'Freedom'].map((phase, i) => (
+                      <View key={phase} style={styles.welcomePhaseRow}>
+                        <View style={[styles.welcomePhaseNum, i === 0 && styles.welcomePhaseNumFirst]}>
+                          <Text style={[styles.welcomePhaseNumText, i === 0 && styles.welcomePhaseNumTextFirst]}>
+                            {i + 1}
+                          </Text>
+                        </View>
+                        <Text style={[styles.welcomePhaseLabel, i === 0 && styles.welcomePhaseLabelFirst]}>
+                          {phase}
+                        </Text>
+                      </View>
+                    ))}
+                  </Animated.View>
+                </View>
+              ) : (
+                <Animated.View
+                  style={[
+                    styles.content,
+                    { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+                  ]}
+                >
+                  {step === 'name' && (
+                    <View>
+                      <View style={styles.stepLabelRow}>
+                        <View style={styles.stepLabelDot} />
+                        <Text style={styles.stepLabel}>WELCOME</Text>
+                      </View>
+                      <Text style={styles.title}>What should{'\n'}we call you?</Text>
+                      <Text style={styles.subtitle}>
+                        We{"'"}ll use your name to make{'\n'}this journey personal.
+                      </Text>
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={styles.input}
+                          value={firstName}
+                          onChangeText={setFirstName}
+                          placeholder="Your first name"
+                          placeholderTextColor={Colors.textMuted}
+                          autoFocus
+                          autoCapitalize="words"
+                          returnKeyType="next"
+                          onSubmitEditing={handleNext}
+                          testID="onboarding-name-input"
+                        />
+                        <Animated.View
+                          style={[
+                            styles.inputUnderline,
+                            {
+                              backgroundColor: firstName.trim() ? Colors.accentDark : Colors.border,
+                            },
+                          ]}
+                        />
+                      </View>
+                      <View style={styles.nameEncouragement}>
+                        <Text style={styles.nameEncouragementText}>
+                          God already knows it. We just want to say it back to you.
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                )}
+                  )}
 
-                {step === 'reminder' && (
-                  <View>
-                    <Text style={styles.title}>When works best?</Text>
-                    <Text style={styles.subtitle}>
-                      We'll send a gentle reminder{'\n'}to keep your rhythm going.
-                    </Text>
-                    <View style={styles.optionsContainer}>
-                      {REMINDER_TIMES.map(time => {
-                        const isSelected = reminderTime === time.value;
-                        return (
-                          <TouchableOpacity
-                            key={time.value}
-                            style={[
-                              styles.timeCard,
-                              isSelected && styles.timeCardSelected,
-                            ]}
-                            onPress={() => {
-                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                              setReminderTime(time.value);
-                            }}
-                            activeOpacity={0.7}
-                          >
-                            <View style={styles.timeLeft}>
-                              <View style={[styles.timeIconWrap, isSelected && styles.timeIconWrapSelected]}>
-                                <Clock
-                                  size={16}
-                                  color={isSelected ? Colors.accentDark : Colors.textMuted}
-                                />
+                  {step === 'prayerLife' && (
+                    <View>
+                      <View style={styles.stepLabelRow}>
+                        <View style={styles.stepLabelDot} />
+                        <Text style={styles.stepLabel}>YOUR JOURNEY</Text>
+                      </View>
+                      <Text style={styles.title}>Hi, {firstName}.</Text>
+                      <Text style={styles.subtitle}>
+                        Where are you in your{'\n'}prayer life right now?
+                      </Text>
+                      <View style={styles.optionsContainer}>
+                        {prayerLifeOptions.map((option, index) => {
+                          const isSelected = prayerLife === option.value;
+                          return (
+                            <TouchableOpacity
+                              key={option.value}
+                              style={[
+                                styles.optionCard,
+                                isSelected && styles.optionCardSelected,
+                              ]}
+                              onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setPrayerLife(option.value);
+                              }}
+                              activeOpacity={0.7}
+                              testID={`option-${option.value}`}
+                            >
+                              <View style={[styles.optionEmoji, isSelected && styles.optionEmojiSelected]}>
+                                <Text style={styles.optionEmojiText}>{OPTION_EMOJIS[index]}</Text>
                               </View>
+                              <View style={styles.optionTextWrap}>
+                                <Text
+                                  style={[
+                                    styles.optionLabel,
+                                    isSelected && styles.optionLabelSelected,
+                                  ]}
+                                >
+                                  {option.label}
+                                </Text>
+                                <Text
+                                  style={[
+                                    styles.optionDescription,
+                                    isSelected && styles.optionDescriptionSelected,
+                                  ]}
+                                >
+                                  {option.description}
+                                </Text>
+                              </View>
+                              <View style={[styles.optionRadio, isSelected && styles.optionRadioSelected]}>
+                                {isSelected && <View style={styles.optionRadioDot} />}
+                              </View>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  )}
+
+                  {step === 'reminder' && (
+                    <View>
+                      <View style={styles.stepLabelRow}>
+                        <View style={styles.stepLabelDot} />
+                        <Text style={styles.stepLabel}>DAILY RHYTHM</Text>
+                      </View>
+                      <Text style={styles.title}>When works{'\n'}best for you?</Text>
+                      <Text style={styles.subtitle}>
+                        We{"'"}ll send a gentle reminder{'\n'}to keep your rhythm going.
+                      </Text>
+                      <View style={styles.optionsContainer}>
+                        {REMINDER_TIMES.map(time => {
+                          const isSelected = reminderTime === time.value;
+                          return (
+                            <TouchableOpacity
+                              key={time.value}
+                              style={[
+                                styles.timeCard,
+                                isSelected && styles.timeCardSelected,
+                              ]}
+                              onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setReminderTime(time.value);
+                              }}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.timeEmoji}>{time.emoji}</Text>
                               <View style={styles.timeTextContainer}>
                                 <Text
                                   style={[
@@ -247,44 +378,72 @@ export default function OnboardingScreen() {
                                 </Text>
                                 <Text style={styles.timeDescription}>{time.description}</Text>
                               </View>
-                            </View>
-                            <Text
-                              style={[
-                                styles.timeValue,
-                                isSelected && styles.timeValueSelected,
-                              ]}
-                            >
-                              {time.value}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
+                              <View style={styles.timeRight}>
+                                <Text
+                                  style={[
+                                    styles.timeValue,
+                                    isSelected && styles.timeValueSelected,
+                                  ]}
+                                >
+                                  {time.value}
+                                </Text>
+                                <View style={[styles.timeRadio, isSelected && styles.timeRadioSelected]}>
+                                  {isSelected && <View style={styles.timeRadioDot} />}
+                                </View>
+                              </View>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
                     </View>
-                  </View>
-                )}
-              </Animated.View>
+                  )}
+                </Animated.View>
+              )}
             </ScrollView>
 
             <View style={styles.footer}>
-              <TouchableOpacity
-                style={[styles.nextButton, !canProceed() && styles.nextButtonDisabled]}
-                onPress={handleNext}
-                disabled={!canProceed()}
-                activeOpacity={0.8}
-                testID="onboarding-next"
-              >
-                <LinearGradient
-                  colors={canProceed() ? [Colors.accentDark, Colors.accentDeep] : [Colors.textMuted, Colors.textMuted]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.nextButtonInner}
+              {step === 'welcome' ? (
+                <Animated.View
+                  style={{ opacity: welcomeButtonFade, transform: [{ translateY: welcomeButtonSlide }] }}
                 >
-                  <Text style={styles.nextButtonText}>
-                    {step === 'reminder' ? "Let's Begin" : 'Continue'}
-                  </Text>
-                  <ChevronRight size={20} color={Colors.white} />
-                </LinearGradient>
-              </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.nextButton}
+                    onPress={handleNext}
+                    activeOpacity={0.8}
+                    testID="onboarding-next"
+                  >
+                    <LinearGradient
+                      colors={[Colors.accentDark, Colors.accentDeep]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.nextButtonInner}
+                    >
+                      <Text style={styles.nextButtonText}>Begin</Text>
+                      <ChevronRight size={20} color={Colors.white} />
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Animated.View>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.nextButton, !canProceed() && styles.nextButtonDisabled]}
+                  onPress={handleNext}
+                  disabled={!canProceed()}
+                  activeOpacity={0.8}
+                  testID="onboarding-next"
+                >
+                  <LinearGradient
+                    colors={canProceed() ? [Colors.accentDark, Colors.accentDeep] : [Colors.textMuted, Colors.textMuted]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.nextButtonInner}
+                  >
+                    <Text style={styles.nextButtonText}>
+                      {step === 'reminder' ? "Begin Your Journey" : 'Continue'}
+                    </Text>
+                    <ChevronRight size={20} color={Colors.white} />
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
             </View>
           </KeyboardAvoidingView>
         </SafeAreaView>
@@ -308,10 +467,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     paddingTop: 20,
   },
+  welcomeScrollContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 0,
+  },
   stepIndicator: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 44,
+    paddingHorizontal: 28,
+    paddingTop: 12,
+    marginBottom: 32,
   },
   stepDot: {
     width: 28,
@@ -329,33 +495,153 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  welcomeGlow: {
+
+  welcomeContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  welcomeOrbContainer: {
+    width: 200,
+    height: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 36,
+  },
+  welcomeOrbOuter: {
     position: 'absolute' as const,
-    top: -40,
-    left: -20,
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: Colors.accentBg,
+    backgroundColor: Colors.accentLight,
   },
-  brandRow: {
+  welcomeOrbMid: {
+    position: 'absolute' as const,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: Colors.accent,
+  },
+  welcomeOrbCore: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.accentDark,
+    shadowColor: Colors.accentDeep,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  welcomeBrand: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  welcomeFirstLabel: {
+    fontSize: 14,
+    fontWeight: '800' as const,
+    letterSpacing: 12,
+    color: Colors.textMuted,
+    marginBottom: -4,
+  },
+  welcomeNumber: {
+    fontSize: 72,
+    fontWeight: '200' as const,
+    color: Colors.text,
+    letterSpacing: -4,
+  },
+  welcomeTagline: {
+    fontSize: 18,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 28,
+    marginBottom: 28,
+    letterSpacing: 0.2,
+  },
+  welcomeFeatures: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 4,
+    gap: 14,
+    marginBottom: 36,
   },
-  label: {
+  welcomeFeatureText: {
+    fontSize: 13,
+    fontWeight: '600' as const,
+    color: Colors.accentDark,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+  },
+  welcomeFeatureDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.accentLight,
+  },
+  welcomePhases: {
+    gap: 12,
+    width: '100%',
+    maxWidth: 260,
+  },
+  welcomePhaseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  welcomePhaseNum: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  welcomePhaseNumFirst: {
+    backgroundColor: Colors.accentBg,
+  },
+  welcomePhaseNumText: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    color: Colors.textMuted,
+  },
+  welcomePhaseNumTextFirst: {
+    color: Colors.accentDark,
+  },
+  welcomePhaseLabel: {
     fontSize: 15,
-    color: Colors.textSecondary,
-    letterSpacing: 0.5,
     fontWeight: '500' as const,
+    color: Colors.textMuted,
+    letterSpacing: 0.2,
+  },
+  welcomePhaseLabelFirst: {
+    color: Colors.text,
+    fontWeight: '600' as const,
+  },
+
+  stepLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  stepLabelDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.accentDark,
+  },
+  stepLabel: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    letterSpacing: 2,
+    color: Colors.accentDark,
   },
   title: {
-    fontSize: 38,
+    fontSize: 36,
     fontWeight: '700' as const,
     color: Colors.text,
-    marginBottom: 12,
+    marginBottom: 14,
     letterSpacing: -1,
+    lineHeight: 44,
   },
   subtitle: {
     fontSize: 16,
@@ -366,29 +652,33 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginTop: 8,
   },
-  inputLabel: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    marginBottom: 14,
-    letterSpacing: 0.3,
-    fontWeight: '600' as const,
-    textTransform: 'uppercase' as const,
-  },
   input: {
-    fontSize: 22,
+    fontSize: 24,
     color: Colors.text,
-    borderBottomWidth: 2,
-    borderBottomColor: Colors.accentDark,
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 0,
     fontWeight: '500' as const,
   },
+  inputUnderline: {
+    height: 2,
+    borderRadius: 1,
+  },
+  nameEncouragement: {
+    marginTop: 24,
+    paddingHorizontal: 4,
+  },
+  nameEncouragementText: {
+    fontSize: 14,
+    color: Colors.textMuted,
+    fontStyle: 'italic' as const,
+    lineHeight: 22,
+  },
   optionsContainer: {
-    gap: 10,
+    gap: 12,
   },
   optionCard: {
     backgroundColor: Colors.white,
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 20,
     borderWidth: 2,
     borderColor: Colors.borderLight,
@@ -396,14 +686,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   optionCardSelected: {
     borderColor: Colors.accentDark,
     backgroundColor: Colors.accentBg,
+    shadowOpacity: 0.08,
+  },
+  optionEmoji: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  optionEmojiSelected: {
+    backgroundColor: Colors.accentLight,
+  },
+  optionEmojiText: {
+    fontSize: 20,
+  },
+  optionTextWrap: {
+    flex: 1,
+  },
+  optionLabel: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: Colors.text,
+    marginBottom: 3,
+  },
+  optionLabelSelected: {
+    color: Colors.accentDeep,
+  },
+  optionDescription: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    lineHeight: 19,
+  },
+  optionDescriptionSelected: {
+    color: Colors.accentDark,
   },
   optionRadio: {
     width: 22,
@@ -423,62 +748,33 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: Colors.accentDark,
   },
-  optionTextWrap: {
-    flex: 1,
-  },
-  optionLabel: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: Colors.text,
-    marginBottom: 2,
-  },
-  optionLabelSelected: {
-    color: Colors.accentDeep,
-  },
-  optionDescription: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-  },
-  optionDescriptionSelected: {
-    color: Colors.accentDark,
-  },
   timeCard: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     borderWidth: 2,
     borderColor: Colors.borderLight,
+    gap: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 1,
   },
   timeCardSelected: {
     borderColor: Colors.accentDark,
     backgroundColor: Colors.accentBg,
   },
-  timeLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  timeIconWrap: {
+  timeEmoji: {
+    fontSize: 22,
     width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timeIconWrapSelected: {
-    backgroundColor: Colors.accentLight,
+    textAlign: 'center',
   },
   timeTextContainer: {
-    gap: 1,
+    flex: 1,
+    gap: 2,
   },
   timeLabel: {
     fontSize: 15,
@@ -492,6 +788,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textSecondary,
   },
+  timeRight: {
+    alignItems: 'flex-end',
+    gap: 6,
+  },
   timeValue: {
     fontSize: 13,
     fontWeight: '700' as const,
@@ -500,13 +800,31 @@ const styles = StyleSheet.create({
   timeValueSelected: {
     color: Colors.accentDark,
   },
+  timeRadio: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timeRadioSelected: {
+    borderColor: Colors.accentDark,
+  },
+  timeRadioDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accentDark,
+  },
   footer: {
     paddingHorizontal: 28,
     paddingBottom: 12,
     paddingTop: 8,
   },
   nextButton: {
-    borderRadius: 22,
+    borderRadius: 24,
     overflow: 'hidden',
     shadowColor: Colors.accentDeep,
     shadowOffset: { width: 0, height: 12 },
