@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRouter, Redirect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Play, Check, Flame, RotateCcw, Sun, Moon, Sunrise, Sunset, Settings2, AlertTriangle, Heart, ChevronRight, Wind, BookOpen, Volume2, Zap } from 'lucide-react-native';
+import { Play, Check, Flame, RotateCcw, Sun, Moon, Sunrise, Sunset, Settings2, AlertTriangle, Heart, ChevronRight, Wind, BookOpen, Zap, Cross } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/providers/AppProvider';
@@ -251,17 +251,21 @@ export default function HomeScreen() {
                 { label: 'Settle', icon: Wind, color: C.sage },
                 { label: 'Teach', icon: BookOpen, color: C.accent },
                 { label: 'Pray', icon: Heart, color: C.warm },
-                { label: 'Silence', icon: Volume2, color: C.accentDark },
                 { label: 'Act', icon: Zap, color: C.sageDark },
               ].map((phase, i) => (
                 <React.Fragment key={phase.label}>
                   <View style={styles.sessionPhaseItem}>
-                    <View style={[styles.sessionPhaseDot, { backgroundColor: phase.color + '20' }]}>
-                      <phase.icon size={11} color={phase.color} />
+                    <View style={[styles.sessionPhaseDot, { backgroundColor: phase.color + '18' }]}>
+                      <phase.icon size={12} color={phase.color} />
                     </View>
                     <Text style={[styles.sessionPhaseLabel, { color: C.textMuted }]}>{phase.label}</Text>
                   </View>
-                  {i < 4 && <View style={[styles.sessionPhaseLine, { backgroundColor: C.border }]} />}
+                  {i < 3 && (
+                    <View style={styles.sessionPhaseLineWrap}>
+                      <View style={[styles.sessionPhaseLine, { backgroundColor: C.border }]} />
+                      <View style={[styles.sessionPhaseLineDot, { backgroundColor: C.border }]} />
+                    </View>
+                  )}
                 </React.Fragment>
               ))}
             </View>
@@ -271,6 +275,9 @@ export default function HomeScreen() {
             <View style={[styles.quoteCard, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
               <View style={[styles.quoteAccent, { backgroundColor: C.accentDark }]} />
               <View style={styles.quoteContent}>
+                <View style={styles.quoteIconRow}>
+                  <Cross size={10} color={C.accentDark} style={{ opacity: 0.4 }} />
+                </View>
                 <Text style={[styles.quoteText, { color: C.textSecondary }]}>
                   {`\u201C${encouragement.text}\u201D`}
                 </Text>
@@ -394,7 +401,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 17,
     fontWeight: '600' as const,
-    letterSpacing: -0.2,
+    letterSpacing: -0.1,
   },
   headerRight: {
     flexDirection: 'row',
@@ -439,14 +446,14 @@ const styles = StyleSheet.create({
   },
   ringContainer: {
     alignItems: 'center',
-    marginBottom: 36,
+    marginBottom: 40,
     position: 'relative' as const,
   },
   ringGlow: {
     position: 'absolute' as const,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
+    width: 270,
+    height: 270,
+    borderRadius: 135,
   },
   dayLabel: {
     fontSize: 10,
@@ -455,9 +462,9 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   dayNumber: {
-    fontSize: 56,
+    fontSize: 60,
     fontWeight: '200' as const,
-    letterSpacing: -3,
+    letterSpacing: -4,
   },
   dayOf: {
     fontSize: 13,
@@ -477,25 +484,35 @@ const styles = StyleSheet.create({
   },
   sessionPhaseItem: {
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
   },
   sessionPhaseDot: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
   },
   sessionPhaseLabel: {
     fontSize: 9,
-    fontWeight: '600' as const,
-    letterSpacing: 0.3,
+    fontWeight: '700' as const,
+    letterSpacing: 0.5,
     textTransform: 'uppercase' as const,
   },
-  sessionPhaseLine: {
-    width: 12,
-    height: 1,
+  sessionPhaseLineWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: -10,
+  },
+  sessionPhaseLine: {
+    width: 16,
+    height: 1,
+  },
+  sessionPhaseLineDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    marginTop: 2,
   },
   phaseTag: {
     paddingHorizontal: 14,
@@ -510,11 +527,11 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
   },
   dayTitle: {
-    fontSize: 27,
+    fontSize: 28,
     fontWeight: '700' as const,
-    letterSpacing: -0.5,
+    letterSpacing: -0.6,
     textAlign: 'center',
-    lineHeight: 34,
+    lineHeight: 36,
   },
   buttonContainer: {
     alignItems: 'center',
@@ -523,15 +540,15 @@ const styles = StyleSheet.create({
   },
   beginButton: {
     width: '100%',
-    borderRadius: 24,
+    borderRadius: 26,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.35,
+    shadowRadius: 28,
+    elevation: 10,
   },
   beginButtonGradient: {
-    paddingVertical: 20,
+    paddingVertical: 22,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -541,7 +558,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700' as const,
     color: '#FFFFFF',
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
   completedToday: {
     flexDirection: 'row',
@@ -644,16 +661,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   quoteCard: {
-    borderRadius: 18,
-    padding: 18,
+    borderRadius: 20,
+    padding: 20,
     flexDirection: 'row',
     borderWidth: 1,
     gap: 14,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
   },
   quoteAccent: {
     width: 3,
@@ -664,16 +681,20 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 8,
   },
+  quoteIconRow: {
+    marginBottom: 2,
+  },
   quoteText: {
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 23,
     fontStyle: 'italic' as const,
-    letterSpacing: 0.1,
+    letterSpacing: 0.15,
   },
   quoteAuthor: {
     fontSize: 11,
-    fontWeight: '600' as const,
-    letterSpacing: 0.3,
+    fontWeight: '700' as const,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase' as const,
   },
   supportSection: {
     width: '100%',
@@ -682,15 +703,15 @@ const styles = StyleSheet.create({
   supportCauseBtn: {
     flexDirection: 'row' as const,
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 18,
+    padding: 16,
+    borderRadius: 20,
     borderWidth: 1,
     gap: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   supportCauseIcon: {
     width: 38,

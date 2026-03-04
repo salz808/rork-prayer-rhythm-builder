@@ -79,8 +79,10 @@ function AnimatedStatCard({
         },
       ]}
     >
-      <View style={[styles.statIcon, { backgroundColor: iconBg }]}>
-        <Icon size={16} color={iconColor} />
+      <View style={[styles.statIconOuter, { backgroundColor: iconBg + '40' }]}>
+        <View style={[styles.statIcon, { backgroundColor: iconBg }]}>
+          <Icon size={15} color={iconColor} />
+        </View>
       </View>
       <Text style={[styles.statValue, { color: C.text }]}>
         {displayValue}
@@ -137,8 +139,8 @@ export default function JourneyScreen() {
             <View style={styles.titleRow}>
               <Text style={[styles.screenTitle, { color: C.text }]}>Your Journey</Text>
               {completedDays > 0 && (
-                <View style={[styles.completedBadge, { backgroundColor: C.sageBg }]}>
-                  <Sparkles size={12} color={C.sage} />
+                <View style={[styles.completedBadge, { backgroundColor: C.sageBg, borderColor: C.sageLight, borderWidth: 1 }]}>
+                  <Sparkles size={11} color={C.sage} />
                   <Text style={[styles.completedBadgeText, { color: C.sageDark }]}>{completedDays}/30</Text>
                 </View>
               )}
@@ -501,9 +503,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   screenTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '700' as const,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   completedBadge: {
     flexDirection: 'row',
@@ -529,46 +531,53 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 16,
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  statIconOuter: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   statValue: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700' as const,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   statLabel: {
-    fontSize: 11,
-    fontWeight: '600' as const,
+    fontSize: 10,
+    fontWeight: '700' as const,
     textTransform: 'uppercase' as const,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   overallProgressCard: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 22,
+    padding: 22,
     marginBottom: 16,
     borderWidth: 1,
     gap: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   overallProgressHeader: {
     flexDirection: 'row',
@@ -595,8 +604,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   overallProgressTrack: {
-    height: 8,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   overallProgressFill: {
@@ -761,16 +770,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   dayCell: {
-    width: 37,
-    height: 37,
-    borderRadius: 12,
+    width: 38,
+    height: 38,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 5,
     elevation: 1,
   },
   dayCellText: {
@@ -790,9 +799,9 @@ const styles = StyleSheet.create({
     width: 28,
   },
   milestoneBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -820,16 +829,16 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   graceNote: {
-    borderRadius: 20,
-    padding: 22,
+    borderRadius: 22,
+    padding: 24,
     flexDirection: 'row',
     gap: 14,
     borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
   },
   graceNoteAccent: {
     width: 3,
@@ -837,9 +846,10 @@ const styles = StyleSheet.create({
   },
   graceNoteText: {
     fontSize: 14,
-    lineHeight: 23,
+    lineHeight: 24,
     flex: 1,
     fontWeight: '500' as const,
     fontStyle: 'italic' as const,
+    letterSpacing: 0.1,
   },
 });

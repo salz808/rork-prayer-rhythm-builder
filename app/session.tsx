@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { X, ChevronRight, Pause, Play, Check, Heart, Volume2, VolumeX } from 'lucide-react-native';
+import { X, ChevronRight, Check, Heart, Volume2, VolumeX, Feather } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -72,16 +72,6 @@ export default function SessionScreen() {
       });
     });
 
-    const isOpenTimer = dayContent.silence.durationSeconds === 0;
-    s.push({
-      type: 'silence',
-      title: 'Silence',
-      subtitle: isOpenTimer ? 'No timer today' : `${Math.floor(dayContent.silence.durationSeconds / 60)} min`,
-      content: dayContent.silence.prompt,
-      timerSeconds: dayContent.silence.durationSeconds,
-      isOpenTimer,
-    });
-
     s.push({
       type: 'act',
       title: 'Activate',
@@ -93,18 +83,15 @@ export default function SessionScreen() {
   }, [dayContent, phaseInstruction]);
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused] = useState(false);
   const [sessionStartTime] = useState(Date.now());
   const [isComplete, setIsComplete] = useState(false);
   const [completedDay, setCompletedDay] = useState(1);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [openTimerElapsed, setOpenTimerElapsed] = useState(0);
+  const decorLineAnim = useRef(new Animated.Value(0)).current;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
-  const progressAnim = useRef(new Animated.Value(0)).current;
-  const breatheAnim = useRef(new Animated.Value(0.6)).current;
   const anchorScaleAnim = useRef(new Animated.Value(0.65)).current;
   const anchorGlowAnim = useRef(new Animated.Value(0.15)).current;
   const anchorRingAnim = useRef(new Animated.Value(0.65)).current;
@@ -135,12 +122,12 @@ export default function SessionScreen() {
     act: C.sageBg,
   }), [C]);
 
-  const sectionGradientMap: Record<SessionPhase, [string, string]> = useMemo(() => ({
-    settle: [C.sageBg, state.darkMode ? '#1E2C1E' : '#E8F0E7'],
-    teach: [C.accentBg, state.darkMode ? '#2E2318' : '#EDE3D6'],
-    triad: [C.warmLight, state.darkMode ? '#3A2818' : '#F5E6D6'],
-    silence: [C.surfaceAlt, C.gradientEnd],
-    act: [C.sageBg, state.darkMode ? '#1E2C1E' : '#ECF2EB'],
+  const sectionGradientMap: Record<SessionPhase, [string, string, string]> = useMemo(() => ({
+    settle: [state.darkMode ? '#1A2A1A' : '#EFF5EE', C.sageBg, state.darkMode ? '#1E2C1E' : '#E8F0E7'],
+    teach: [state.darkMode ? '#2A1F14' : '#F5EDE4', C.accentBg, state.darkMode ? '#2E2318' : '#EDE3D6'],
+    triad: [state.darkMode ? '#2E1F12' : '#FAF0E4', C.warmLight, state.darkMode ? '#3A2818' : '#F5E6D6'],
+    silence: [C.surfaceAlt, C.surfaceAlt, C.gradientEnd],
+    act: [state.darkMode ? '#1A2A1A' : '#EFF5EE', C.sageBg, state.darkMode ? '#1E2C1E' : '#ECF2EB'],
   }), [C, state.darkMode]);
 
   const audioUrl = SOUNDSCAPE_URLS[state.soundscape] ?? null;
@@ -292,13 +279,13 @@ export default function SessionScreen() {
   }, [toggleAmbientMute]);
 
   useEffect(() => {
-    if (currentStep?.type === 'silence' && currentStep.timerSeconds && currentStep.timerSeconds > 0) {
-      setTimeRemaining(currentStep.timerSeconds);
-    } else {
-      setTimeRemaining(0);
-    }
-    setOpenTimerElapsed(0);
-  }, [currentStepIndex]);
+    decorLineAnim.setValue(0);
+    Animated.timing(decorLineAnim, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: false,
+    }).start();
+  }, [currentStepIndex, decorLineAnim]);
 
   useEffect(() => {
     fadeAnim.setValue(0);
@@ -320,17 +307,7 @@ export default function SessionScreen() {
     }
   }, [isComplete, fadeAnim, completeScaleAnim]);
 
-  useEffect(() => {
-    if (currentStep?.type === 'silence' && !isPaused && !isComplete) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(breatheAnim, { toValue: 1, duration: 3000, useNativeDriver: true }),
-          Animated.timing(breatheAnim, { toValue: 0.6, duration: 3000, useNativeDriver: true }),
-        ])
-      ).start();
-    }
-    return () => breatheAnim.stopAnimation();
-  }, [currentStepIndex, isPaused, isComplete, currentStep?.type, breatheAnim]);
+
 
   useEffect(() => {
     const isSettle = currentStep?.type === 'settle';
@@ -401,41 +378,7 @@ export default function SessionScreen() {
     };
   }, [currentStep?.type, currentStepIndex, isPaused, isComplete, anchorScaleAnim, anchorGlowAnim, anchorRingAnim]);
 
-  useEffect(() => {
-    if (currentStep?.type !== 'silence' || isPaused || isComplete) return;
 
-    if (currentStep.isOpenTimer) {
-      const interval = setInterval(() => {
-        setOpenTimerElapsed(prev => prev + 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-
-    if (!currentStep.timerSeconds || currentStep.timerSeconds <= 0) return;
-
-    const interval = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isPaused, currentStepIndex, isComplete, currentStep?.type, currentStep?.isOpenTimer, currentStep?.timerSeconds]);
-
-  useEffect(() => {
-    if (currentStep?.type !== 'silence' || !currentStep.timerSeconds || currentStep.timerSeconds <= 0) return;
-    const total = currentStep.timerSeconds;
-    const elapsed = total - timeRemaining;
-    const newProgress = total > 0 ? elapsed / total : 0;
-    Animated.timing(progressAnim, {
-      toValue: newProgress,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  }, [timeRemaining, currentStep, progressAnim]);
 
   const handleNextStep = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -460,15 +403,11 @@ export default function SessionScreen() {
     router.back();
   };
 
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const sectionColor = currentStep ? sectionColorMap[currentStep.type] : C.accent;
   const sectionBg = currentStep ? sectionBgMap[currentStep.type] : C.accentBg;
   const sectionGradient = currentStep ? sectionGradientMap[currentStep.type] : sectionGradientMap.teach;
+
+  const stepNumber = currentStepIndex + 1;
 
   const largeFontSize = state.fontSize === 'large';
 
@@ -544,10 +483,9 @@ export default function SessionScreen() {
                     { label: 'Settle', color: sectionColorMap.settle, bg: sectionBgMap.settle },
                     { label: 'Teach', color: sectionColorMap.teach, bg: sectionBgMap.teach },
                     { label: 'TRIAD Prayer', color: sectionColorMap.triad, bg: sectionBgMap.triad },
-                    { label: 'Silence', color: sectionColorMap.silence, bg: sectionBgMap.silence },
                     { label: 'Activate', color: sectionColorMap.act, bg: sectionBgMap.act },
                   ].map((item, i) => (
-                    <View key={i} style={[styles.recapPhaseRow, i < 4 && { borderBottomWidth: 1, borderBottomColor: C.borderLight }]}>
+                    <View key={i} style={[styles.recapPhaseRow, i < 3 && { borderBottomWidth: 1, borderBottomColor: C.borderLight }]}>
                       <View style={[styles.recapPhaseCheck, { backgroundColor: item.bg }]}>
                         <Check size={12} color={item.color} strokeWidth={2.5} />
                       </View>
@@ -581,49 +519,50 @@ export default function SessionScreen() {
     );
   }
 
-  const isSilenceStep = currentStep?.type === 'silence';
-  const hasTimer = isSilenceStep && currentStep.timerSeconds && currentStep.timerSeconds > 0;
-  const isOpenTimerStep = isSilenceStep && currentStep.isOpenTimer;
-
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <LinearGradient
-        colors={sectionGradient as [string, string]}
+        colors={sectionGradient as [string, string, string]}
         style={styles.root}
       >
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.topBar}>
             <TouchableOpacity
               onPress={handleClose}
-              style={[styles.closeButton, { backgroundColor: C.overlayLight }]}
+              style={[styles.closeButton, { backgroundColor: C.overlayLight, borderColor: C.borderLight, borderWidth: 1 }]}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              <X size={20} color={C.textSecondary} />
+              <X size={18} color={C.textSecondary} />
             </TouchableOpacity>
-            <View style={styles.phaseIndicator}>
-              {steps.map((_, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.phaseDot,
-                    { backgroundColor: C.border },
-                    i === currentStepIndex && [styles.phaseDotActive, { backgroundColor: sectionColor }],
-                    i < currentStepIndex && { backgroundColor: C.accentLight },
-                  ]}
-                />
-              ))}
+            <View style={styles.phaseIndicatorWrap}>
+              <View style={styles.phaseIndicator}>
+                {steps.map((_, i) => (
+                  <Animated.View
+                    key={i}
+                    style={[
+                      styles.phaseDot,
+                      { backgroundColor: C.border },
+                      i === currentStepIndex && [styles.phaseDotActive, { backgroundColor: sectionColor }],
+                      i < currentStepIndex && { backgroundColor: sectionColor, opacity: 0.4 },
+                    ]}
+                  />
+                ))}
+              </View>
+              <Text style={[styles.stepCounter, { color: C.textMuted }]}>
+                {stepNumber}/{totalSteps}
+              </Text>
             </View>
             <TouchableOpacity
               onPress={handleToggleMute}
-              style={[styles.muteButton, { backgroundColor: C.overlayLight }]}
+              style={[styles.muteButton, { backgroundColor: C.overlayLight, borderColor: C.borderLight, borderWidth: 1 }]}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               testID="ambient-mute-toggle"
             >
               {state.ambientMuted || state.soundscape === 'silence' ? (
-                <VolumeX size={18} color={C.textMuted} />
+                <VolumeX size={16} color={C.textMuted} />
               ) : (
-                <Volume2 size={18} color={sectionColor} />
+                <Volume2 size={16} color={sectionColor} />
               )}
             </TouchableOpacity>
           </View>
@@ -638,11 +577,13 @@ export default function SessionScreen() {
                 { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
               ]}
             >
-              <View style={[styles.phaseTag, { backgroundColor: sectionBg }]}>
-                <View style={[styles.phaseTagDot, { backgroundColor: sectionColor }]} />
-                <Text style={[styles.phaseTagText, { color: sectionColor }]}>
-                  {currentStep.title}
-                </Text>
+              <View style={styles.phaseTagRow}>
+                <View style={[styles.phaseTag, { backgroundColor: sectionBg, borderColor: sectionColor + '30', borderWidth: 1 }]}>
+                  <View style={[styles.phaseTagDot, { backgroundColor: sectionColor }]} />
+                  <Text style={[styles.phaseTagText, { color: sectionColor }]}>
+                    {currentStep.title}
+                  </Text>
+                </View>
               </View>
 
               {currentStep.subtitle ? (
@@ -650,6 +591,8 @@ export default function SessionScreen() {
                   {currentStep.subtitle}
                 </Text>
               ) : null}
+
+              <Animated.View style={[styles.decorativeLine, { backgroundColor: sectionColor, opacity: decorLineAnim, width: decorLineAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '12%'] }) }]} />
 
               <Text style={[styles.phaseText, { color: C.textSecondary }, largeFontSize && styles.phaseTextLarge]}>
                 {currentStep.content}
@@ -699,68 +642,27 @@ export default function SessionScreen() {
                 </View>
               )}
 
-              {isSilenceStep && (
-                <View style={styles.silenceIndicator}>
-                  <Animated.View
-                    style={[
-                      styles.silencePulseOuter,
-                      { backgroundColor: sectionBg, opacity: breatheAnim },
-                    ]}
-                  />
-                  <View style={[styles.silencePulse, { backgroundColor: sectionBg }]} />
-                  <Text style={[styles.silenceText, { color: C.textMuted }]}>Be still</Text>
+              {currentStep.type === 'act' && (
+                <View style={styles.actDecorator}>
+                  <View style={[styles.actDecorLine, { backgroundColor: sectionColor + '25' }]} />
+                  <Feather size={16} color={sectionColor} style={{ opacity: 0.5 }} />
+                  <View style={[styles.actDecorLine, { backgroundColor: sectionColor + '25' }]} />
                 </View>
               )}
             </Animated.View>
           </ScrollView>
 
           <View style={styles.bottomBar}>
-            {isSilenceStep && (hasTimer || isOpenTimerStep) && (
-              <View style={styles.timerRow}>
-                <TouchableOpacity
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    setIsPaused(!isPaused);
-                  }}
-                  style={[styles.pauseButton, { backgroundColor: sectionBg }]}
-                  activeOpacity={0.7}
-                >
-                  {isPaused ? (
-                    <Play size={14} color={sectionColor} />
-                  ) : (
-                    <Pause size={14} color={sectionColor} />
-                  )}
-                </TouchableOpacity>
-                <Text style={[styles.timerText, { color: C.textMuted }]}>
-                  {isOpenTimerStep ? formatTime(openTimerElapsed) : formatTime(timeRemaining)}
-                </Text>
-                {hasTimer && (
-                  <View style={[styles.progressBarContainer, { backgroundColor: C.border }]}>
-                    <Animated.View
-                      style={[
-                        styles.progressBar,
-                        {
-                          backgroundColor: sectionColor,
-                          width: progressAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: ['0%', '100%'],
-                          }),
-                        },
-                      ]}
-                    />
-                  </View>
-                )}
-              </View>
-            )}
-
             <AnimatedPressable
-              style={[styles.nextButton, { shadowColor: C.accentDeep }]}
+              style={[styles.nextButton, { shadowColor: sectionColor }]}
               onPress={handleNextStep}
               scaleValue={0.97}
               hapticStyle={Haptics.ImpactFeedbackStyle.Medium}
             >
               <LinearGradient
-                colors={[sectionColor, sectionColor]}
+                colors={[sectionColor, sectionColor + 'DD']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={styles.nextButtonGradient}
               >
                 <Text style={styles.nextButtonText}>
@@ -837,7 +739,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 20,
-    marginBottom: 24,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
@@ -854,46 +755,54 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
   },
   phaseSubtitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '700' as const,
-    marginBottom: 20,
-    letterSpacing: -0.5,
-    lineHeight: 32,
+    marginBottom: 16,
+    letterSpacing: -0.6,
+    lineHeight: 34,
   },
   phaseSubtitleLarge: {
-    fontSize: 28,
-    lineHeight: 38,
+    fontSize: 30,
+    lineHeight: 40,
   },
   phaseText: {
     fontSize: 17,
-    lineHeight: 30,
-    letterSpacing: 0.15,
+    lineHeight: 32,
+    letterSpacing: 0.2,
   },
   phaseTextLarge: {
     fontSize: 21,
-    lineHeight: 34,
+    lineHeight: 36,
   },
-  silenceIndicator: {
+  phaseIndicatorWrap: {
     alignItems: 'center',
-    marginTop: 40,
-    gap: 14,
+    gap: 6,
   },
-  silencePulseOuter: {
-    position: 'absolute' as const,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  silencePulse: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-  },
-  silenceText: {
-    fontSize: 13,
-    letterSpacing: 1.5,
+  stepCounter: {
+    fontSize: 10,
     fontWeight: '600' as const,
-    textTransform: 'uppercase' as const,
+    letterSpacing: 1,
+  },
+  phaseTagRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  decorativeLine: {
+    height: 2,
+    borderRadius: 1,
+    marginBottom: 20,
+  },
+  actDecorator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 32,
+  },
+  actDecorLine: {
+    height: 1,
+    width: 40,
   },
   breathGuide: {
     alignItems: 'center',
@@ -941,44 +850,17 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     gap: 14,
   },
-  timerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  pauseButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timerText: {
-    fontSize: 14,
-    fontWeight: '700' as const,
-    width: 42,
-    fontVariant: ['tabular-nums'],
-  },
-  progressBarContainer: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 2,
-  },
+
   nextButton: {
-    borderRadius: 22,
+    borderRadius: 26,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 8,
   },
   nextButtonGradient: {
-    paddingVertical: 20,
+    paddingVertical: 22,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -999,25 +881,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   completeBadgeOuter: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 28,
   },
   completeBadgeRing: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
   },
   completeBadge: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1029,10 +911,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
   },
   completeTitle: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '700' as const,
-    marginBottom: 8,
-    letterSpacing: -0.8,
+    marginBottom: 10,
+    letterSpacing: -1,
   },
   completeSubtitle: {
     fontSize: 16,
@@ -1121,12 +1003,12 @@ const styles = StyleSheet.create({
   },
   doneButton: {
     width: '100%',
-    borderRadius: 24,
+    borderRadius: 26,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.3,
+    shadowRadius: 24,
+    elevation: 8,
   },
   doneButtonGradient: {
     paddingVertical: 20,

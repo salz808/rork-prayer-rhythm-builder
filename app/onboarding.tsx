@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, Cross } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/colors';
@@ -200,6 +200,9 @@ export default function OnboardingScreen() {
                       { opacity: welcomeTitleFade, transform: [{ translateY: welcomeTitleSlide }] },
                     ]}
                   >
+                    <View style={styles.welcomeCrossWrap}>
+                      <Cross size={14} color={Colors.accentDark} style={{ opacity: 0.35 }} />
+                    </View>
                     <Text style={styles.welcomeFirstLabel}>FIRST</Text>
                     <Text style={styles.welcomeNumber}>30</Text>
                   </Animated.View>
@@ -213,11 +216,13 @@ export default function OnboardingScreen() {
                   </Animated.View>
 
                   <Animated.View style={[styles.welcomeFeatures, { opacity: welcomeFeatureFade }]}>
+                    <View style={styles.welcomeFeatureLineLeft} />
                     <Text style={styles.welcomeFeatureText}>spirit</Text>
                     <View style={styles.welcomeFeatureDot} />
                     <Text style={styles.welcomeFeatureText}>soul</Text>
                     <View style={styles.welcomeFeatureDot} />
                     <Text style={styles.welcomeFeatureText}>body</Text>
+                    <View style={styles.welcomeFeatureLineRight} />
                   </Animated.View>
 
                   <Animated.View style={[styles.welcomePhases, { opacity: welcomeFeatureFade }]}>
@@ -502,73 +507,76 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   welcomeOrbContainer: {
-    width: 200,
-    height: 200,
+    width: 220,
+    height: 220,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 36,
+    marginBottom: 40,
   },
   welcomeOrbOuter: {
     position: 'absolute' as const,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
     backgroundColor: Colors.accentLight,
   },
   welcomeOrbMid: {
     position: 'absolute' as const,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
     backgroundColor: Colors.accent,
   },
   welcomeOrbCore: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: Colors.accentDark,
     shadowColor: Colors.accentDeep,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 24,
-    elevation: 8,
+    shadowOpacity: 0.5,
+    shadowRadius: 32,
+    elevation: 10,
   },
   welcomeBrand: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 22,
+  },
+  welcomeCrossWrap: {
+    marginBottom: 8,
   },
   welcomeFirstLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800' as const,
-    letterSpacing: 12,
+    letterSpacing: 14,
     color: Colors.textMuted,
-    marginBottom: -4,
+    marginBottom: -6,
   },
   welcomeNumber: {
-    fontSize: 72,
+    fontSize: 80,
     fontWeight: '200' as const,
     color: Colors.text,
-    letterSpacing: -4,
+    letterSpacing: -5,
   },
   welcomeTagline: {
     fontSize: 18,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 28,
-    marginBottom: 28,
-    letterSpacing: 0.2,
+    lineHeight: 30,
+    marginBottom: 32,
+    letterSpacing: 0.3,
   },
   welcomeFeatures: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    marginBottom: 36,
+    marginBottom: 40,
   },
   welcomeFeatureText: {
-    fontSize: 13,
-    fontWeight: '600' as const,
+    fontSize: 12,
+    fontWeight: '700' as const,
     color: Colors.accentDark,
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase' as const,
   },
   welcomeFeatureDot: {
@@ -577,20 +585,32 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: Colors.accentLight,
   },
+  welcomeFeatureLineLeft: {
+    width: 20,
+    height: 1,
+    backgroundColor: Colors.accentLight,
+    opacity: 0.5,
+  },
+  welcomeFeatureLineRight: {
+    width: 20,
+    height: 1,
+    backgroundColor: Colors.accentLight,
+    opacity: 0.5,
+  },
   welcomePhases: {
-    gap: 12,
+    gap: 14,
     width: '100%',
-    maxWidth: 260,
+    maxWidth: 280,
   },
   welcomePhaseRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
   },
   welcomePhaseNum: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: Colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
@@ -636,12 +656,12 @@ const styles = StyleSheet.create({
     color: Colors.accentDark,
   },
   title: {
-    fontSize: 36,
+    fontSize: 38,
     fontWeight: '700' as const,
     color: Colors.text,
     marginBottom: 14,
-    letterSpacing: -1,
-    lineHeight: 44,
+    letterSpacing: -1.2,
+    lineHeight: 46,
   },
   subtitle: {
     fontSize: 16,
@@ -678,28 +698,29 @@ const styles = StyleSheet.create({
   },
   optionCard: {
     backgroundColor: Colors.white,
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 22,
+    padding: 22,
     borderWidth: 2,
     borderColor: Colors.borderLight,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 14,
+    elevation: 3,
   },
   optionCardSelected: {
     borderColor: Colors.accentDark,
     backgroundColor: Colors.accentBg,
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
+    shadowRadius: 18,
   },
   optionEmoji: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: Colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
@@ -824,13 +845,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   nextButton: {
-    borderRadius: 24,
+    borderRadius: 26,
     overflow: 'hidden',
     shadowColor: Colors.accentDeep,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.3,
+    shadowRadius: 24,
+    elevation: 8,
   },
   nextButtonDisabled: {
     opacity: 0.35,
@@ -838,7 +859,7 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   nextButtonInner: {
-    paddingVertical: 20,
+    paddingVertical: 22,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

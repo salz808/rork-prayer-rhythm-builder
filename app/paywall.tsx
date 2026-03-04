@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Heart, Globe, RefreshCw, Check, Sparkles, ArrowRight } from 'lucide-react-native';
+import { X, Heart, Globe, RefreshCw, Check, Sparkles, ArrowRight, Cross } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useColors } from '@/hooks/useColors';
@@ -174,12 +174,18 @@ export default function PaywallScreen() {
           <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <View style={styles.iconOuter}>
               <View style={[styles.iconGlow, { backgroundColor: C.accentBg }]} />
-              <View style={[styles.iconWrap, { backgroundColor: C.accentBg }]}>
+              <View style={[styles.iconGlowInner, { backgroundColor: C.accentBg }]} />
+              <View style={[styles.iconWrap, { backgroundColor: C.accentBg, borderColor: C.accentLight, borderWidth: 1.5 }]}>
                 <Sparkles size={28} color={C.accentDark} />
               </View>
             </View>
 
             <Text style={[styles.title, { color: C.text }]}>Support This Cause</Text>
+            <View style={styles.subtitleDecorator}>
+              <View style={[styles.subtitleDecorLine, { backgroundColor: C.accentLight }]} />
+              <Cross size={10} color={C.accentDark} style={{ opacity: 0.3 }} />
+              <View style={[styles.subtitleDecorLine, { backgroundColor: C.accentLight }]} />
+            </View>
             <Text style={[styles.subtitle, { color: C.textSecondary }]}>
               This app is free and always will be. Your support keeps it alive and helps share the Gospel of Jesus Christ with the world.
             </Text>
@@ -341,26 +347,43 @@ const styles = StyleSheet.create({
   iconOuter: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 28,
   },
   iconGlow: {
     position: 'absolute' as const,
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    opacity: 0.5,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    opacity: 0.4,
+  },
+  iconGlowInner: {
+    position: 'absolute' as const,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    opacity: 0.6,
   },
   iconWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  subtitleDecorator: {
+    flexDirection: 'row' as const,
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  subtitleDecorLine: {
+    width: 28,
+    height: 1,
+  },
   title: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '700' as const,
-    letterSpacing: -0.8,
+    letterSpacing: -1,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -382,15 +405,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    borderRadius: 22,
-    padding: 20,
+    borderRadius: 24,
+    padding: 22,
     position: 'relative' as const,
     overflow: 'hidden' as const,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
   },
   badge: {
     paddingHorizontal: 8,
@@ -461,8 +484,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   cardButton: {
-    borderRadius: 14,
-    paddingVertical: 14,
+    borderRadius: 16,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -477,23 +500,23 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   noteBox: {
-    borderRadius: 18,
-    padding: 20,
+    borderRadius: 20,
+    padding: 22,
     borderWidth: 1,
     marginBottom: 24,
     width: '100%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   noteText: {
     fontSize: 13,
-    lineHeight: 22,
+    lineHeight: 23,
     textAlign: 'center',
     fontStyle: 'italic' as const,
-    letterSpacing: 0.1,
+    letterSpacing: 0.15,
   },
   restoreBtn: {
     flexDirection: 'row' as const,
