@@ -18,6 +18,8 @@ const defaultState: AppState = {
   soundscape: 'piano',
   darkMode: false,
   fontSize: 'normal',
+  lastOpenedDate: null,
+  openStreakCount: 0,
 };
 
 function getDateString(date: Date = new Date()): string {
@@ -99,6 +101,13 @@ async function scheduleReminderNotification(reminderTime: string) {
 
 export { scheduleReminderNotification };
 
+function getDayDifference(fromDateString: string, toDateString: string): number {
+  const from = new Date(fromDateString + 'T00:00:00').getTime();
+  const to = new Date(toDateString + 'T00:00:00').getTime();
+  const diff = to - from;
+  return Math.floor(diff / 86400000);
+}
+
 export const [AppProvider, useApp] = createContextHook(() => {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AppState>(defaultState);
@@ -129,6 +138,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
       queryClient.invalidateQueries({ queryKey: ['appState'] });
     },
   });
+  const persistState = saveMutation.mutate;
 
   useEffect(() => {
     if (stateQuery.data) {
@@ -136,13 +146,47 @@ export const [AppProvider, useApp] = createContextHook(() => {
     }
   }, [stateQuery.data]);
 
+  useEffect(() => {
+    if (stateQuery.isLoading) return;
+    const today = getDateString();
+    if (state.lastOpenedDate === today) return;
+
+    const dayDiff = state.lastOpenedDate ? getDayDifference(state.lastOpenedDate, today) : 1;
+    const nextOpenStreakCount = dayDiff === 1 ? state.openStreakCount + 1 : 1;
+    const shouldResetJourney = dayDiff > 1;
+
+    const nextState: AppState = {
+      ...state,
+      lastOpenedDate: today,
+      openStreakCount: nextOpenStreakCount,
+      ...(shouldResetJourney ? {
+        currentDay: 1,
+        progress: [],
+        streakCount: 0,
+        lastCompletedDate: null,
+        journeyComplete: false,
+      } : {}),
+    };
+
+    console.log('[AppProvider] Daily open check-in complete', {
+      today,
+      previousOpenDate: state.lastOpenedDate,
+      dayDiff,
+      nextOpenStreakCount,
+      shouldResetJourney,
+    });
+
+    setState(nextState);
+    persistState(nextState);
+  }, [state, stateQuery.isLoading, persistState]);
+
   const updateState = useCallback((updates: Partial<AppState>) => {
     setState(prev => {
       const next = { ...prev, ...updates };
-      saveMutation.mutate(next);
+      persistState(next);
       return next;
     });
-  }, [saveMutation]);
+  }, [persistState]);
 
   const completeOnboarding = useCallback((user: UserProfile) => {
     updateState({ user: { ...user, onboardingComplete: true } });
@@ -214,10 +258,10 @@ export const [AppProvider, useApp] = createContextHook(() => {
   const toggleAmbientMute = useCallback(() => {
     setState(prev => {
       const next = { ...prev, ambientMuted: !prev.ambientMuted };
-      saveMutation.mutate(next);
+      persistState(next);
       return next;
     });
-  }, [saveMutation]);
+  }, [persistState]);
 
   const setSoundscape = useCallback((soundscape: Soundscape) => {
     updateState({ soundscape });
@@ -226,10 +270,10 @@ export const [AppProvider, useApp] = createContextHook(() => {
   const toggleDarkMode = useCallback(() => {
     setState(prev => {
       const next = { ...prev, darkMode: !prev.darkMode };
-      saveMutation.mutate(next);
+      persistState(next);
       return next;
     });
-  }, [saveMutation]);
+  }, [persistState]);
 
   const setFontSize = useCallback((fontSize: FontSize) => {
     updateState({ fontSize });

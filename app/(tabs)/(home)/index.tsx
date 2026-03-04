@@ -282,7 +282,7 @@ export default function HomeScreen() {
                   {`\u201C${encouragement.text}\u201D`}
                 </Text>
                 <Text style={[styles.quoteAuthor, { color: C.textMuted }]}>
-                  — {encouragement.author}
+                  By {encouragement.author}
                 </Text>
               </View>
             </View>

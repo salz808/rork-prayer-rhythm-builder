@@ -89,7 +89,7 @@ export default function PaywallScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
         'Thank you! 🙏',
-        "Your support means everything. This is more than a transaction — it's partnership.",
+        "Your support means everything. This is more than a transaction. It's partnership.",
         [{ text: 'Continue', onPress: () => router.back() }]
       );
     },
@@ -135,8 +135,8 @@ export default function PaywallScreen() {
         title: isMissions ? 'Share the Gospel' : 'Support Development',
         price,
         description: isMissions
-          ? '$9.99/mo — 100% goes toward missions around the world to share the Gospel of Jesus Christ.'
-          : '$0.99/mo — Help us keep building and improving this app for everyone.',
+          ? '$9.99/mo. 100% goes toward missions around the world to share the Gospel of Jesus Christ.'
+          : '$0.99/mo. Help us keep building and improving this app for everyone.',
         impact: isMissions
           ? 'Fund global missions'
           : 'Keep the app free for all',

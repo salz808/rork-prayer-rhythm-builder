@@ -223,7 +223,7 @@ export default function JourneyScreen() {
                     styles.graceWindowTitle,
                     { color: graceUrgent ? (state.darkMode ? '#E07070' : '#C05050') : (state.darkMode ? '#D4A050' : '#9A7020') },
                   ]}>
-                    {graceUrgent ? 'Streak at risk — pray today' : 'Grace window active'}
+                    {graceUrgent ? 'Streak at risk. pray today' : 'Grace window active'}
                   </Text>
                 </View>
                 <View style={styles.graceWindowRow}>
@@ -245,7 +245,7 @@ export default function JourneyScreen() {
                   { color: graceUrgent ? (state.darkMode ? '#C05050' : '#904040') : (state.darkMode ? '#B07030' : '#806010') },
                 ]}>
                   {graceUrgent
-                    ? "This is your last grace day. Missed days don't define you — showing up does."
+                    ? "This is your last grace day. Missed days don't define you. showing up does."
                     : "You missed yesterday. That's okay. You still have 1 grace day before your streak resets."}
                 </Text>
               </View>
@@ -379,7 +379,7 @@ export default function JourneyScreen() {
             <View style={[styles.graceNote, { backgroundColor: C.accentBg, borderColor: C.accentLight }]}>
               <View style={[styles.graceNoteAccent, { backgroundColor: C.accentDark }]} />
               <Text style={[styles.graceNoteText, { color: C.accentDeep }]}>
-                Missed a day? That{"'"}s okay.{'\n'}Grace means starting again isn{"'"}t failure — it{"'"}s growth.
+                Missed a day? That{"'"}s okay.{'\n'}Grace means starting again isn{"'"}t failure. it{"'"}s growth.
               </Text>
             </View>
           </Animated.View>

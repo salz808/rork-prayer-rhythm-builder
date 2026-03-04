@@ -26,6 +26,8 @@ export interface AppState {
   soundscape: Soundscape;
   darkMode: boolean;
   fontSize: FontSize;
+  lastOpenedDate: string | null;
+  openStreakCount: number;
 }
 
 export interface TriadItem {
