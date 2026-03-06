@@ -123,11 +123,11 @@ export default function SessionScreen() {
   }), [C]);
 
   const sectionGradientMap: Record<SessionPhase, [string, string, string]> = useMemo(() => ({
-    settle: [state.darkMode ? '#1A2A1A' : '#EFF5EE', C.sageBg, state.darkMode ? '#1E2C1E' : '#E8F0E7'],
-    teach: [state.darkMode ? '#2A1F14' : '#F5EDE4', C.accentBg, state.darkMode ? '#2E2318' : '#EDE3D6'],
-    triad: [state.darkMode ? '#2E1F12' : '#FAF0E4', C.warmLight, state.darkMode ? '#3A2818' : '#F5E6D6'],
+    settle: [state.darkMode ? '#0E1A0E' : '#EFF5EE', C.sageBg, state.darkMode ? '#121E12' : '#E8F0E7'],
+    teach: [state.darkMode ? '#1A1208' : '#F5EDE4', C.accentBg, state.darkMode ? '#1E1508' : '#EDE3D6'],
+    triad: [state.darkMode ? '#1E1408' : '#FAF0E4', C.warmLight, state.darkMode ? '#251A0C' : '#F5E6D6'],
     silence: [C.surfaceAlt, C.surfaceAlt, C.gradientEnd],
-    act: [state.darkMode ? '#1A2A1A' : '#EFF5EE', C.sageBg, state.darkMode ? '#1E2C1E' : '#ECF2EB'],
+    act: [state.darkMode ? '#0E1A0E' : '#EFF5EE', C.sageBg, state.darkMode ? '#121E12' : '#ECF2EB'],
   }), [C, state.darkMode]);
 
   const audioUrl = SOUNDSCAPE_URLS[state.soundscape] ?? null;
@@ -165,7 +165,7 @@ export default function SessionScreen() {
         console.log('[Session] Failed to load ambient audio:', e);
       }
     };
-    loadAudio();
+    void loadAudio();
     return () => {
       mounted = false;
       if (fadeInIntervalRef.current) {
@@ -173,11 +173,11 @@ export default function SessionScreen() {
         fadeInIntervalRef.current = null;
       }
       if (soundRef.current) {
-        soundRef.current.unloadAsync();
+        void soundRef.current.unloadAsync();
         soundRef.current = null;
       }
     };
-  }, []);
+  }, [audioUrl, state.soundscape]);
 
   useEffect(() => {
     if (!isInPrayerZone || audioStartedRef.current || !soundRef.current) return;
@@ -210,7 +210,7 @@ export default function SessionScreen() {
         console.log('[Session] Error fading in audio:', e);
       }
     };
-    fadeIn();
+    void fadeIn();
   }, [isInPrayerZone, state.ambientMuted, state.soundscape]);
 
   useEffect(() => {
@@ -234,7 +234,7 @@ export default function SessionScreen() {
         console.log('[Session] Error updating volume:', e);
       }
     };
-    updateVolume();
+    void updateVolume();
   }, [state.ambientMuted, isInPrayerZone]);
 
   useEffect(() => {
@@ -250,7 +250,7 @@ export default function SessionScreen() {
         console.log('[Session] Error toggling pause on audio:', e);
       }
     };
-    handlePause();
+    void handlePause();
   }, [isPaused, state.ambientMuted]);
 
   useEffect(() => {
@@ -269,12 +269,12 @@ export default function SessionScreen() {
           console.log('[Session] Error fading out audio:', e);
         }
       };
-      fadeOut();
+      void fadeOut();
     }
   }, [isComplete]);
 
   const handleToggleMute = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     toggleAmbientMute();
   }, [toggleAmbientMute]);
 
@@ -381,7 +381,7 @@ export default function SessionScreen() {
 
 
   const handleNextStep = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex(prev => prev + 1);
     } else {
@@ -390,7 +390,7 @@ export default function SessionScreen() {
       setCompletedDay(dayNum);
       completeDay(dayNum, duration);
       setIsComplete(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const isMilestoneDay = milestones.some(m => m.day === dayNum);
       if (isMilestoneDay) {
         setTimeout(() => setShowCelebration(true), 400);
@@ -399,7 +399,7 @@ export default function SessionScreen() {
   }, [currentStepIndex, totalSteps, sessionStartTime, completeDay, state.currentDay]);
 
   const handleClose = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.back();
   };
 

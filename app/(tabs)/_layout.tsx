@@ -14,21 +14,22 @@ export default function TabLayout() {
         tabBarActiveTintColor: C.accent,
         tabBarInactiveTintColor: C.textMuted,
         tabBarStyle: {
-          backgroundColor: C.surface,
+          backgroundColor: 'rgba(18,10,3,0.95)',
           borderTopColor: C.border,
-          borderTopWidth: 0.5,
+          borderTopWidth: 1,
           ...(Platform.OS === 'web' ? {} : {
             shadowColor: '#000',
             shadowOffset: { width: 0, height: -8 },
-            shadowOpacity: 0.12,
+            shadowOpacity: 0.3,
             shadowRadius: 20,
           }),
           elevation: 16,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600' as const,
-          letterSpacing: 0.4,
+          fontSize: 9,
+          fontWeight: '500' as const,
+          letterSpacing: 1.2,
+          textTransform: 'uppercase' as const,
         },
         tabBarIconStyle: {
           marginBottom: -2,
@@ -38,7 +39,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(home)"
         options={{
-          title: 'Today',
+          title: 'Home',
           tabBarIcon: ({ color, size }) => <Home size={size - 2} color={color} />,
         }}
       />

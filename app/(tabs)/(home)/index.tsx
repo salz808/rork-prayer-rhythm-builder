@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   Animated,
   ActivityIndicator,
-  useWindowDimensions,
-  Image,
+  ScrollView,
 } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,7 +14,6 @@ import {
   AlertTriangle,
   Check,
   ChevronRight,
-  Flame,
   Heart,
   Moon,
   Play,
@@ -29,7 +27,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import AnimatedPressable from '@/components/AnimatedPressable';
-import ProgressRing from '@/components/ProgressRing';
 import SettingsSheet from '@/components/SettingsSheet';
 import { useColors } from '@/hooks/useColors';
 import { getDayContent, getPhaseLabel } from '@/mocks/content';
@@ -44,10 +41,24 @@ function getTimeOfDay(): { greeting: string; icon: typeof Sun } {
   return { greeting: 'Good night', icon: Moon };
 }
 
+function getEncouragingSub(completedDays: number): string {
+  if (completedDays === 0) return "You showed up. That's everything.";
+  if (completedDays === 1) return 'Day 1 complete. The groove has begun.';
+  if (completedDays <= 3) return 'Something real is forming.';
+  if (completedDays <= 6) return 'Keep walking in freedom.';
+  if (completedDays === 7) return 'One week. You are not the same.';
+  if (completedDays <= 13) return 'Your prayer life is becoming real.';
+  if (completedDays === 14) return 'Halfway. Look how far you\'ve come.';
+  if (completedDays <= 20) return 'Look at the confidence you\'re carrying.';
+  if (completedDays === 21) return 'Three weeks. Something has changed.';
+  if (completedDays <= 29) return 'Almost there. You\'re ready.';
+  return "You don't need this app anymore. But you're always welcome.";
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const C = useColors();
-  const { height } = useWindowDimensions();
+
   const {
     state,
     isLoading,
@@ -63,12 +74,10 @@ export default function HomeScreen() {
   const ctaFade = useRef(new Animated.Value(0)).current;
   const ctaSlide = useRef(new Animated.Value(30)).current;
   const glowPulse = useRef(new Animated.Value(0.3)).current;
+  const progressWidth = useRef(new Animated.Value(0)).current;
 
   const timeOfDay = useMemo(() => getTimeOfDay(), []);
   const encouragement = useMemo(() => getDailyEncouragement(), []);
-  const TimeIcon = timeOfDay.icon;
-
-  const compact = height < 780;
 
   useEffect(() => {
     console.log('[HomeScreen] Rendering Amen home screen');
@@ -76,19 +85,19 @@ export default function HomeScreen() {
     Animated.loop(
       Animated.sequence([
         Animated.timing(glowPulse, {
-          toValue: 0.6,
-          duration: 3500,
+          toValue: 0.65,
+          duration: 4000,
           useNativeDriver: true,
         }),
         Animated.timing(glowPulse, {
           toValue: 0.3,
-          duration: 3500,
+          duration: 4000,
           useNativeDriver: true,
         }),
       ])
     ).start();
 
-    Animated.stagger(80, [
+    Animated.stagger(100, [
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -135,7 +144,17 @@ export default function HomeScreen() {
   const phaseLabel = getPhaseLabel(state.currentDay);
   const showGraceBadge = graceWindowRemaining !== null && state.streakCount > 0;
   const graceUrgent = graceWindowRemaining === 0;
-  const greetingName = state.user.firstName ? `, ${state.user.firstName}` : '';
+  const greetingName = state.user.firstName || 'Friend';
+  const progressPercent = Math.max(3.3, (completedDays / 30) * 100);
+  const encouragingSub = getEncouragingSub(completedDays);
+
+  useEffect(() => {
+    Animated.timing(progressWidth, {
+      toValue: progressPercent,
+      duration: 1200,
+      useNativeDriver: false,
+    }).start();
+  }, [progressPercent, progressWidth]);
 
   if (state.journeyComplete) {
     return (
@@ -163,13 +182,13 @@ export default function HomeScreen() {
               testID="continue-daily"
             >
               <LinearGradient
-                colors={[C.accent, C.accentDeep]}
+                colors={['#D49550', '#A86B2A']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.primaryButton}
               >
-                <RotateCcw size={17} color={C.white} />
-                <Text style={styles.primaryButtonText}>Continue Daily</Text>
+                <RotateCcw size={17} color="#180C02" />
+                <Text style={[styles.primaryButtonText, { color: '#180C02' }]}>Continue Daily</Text>
               </LinearGradient>
             </AnimatedPressable>
             <AnimatedPressable
@@ -192,50 +211,42 @@ export default function HomeScreen() {
   return (
     <View style={[styles.root, { backgroundColor: C.background }]}>
       <Animated.View style={[styles.ambientGlow, { opacity: glowPulse, backgroundColor: C.accent }]} />
-      <Animated.View style={[styles.ambientGlowBottom, { opacity: glowPulse, backgroundColor: C.accentDeep }]} />
 
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.screen}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <Animated.View
-            style={[
-              styles.header,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: translateAnim }],
-              },
-            ]}
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: translateAnim }],
+            }}
           >
-            <View style={styles.headerLeft}>
-              <View style={[styles.greetingPill, { backgroundColor: C.surface, borderColor: C.border }]}>
-                <TimeIcon size={13} color={C.accent} />
-                <Text style={[styles.greetingText, { color: C.textSecondary }]}>
-                  {timeOfDay.greeting}{greetingName}
-                </Text>
+            <View style={styles.topBar}>
+              <View style={styles.topBarLeft}>
+                {state.streakCount > 0 && !showGraceBadge ? (
+                  <View style={[styles.streakPill, { backgroundColor: C.accentBg, borderColor: C.border }]}>
+                    <Text style={styles.streakEmoji}>🔥</Text>
+                    <Text style={[styles.streakText, { color: C.accentDark }]}>
+                      {state.streakCount}-day streak
+                    </Text>
+                  </View>
+                ) : null}
+                {showGraceBadge ? (
+                  <View
+                    style={[
+                      styles.streakPill,
+                      { backgroundColor: graceUrgent ? C.roseBg : C.accentBg, borderColor: C.border },
+                    ]}
+                  >
+                    <AlertTriangle size={13} color={graceUrgent ? C.rose : C.accent} />
+                    <Text style={[styles.streakText, { color: graceUrgent ? C.rose : C.textSecondary }]}>
+                      {graceUrgent ? 'Pray today' : 'Grace window'}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
-            </View>
-
-            <View style={styles.headerRight}>
-              {state.streakCount > 0 && !showGraceBadge ? (
-                <View style={[styles.streakPill, { backgroundColor: C.surface, borderColor: C.border }]}>
-                  <Flame size={13} color={C.accent} />
-                  <Text style={[styles.streakText, { color: C.text }]}>{state.streakCount}</Text>
-                </View>
-              ) : null}
-
-              {showGraceBadge ? (
-                <View
-                  style={[
-                    styles.streakPill,
-                    { backgroundColor: graceUrgent ? C.roseBg : C.surface, borderColor: C.border },
-                  ]}
-                >
-                  <AlertTriangle size={13} color={graceUrgent ? C.rose : C.accent} />
-                  <Text style={[styles.streakText, { color: graceUrgent ? C.rose : C.textSecondary }]}>
-                    {graceUrgent ? 'Today' : 'Grace'}
-                  </Text>
-                </View>
-              ) : null}
-
               <TouchableOpacity
                 onPress={() => {
                   console.log('[HomeScreen] Opening settings sheet');
@@ -248,148 +259,244 @@ export default function HomeScreen() {
                 <Settings2 size={17} color={C.textMuted} />
               </TouchableOpacity>
             </View>
-          </Animated.View>
 
-          <Animated.View
-            style={[
-              styles.heroSection,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: translateAnim }],
-              },
-            ]}
-          >
-            <Image
-              source={require('@/assets/images/amen-icon-smooth-logo.png')}
-              resizeMode="contain"
-              style={[styles.wordmark, compact && styles.wordmarkCompact]}
-              testID="amen-logo-home"
-            />
-
-            <View style={styles.taglineContainer}>
-              <Text style={[styles.taglineText, { color: C.textSecondary }]}>
-                30 days to discover God is{' '}
+            <View style={styles.headerSection}>
+              <Text style={[styles.greetingLabel, { color: C.accent }]}>
+                {timeOfDay.greeting}
               </Text>
-              <View style={[styles.highlightChip, { backgroundColor: C.accentBg }]}>
-                <Text style={[styles.highlightChipText, { color: C.accent }]}>much closer</Text>
-              </View>
-              <Text style={[styles.taglineText, { color: C.textSecondary }]}> than you think.</Text>
+              <Text style={[styles.nameTitle, { color: C.text }]}>{greetingName}</Text>
+              <Text style={[styles.subText, { color: C.textSecondary }]}>{encouragingSub}</Text>
+            </View>
+
+            <View style={[styles.streakCard, { backgroundColor: C.accentBg, borderColor: C.border }]}>
+              <Text style={styles.streakCardEmoji}>🔥</Text>
+              <Text style={[styles.streakCardText, { color: C.textSecondary }]}>
+                <Text style={[styles.streakCardStrong, { color: C.accentDark }]}>
+                  {state.streakCount > 0 ? `${state.streakCount}-day streak` : 'Start your streak'}
+                </Text>
+                {' · Keep walking in freedom'}
+              </Text>
             </View>
           </Animated.View>
 
           <Animated.View
-            style={[
-              styles.todayCard,
-              {
-                backgroundColor: C.surface,
-                borderColor: C.border,
-                opacity: fadeAnim,
-                transform: [{ translateY: translateAnim }],
-              },
-            ]}
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: translateAnim }],
+            }}
           >
-            <View style={styles.todayCardTop}>
-              <View style={styles.todayCardMeta}>
-                <Text style={[styles.todayEyebrow, { color: C.textMuted }]}>TODAY&apos;S PRAYER</Text>
-                <Text style={[styles.todayTitle, { color: C.text }]} numberOfLines={2}>
-                  {dayContent.title}
+            <View style={styles.progressSection}>
+              <View style={styles.progressLabelRow}>
+                <Text style={[styles.progressLabel, { color: C.accent }]}>JOURNEY TO WHOLENESS</Text>
+                <Text style={[styles.progressDay, { color: C.textMuted }]}>
+                  Day {state.currentDay} of 30
                 </Text>
               </View>
-              <View style={[styles.phasePill, { backgroundColor: C.accentBg }]}>
-                <Text style={[styles.phaseText, { color: C.accent }]}>{phaseLabel}</Text>
-              </View>
-            </View>
-
-            <View style={styles.todayCardBody}>
-              <View style={styles.ringArea}>
-                <ProgressRing
-                  progress={completedDays / 30}
-                  size={compact ? 130 : 148}
-                  strokeWidth={6}
-                  backgroundColor={C.border}
-                >
-                  <Text style={[styles.ringDayLabel, { color: C.textMuted }]}>DAY</Text>
-                  <Text style={[styles.ringDayNum, { color: C.text }]}>{state.currentDay}</Text>
-                  <Text style={[styles.ringDayOf, { color: C.textMuted }]}>of 30</Text>
-                </ProgressRing>
-              </View>
-
-              <View style={styles.rightColumn}>
-                <View style={[styles.quoteCard, { backgroundColor: C.surfaceAlt, borderColor: C.border }]}>
-                  <Sparkles size={12} color={C.accent} style={styles.quoteIcon} />
-                  <Text style={[styles.quoteText, { color: C.textSecondary }]} numberOfLines={compact ? 3 : 4}>
-                    &ldquo;{encouragement.text}&rdquo;
-                  </Text>
-                  <Text style={[styles.quoteAuthor, { color: C.textMuted }]} numberOfLines={1}>
-                    {encouragement.author}
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  style={[styles.supportRow, { backgroundColor: C.accentBg, borderColor: C.border }]}
-                  onPress={() => {
-                    console.log('[HomeScreen] Navigating to support page');
-                    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    router.push('/paywall');
-                  }}
-                  activeOpacity={0.8}
-                  testID="support-cause-home"
-                >
-                  <View style={[styles.supportHeart, { backgroundColor: C.accent }]}>
-                    <Heart size={12} color={C.white} fill={C.white} />
-                  </View>
-                  <Text style={[styles.supportLabel, { color: C.text }]} numberOfLines={1}>Support This Cause</Text>
-                  <ChevronRight size={14} color={C.textMuted} />
-                </TouchableOpacity>
+              <View style={[styles.progressTrack, { backgroundColor: C.border }]}>
+                <Animated.View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: progressWidth.interpolate({
+                        inputRange: [0, 100],
+                        outputRange: ['0%', '100%'],
+                      }),
+                    },
+                  ]}
+                />
               </View>
             </View>
           </Animated.View>
 
           <Animated.View
-            style={[
-              styles.ctaArea,
-              {
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: translateAnim }],
+            }}
+          >
+            <Text style={[styles.sectionEyebrow, { color: C.accent }]}>TODAY&apos;S PRACTICE</Text>
+
+            <AnimatedPressable
+              style={[styles.todayCard, { borderColor: C.border }]}
+              onPress={() => {
+                if (!hasCompletedSessionToday) {
+                  console.log('[HomeScreen] Starting today\'s session');
+                  router.push('/session');
+                }
+              }}
+              scaleValue={0.98}
+              testID="begin-today"
+            >
+              <LinearGradient
+                colors={[C.surfaceElevated, C.surface]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.todayCardInner}
+              >
+                <View style={[styles.todayCardTopLine, { backgroundColor: C.accent }]} />
+                <View style={[styles.todayCardGlow, { backgroundColor: C.accent }]} />
+
+                <Text style={[styles.todayCardDay, { color: C.accent }]}>
+                  {'• Day ' + state.currentDay + ' · ' + phaseLabel}
+                </Text>
+                <Text style={[styles.todayCardTitle, { color: C.text }]}>
+                  {dayContent.title}
+                </Text>
+                <Text style={[styles.todayCardDesc, { color: C.textSecondary }]} numberOfLines={3}>
+                  {dayContent.settle}
+                </Text>
+
+                <View style={[styles.todayCardRule, { backgroundColor: C.border }]} />
+
+                <View style={styles.triadPills}>
+                  {['Thank', 'Repent', 'Invite', 'Ask', 'Declare'].map((pill) => (
+                    <View key={pill} style={[styles.triadPill, { borderColor: C.border }]}>
+                      <Text style={[styles.triadPillText, { color: C.accent }]}>{pill}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                <View style={[styles.todayCardRule, { backgroundColor: C.border }]} />
+
+                {hasCompletedSessionToday ? (
+                  <View style={styles.todayCardCta}>
+                    <View style={[styles.completedBadge, { backgroundColor: C.sageBg }]}>
+                      <Check size={12} color={C.sage} strokeWidth={2.5} />
+                    </View>
+                    <Text style={[styles.todayCardCtaText, { color: C.sage }]}>Completed today</Text>
+                  </View>
+                ) : (
+                  <View style={styles.todayCardCta}>
+                    <Text style={[styles.todayCardCtaText, { color: C.accent }]}>
+                      Begin today&apos;s prayer
+                    </Text>
+                    <ChevronRight size={14} color={C.accent} />
+                  </View>
+                )}
+              </LinearGradient>
+            </AnimatedPressable>
+          </Animated.View>
+
+          <Animated.View
+            style={{
+              opacity: ctaFade,
+              transform: [{ translateY: ctaSlide }],
+            }}
+          >
+            <Text style={[styles.sectionEyebrow, { color: C.accent }]}>30-DAY JOURNEY</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.dayStripContent}
+              style={styles.dayStrip}
+            >
+              {Array.from({ length: 30 }, (_, i) => {
+                const dayNum = i + 1;
+                const isDone = state.progress.some(p => p.day === dayNum && p.completed);
+                const isToday = dayNum === state.currentDay;
+                const isLocked = dayNum > state.currentDay;
+
+                return (
+                  <View
+                    key={dayNum}
+                    style={[
+                      styles.dayChip,
+                      isDone && [styles.dayChipDone, { backgroundColor: C.accentBg, borderColor: C.border }],
+                      isToday && [styles.dayChipToday, { backgroundColor: 'rgba(200,137,74,0.15)', borderColor: C.accent }],
+                      isLocked && styles.dayChipLocked,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.dayChipNum,
+                        { color: C.textMuted },
+                        isDone && { color: C.accent },
+                        isToday && { color: C.text },
+                        isLocked && { color: C.textMuted },
+                      ]}
+                    >
+                      {dayNum}
+                    </Text>
+                    <View
+                      style={[
+                        styles.dayChipDot,
+                        isDone && { backgroundColor: C.accent },
+                        isToday && { backgroundColor: C.text },
+                      ]}
+                    />
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </Animated.View>
+
+          <Animated.View
+            style={{
+              opacity: ctaFade,
+              transform: [{ translateY: ctaSlide }],
+              marginTop: 20,
+            }}
+          >
+            <View style={[styles.quoteCard, { backgroundColor: C.surface, borderColor: C.border }]}>
+              <Sparkles size={12} color={C.accent} style={{ marginBottom: 8 }} />
+              <Text style={[styles.quoteText, { color: C.textSecondary }]}>
+                &ldquo;{encouragement.text}&rdquo;
+              </Text>
+              <Text style={[styles.quoteAuthor, { color: C.textMuted }]}>
+                {encouragement.author}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.supportRow, { backgroundColor: C.accentBg, borderColor: C.border }]}
+              onPress={() => {
+                console.log('[HomeScreen] Navigating to support page');
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/paywall');
+              }}
+              activeOpacity={0.8}
+              testID="support-cause-home"
+            >
+              <View style={[styles.supportHeart, { backgroundColor: C.accent }]}>
+                <Heart size={12} color={C.white} fill={C.white} />
+              </View>
+              <Text style={[styles.supportLabel, { color: C.text }]} numberOfLines={1}>Support This Cause</Text>
+              <ChevronRight size={14} color={C.textMuted} />
+            </TouchableOpacity>
+          </Animated.View>
+
+          {!hasCompletedSessionToday && (
+            <Animated.View
+              style={{
                 opacity: ctaFade,
                 transform: [{ translateY: ctaSlide }],
-              },
-            ]}
-          >
-            {hasCompletedSessionToday ? (
-              <View style={[styles.doneCard, { backgroundColor: C.sageBg, borderColor: C.sageLight }]}>
-                <View style={[styles.doneIcon, { backgroundColor: C.sage }]}>
-                  <Check size={16} color={C.white} strokeWidth={2.5} />
-                </View>
-                <View style={styles.doneTextArea}>
-                  <Text style={[styles.doneTitle, { color: C.sageDark }]}>You showed up today</Text>
-                  <Text style={[styles.doneSub, { color: C.sage }]}>
-                    Come back tomorrow for day {Math.min(state.currentDay + 1, 30)}
-                  </Text>
-                </View>
-              </View>
-            ) : (
+                marginTop: 16,
+                marginBottom: 8,
+              }}
+            >
               <AnimatedPressable
                 style={[styles.primaryButtonShell, { shadowColor: C.accent }]}
                 onPress={() => {
-                  console.log('[HomeScreen] Starting today\'s session');
+                  console.log('[HomeScreen] Starting today\'s session from CTA');
                   router.push('/session');
                 }}
                 scaleValue={0.97}
                 hapticStyle={Haptics.ImpactFeedbackStyle.Medium}
-                testID="begin-today"
+                testID="begin-today-cta"
               >
                 <LinearGradient
-                  colors={[C.accent, C.accentDeep]}
+                  colors={['#D49550', '#A86B2A']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.primaryButton}
                 >
-                  <Play size={17} color={C.white} fill={C.white} />
-                  <Text style={styles.primaryButtonText}>Begin Today</Text>
+                  <Play size={17} color="#180C02" fill="#180C02" />
+                  <Text style={[styles.primaryButtonText, { color: '#180C02' }]}>Begin Today</Text>
                 </LinearGradient>
               </AnimatedPressable>
-            )}
-          </Animated.View>
-        </View>
+            </Animated.View>
+          )}
+        </ScrollView>
       </SafeAreaView>
 
       <SettingsSheet visible={settingsVisible} onClose={() => setSettingsVisible(false)} />
@@ -404,76 +511,52 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  screen: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 6,
-    paddingBottom: 12,
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 32,
   },
   ambientGlow: {
     position: 'absolute',
-    top: -160,
-    left: '20%',
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    transform: [{ scaleX: 1.8 }],
-  },
-  ambientGlowBottom: {
-    position: 'absolute',
-    bottom: 40,
-    right: -80,
-    width: 200,
+    top: -60,
+    left: '50%',
+    width: 320,
     height: 200,
-    borderRadius: 100,
-    transform: [{ scaleX: 1.4 }],
+    borderRadius: 160,
+    transform: [{ translateX: -160 }],
   },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  header: {
+  topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerRight: {
+  topBarLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  greetingPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 24,
-    borderWidth: 1,
-    gap: 8,
-  },
-  greetingText: {
-    fontSize: 13,
-    fontWeight: '500' as const,
-    letterSpacing: 0.2,
   },
   streakPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 24,
+    borderRadius: 100,
     borderWidth: 1,
-    gap: 6,
+    gap: 8,
+  },
+  streakEmoji: {
+    fontSize: 14,
   },
   streakText: {
-    fontSize: 13,
-    fontWeight: '700' as const,
+    fontSize: 12,
+    fontWeight: '500' as const,
+    letterSpacing: 0.3,
   },
   settingsBtn: {
     width: 38,
@@ -483,153 +566,241 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heroSection: {
-    alignItems: 'center',
-    marginBottom: 24,
+  headerSection: {
+    marginBottom: 20,
   },
-  wordmark: {
-    width: 200,
-    height: 80,
-    marginBottom: 12,
-  },
-  wordmarkCompact: {
-    width: 170,
-    height: 68,
-    marginBottom: 8,
-  },
-  taglineContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    maxWidth: 310,
-    paddingHorizontal: 8,
-  },
-  taglineText: {
-    fontSize: 15,
-    lineHeight: 26,
-    fontWeight: '400' as const,
-    textAlign: 'center',
-    letterSpacing: 0.1,
-  },
-  highlightChip: {
-    borderRadius: 20,
-    paddingHorizontal: 11,
-    paddingVertical: 3,
-    marginHorizontal: 3,
-  },
-  highlightChipText: {
-    fontSize: 15,
-    lineHeight: 20,
-    fontWeight: '700' as const,
-    letterSpacing: 0.2,
-  },
-  todayCard: {
-    borderWidth: 1,
-    borderRadius: 28,
-    padding: 18,
-    marginBottom: 16,
-  },
-  todayCardTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  todayCardMeta: {
-    flex: 1,
-    marginRight: 12,
-  },
-  todayEyebrow: {
-    fontSize: 10,
-    fontWeight: '700' as const,
-    letterSpacing: 2,
+  greetingLabel: {
+    fontSize: 11,
+    fontWeight: '300' as const,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
     marginBottom: 6,
   },
-  todayTitle: {
-    fontSize: 26,
-    lineHeight: 32,
+  nameTitle: {
+    fontSize: 40,
     fontWeight: '300' as const,
-    letterSpacing: -0.8,
+    letterSpacing: -0.5,
+    lineHeight: 44,
+    marginBottom: 6,
   },
-  phasePill: {
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+  subText: {
+    fontSize: 15,
+    fontStyle: 'italic' as const,
+    lineHeight: 22,
   },
-  phaseText: {
+  streakCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 17,
+    paddingVertical: 14,
+    borderRadius: 15,
+    borderWidth: 1,
+    marginBottom: 24,
+  },
+  streakCardEmoji: {
+    fontSize: 22,
+  },
+  streakCardText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '300' as const,
+    letterSpacing: 0.3,
+  },
+  streakCardStrong: {
+    fontWeight: '500' as const,
+  },
+  progressSection: {
+    marginBottom: 24,
+  },
+  progressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  progressLabel: {
     fontSize: 9,
-    fontWeight: '700' as const,
-    letterSpacing: 1.4,
+    fontWeight: '500' as const,
+    letterSpacing: 2.5,
     textTransform: 'uppercase' as const,
   },
-  todayCardBody: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
+  progressDay: {
+    fontSize: 11,
+    fontWeight: '300' as const,
   },
-  ringArea: {
-    width: 148,
+  progressTrack: {
+    height: 2,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
+    backgroundColor: '#C8894A',
+  },
+  sectionEyebrow: {
+    fontSize: 9,
+    fontWeight: '500' as const,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
+    marginBottom: 14,
+    opacity: 0.55,
+  },
+  todayCard: {
+    borderRadius: 22,
+    borderWidth: 1,
+    overflow: 'hidden',
+    marginBottom: 24,
+  },
+  todayCardInner: {
+    padding: 24,
+    position: 'relative',
+  },
+  todayCardTopLine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    opacity: 0.35,
+  },
+  todayCardGlow: {
+    position: 'absolute',
+    bottom: -50,
+    right: -50,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    opacity: 0.06,
+  },
+  todayCardDay: {
+    fontSize: 9,
+    fontWeight: '600' as const,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
+    marginBottom: 10,
+  },
+  todayCardTitle: {
+    fontSize: 30,
+    fontWeight: '300' as const,
+    lineHeight: 34,
+    letterSpacing: -0.5,
+    marginBottom: 10,
+  },
+  todayCardDesc: {
+    fontSize: 15,
+    fontStyle: 'italic' as const,
+    lineHeight: 26,
+    marginBottom: 16,
+  },
+  todayCardRule: {
+    height: 1,
+    marginVertical: 14,
+  },
+  triadPills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  triadPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 100,
+    borderWidth: 1,
+  },
+  triadPillText: {
+    fontSize: 8,
+    fontWeight: '500' as const,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase' as const,
+    opacity: 0.65,
+  },
+  todayCardCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  todayCardCtaText: {
+    fontSize: 11,
+    fontWeight: '300' as const,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+  },
+  completedBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
   },
-  ringDayLabel: {
-    fontSize: 9,
-    fontWeight: '700' as const,
-    letterSpacing: 3,
-    marginBottom: 3,
+  dayStrip: {
+    marginBottom: 4,
   },
-  ringDayNum: {
-    fontSize: 42,
-    lineHeight: 46,
-    fontWeight: '200' as const,
-    letterSpacing: -2,
+  dayStripContent: {
+    gap: 7,
+    paddingRight: 8,
   },
-  ringDayOf: {
-    fontSize: 11,
-    fontWeight: '500' as const,
-    marginTop: 2,
+  dayChip: {
+    width: 42,
+    height: 52,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
-  rightColumn: {
-    flex: 1,
-    justifyContent: 'space-between',
-    gap: 10,
+  dayChipDone: {
+    borderWidth: 1,
+  },
+  dayChipToday: {
+    borderWidth: 1,
+  },
+  dayChipLocked: {
+    opacity: 0.28,
+  },
+  dayChipNum: {
+    fontSize: 13,
+    fontWeight: '300' as const,
+  },
+  dayChipDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'transparent',
   },
   quoteCard: {
     borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 13,
-    paddingVertical: 12,
-    flex: 1,
-  },
-  quoteIcon: {
-    marginBottom: 6,
+    borderRadius: 18,
+    padding: 20,
+    marginBottom: 12,
   },
   quoteText: {
-    fontSize: 13,
-    lineHeight: 20,
-    fontWeight: '400' as const,
+    fontSize: 14,
+    lineHeight: 24,
     fontStyle: 'italic' as const,
+    marginBottom: 8,
   },
   quoteAuthor: {
     fontSize: 10,
     fontWeight: '600' as const,
     letterSpacing: 0.3,
-    marginTop: 6,
   },
   supportRow: {
     borderWidth: 1,
     borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 11,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    marginBottom: 4,
   },
   supportHeart: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -639,20 +810,17 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     letterSpacing: 0.1,
   },
-  ctaArea: {
-    marginTop: 'auto',
-  },
   primaryButtonShell: {
-    borderRadius: 24,
+    borderRadius: 100,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.3,
-    shadowRadius: 28,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
+    elevation: 8,
   },
   primaryButton: {
-    minHeight: 58,
-    borderRadius: 24,
+    minHeight: 54,
+    borderRadius: 100,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -660,10 +828,10 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   primaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700' as const,
-    letterSpacing: 0.4,
+    fontSize: 12.5,
+    fontWeight: '500' as const,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
   },
   ghostButton: {
     minHeight: 48,
@@ -675,34 +843,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600' as const,
     letterSpacing: 0.2,
-  },
-  doneCard: {
-    borderWidth: 1,
-    borderRadius: 22,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  doneIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  doneTextArea: {
-    flex: 1,
-  },
-  doneTitle: {
-    fontSize: 14,
-    fontWeight: '700' as const,
-    marginBottom: 2,
-  },
-  doneSub: {
-    fontSize: 12,
-    fontWeight: '500' as const,
   },
   completionContainer: {
     flex: 1,

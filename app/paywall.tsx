@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Heart, Globe, RefreshCw, Check, Sparkles, ArrowRight, Cross } from 'lucide-react-native';
+import { X, Check, RefreshCw, ArrowRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useColors } from '@/hooks/useColors';
@@ -38,17 +38,22 @@ const getPurchases = () => {
   }
 };
 
-interface PackageInfo {
-  pkg: PurchasesPackage;
-  title: string;
-  price: string;
-  description: string;
-  impact: string;
-  icon: typeof Heart;
-  highlight: boolean;
-}
-
 const Purchases = getPurchases();
+
+interface TierInfo {
+  id: string;
+  emoji: string;
+  title: string;
+  badge?: string;
+  badgeColor?: string;
+  check: string;
+  price: string;
+  period: string;
+  desc: string;
+  btnStyle: 'outline' | 'amber' | 'moss';
+  featured?: boolean;
+  pkg?: PurchasesPackage;
+}
 
 export default function PaywallScreen() {
   const router = useRouter();
@@ -68,12 +73,10 @@ export default function PaywallScreen() {
     queryKey: ['offerings'],
     queryFn: async (): Promise<PurchasesOffering | null> => {
       if (!Purchases) {
-        console.log('[Paywall] RevenueCat not available on this platform');
+        console.log('[Paywall] RevenueCat not available');
         return null;
       }
-      console.log('[Paywall] Fetching offerings...');
       const offerings = await Purchases.getOfferings();
-      console.log('[Paywall] Current offering:', offerings.current?.identifier);
       return offerings.current ?? null;
     },
   });
@@ -81,23 +84,19 @@ export default function PaywallScreen() {
   const purchaseMutation = useMutation({
     mutationFn: async (pkg: PurchasesPackage) => {
       if (!Purchases) throw new Error('Purchases not available');
-      console.log('[Paywall] Purchasing package:', pkg.identifier);
       const { customerInfo } = await Purchases.purchasePackage(pkg);
       return customerInfo;
     },
     onSuccess: () => {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert(
-        'Thank you! 🙏',
-        "Your support means everything. This is more than a transaction. It's partnership.",
-        [{ text: 'Continue', onPress: () => router.back() }]
-      );
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert('Thank you! 🙏', "Your support means everything.", [
+        { text: 'Continue', onPress: () => router.back() },
+      ]);
     },
     onError: (error: unknown) => {
       const err = error as { userCancelled?: boolean; message?: string };
       if (!err.userCancelled) {
-        console.log('[Paywall] Purchase error:', err.message);
-        Alert.alert('Something went wrong', 'Please try again or restore your purchases.');
+        Alert.alert('Something went wrong', 'Please try again.');
       }
     },
   });
@@ -105,15 +104,13 @@ export default function PaywallScreen() {
   const restoreMutation = useMutation({
     mutationFn: async () => {
       if (!Purchases) throw new Error('Purchases not available');
-      console.log('[Paywall] Restoring purchases...');
-      const customerInfo = await Purchases.restorePurchases();
-      return customerInfo;
+      return await Purchases.restorePurchases();
     },
     onSuccess: (customerInfo) => {
       const hasActive = Object.keys(customerInfo.entitlements.active).length > 0;
       if (hasActive) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert('Restored!', 'Your support has been restored. Thank you.', [
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Alert.alert('Restored!', 'Your support has been restored.', [
           { text: 'Continue', onPress: () => router.back() },
         ]);
       } else {
@@ -125,40 +122,65 @@ export default function PaywallScreen() {
     },
   });
 
-  const buildPackageInfo = (pkgs: PurchasesPackage[]): PackageInfo[] => {
-    return pkgs.map((pkg) => {
-      const price = pkg.product.priceString;
-      const id = pkg.product.identifier;
-      const isMissions = id.includes('missions');
-      return {
-        pkg,
-        title: isMissions ? 'Share the Gospel' : 'Support Development',
-        price,
-        description: isMissions
-          ? '$9.99/mo. 100% goes toward missions around the world to share the Gospel of Jesus Christ.'
-          : '$0.99/mo. Help us keep building and improving this app for everyone.',
-        impact: isMissions
-          ? 'Fund global missions'
-          : 'Keep the app free for all',
-        icon: isMissions ? Globe : Heart,
-        highlight: isMissions,
-      };
-    });
+  const packages = offeringsQuery.data?.availablePackages ?? [];
+
+  const tiers: TierInfo[] = [
+    {
+      id: 'free',
+      emoji: '🤍',
+      title: 'Support Development',
+      check: 'Keep the app free for all',
+      price: '$0.99',
+      period: '/mo',
+      desc: 'Help us keep building and improving this app for everyone who needs it.',
+      btnStyle: 'outline',
+      pkg: packages[0],
+    },
+    {
+      id: 'missions',
+      emoji: '🌍',
+      title: 'Share the Gospel',
+      badge: 'MISSIONS',
+      check: 'Fund global missions',
+      price: '$9.99',
+      period: '/mo',
+      desc: '100% goes toward missions around the world to share the Gospel of Jesus Christ.',
+      btnStyle: 'amber',
+      featured: true,
+      pkg: packages[1],
+    },
+    {
+      id: 'partner',
+      emoji: '🌱',
+      title: 'Kingdom Partner',
+      badge: 'PARTNER',
+      badgeColor: 'moss',
+      check: 'Development + missions combined',
+      price: '$24.99',
+      period: '/mo',
+      desc: 'Split between keeping the app free and funding missions. For those who want to do both.',
+      btnStyle: 'moss',
+      pkg: packages[2],
+    },
+  ];
+
+  const handlePurchase = (tier: TierInfo) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (tier.pkg) {
+      purchaseMutation.mutate(tier.pkg);
+    } else {
+      Alert.alert('Coming Soon', 'Subscriptions will be available when the app launches.');
+    }
   };
 
-  const packages = offeringsQuery.data?.availablePackages ?? [];
-  const packageInfos = buildPackageInfo(packages);
-
   return (
-    <LinearGradient
-      colors={[C.gradientStart, C.gradientMid, C.gradientEnd]}
-      style={styles.root}
-    >
+    <View style={[styles.root, { backgroundColor: C.background }]}>
+      <View style={[styles.glowT, { backgroundColor: C.accent }]} />
       <SafeAreaView style={styles.safeArea}>
         <TouchableOpacity
           style={[styles.closeBtn, { backgroundColor: C.overlayLight }]}
           onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             router.back();
           }}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -172,126 +194,142 @@ export default function PaywallScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-            <View style={styles.iconOuter}>
-              <View style={[styles.iconGlow, { backgroundColor: C.accentBg }]} />
-              <View style={[styles.iconGlowInner, { backgroundColor: C.accentBg }]} />
-              <View style={[styles.iconWrap, { backgroundColor: C.accentBg, borderColor: C.accentLight, borderWidth: 1.5 }]}>
-                <Sparkles size={28} color={C.accentDark} />
-              </View>
-            </View>
-
-            <Text style={[styles.title, { color: C.text }]}>Support This Cause</Text>
-            <View style={styles.subtitleDecorator}>
-              <View style={[styles.subtitleDecorLine, { backgroundColor: C.accentLight }]} />
-              <Cross size={10} color={C.accentDark} style={{ opacity: 0.3 }} />
-              <View style={[styles.subtitleDecorLine, { backgroundColor: C.accentLight }]} />
-            </View>
-            <Text style={[styles.subtitle, { color: C.textSecondary }]}>
-              This app is free and always will be. Your support keeps it alive and helps share the Gospel of Jesus Christ with the world.
+            <Text style={[styles.eyebrow, { color: C.accent }]}>SUPPORT THIS CAUSE</Text>
+            <Text style={[styles.title, { color: C.text }]}>
+              This app is free.{'\n'}
+              <Text style={{ color: C.accentDark, fontStyle: 'italic' }}>Always will be.</Text>
             </Text>
+            <View style={[styles.titleRule, { backgroundColor: C.accent }]} />
 
-            <View style={[styles.divider, { backgroundColor: C.border }]} />
+            <Text style={[styles.mission, { color: C.textSecondary }]}>
+              Your support keeps it alive and helps{' '}
+              <Text style={{ color: C.text, fontWeight: '500' as const }}>
+                share the Gospel of Jesus Christ with the world.
+              </Text>
+            </Text>
 
             {offeringsQuery.isLoading ? (
               <ActivityIndicator color={C.accent} style={{ marginVertical: 40 }} />
-            ) : offeringsQuery.isError ? (
-              <View style={[styles.errorBox, { backgroundColor: C.roseBg }]}>
-                <Text style={[styles.errorText, { color: C.rose }]}>
-                  Couldn{"'"}t load options. Please check your connection.
-                </Text>
-              </View>
             ) : (
-              <View style={styles.cards}>
-                {packageInfos.map((info) => {
-                  const Icon = info.icon;
-                  const isPurchasing = purchaseMutation.isPending &&
-                    purchaseMutation.variables?.identifier === info.pkg.identifier;
-
-                  return (
-                    <TouchableOpacity
-                      key={info.pkg.identifier}
-                      style={[
-                        styles.card,
-                        {
-                          backgroundColor: info.highlight ? C.accentBg : C.surface,
-                          borderColor: info.highlight ? C.accentDark : C.border,
-                          borderWidth: info.highlight ? 1.5 : 1,
-                        },
-                      ]}
-                      onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                        purchaseMutation.mutate(info.pkg);
-                      }}
-                      activeOpacity={0.82}
-                      disabled={purchaseMutation.isPending || restoreMutation.isPending}
-                      testID={`purchase-${info.pkg.identifier}`}
+              <View style={styles.tiersContainer}>
+                {tiers.map((tier) => (
+                  <View
+                    key={tier.id}
+                    style={[
+                      styles.tierCard,
+                      { borderColor: C.border },
+                      tier.featured && { borderColor: 'rgba(200,137,74,0.45)' },
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={tier.featured
+                        ? [C.surfaceElevated, C.surface]
+                        : [C.surfaceElevated, C.surface]
+                      }
+                      start={{ x: 0.1, y: 0 }}
+                      end={{ x: 0.9, y: 1 }}
+                      style={styles.tierCardInner}
                     >
-                      <View style={styles.cardTop}>
+                      <View style={[styles.tierCardTopLine, { backgroundColor: C.accent, opacity: tier.featured ? 0.45 : 0.25 }]} />
+
+                      <View style={styles.tierTop}>
                         <View style={[
-                          styles.cardIcon,
-                          { backgroundColor: info.highlight ? C.accentLight : C.accentBg }
+                          styles.tierIco,
+                          { backgroundColor: C.accentBg, borderColor: C.border },
+                          tier.featured && { backgroundColor: 'rgba(200,137,74,0.15)', borderColor: 'rgba(200,137,74,0.35)' },
+                          tier.badgeColor === 'moss' && { backgroundColor: 'rgba(62,130,80,0.15)', borderColor: 'rgba(62,130,80,0.32)' },
                         ]}>
-                          <Icon size={20} color={info.highlight ? C.white : C.accentDark} />
+                          <Text style={styles.tierEmojiText}>{tier.emoji}</Text>
                         </View>
-                        <View style={styles.cardTitleGroup}>
-                          <View style={styles.titleRow}>
-                            <Text style={[styles.cardTitle, { color: C.text }]}>{info.title}</Text>
-                            {info.highlight && (
-                              <View style={[styles.badge, { backgroundColor: C.accentDark }]}>
-                                <Text style={styles.badgeText}>MISSIONS</Text>
+                        <View style={styles.tierNameWrap}>
+                          <View style={styles.tierNameRow}>
+                            <Text style={[styles.tierName, { color: C.text }]}>{tier.title}</Text>
+                            {tier.badge && (
+                              <View style={[
+                                styles.tierBadge,
+                                { backgroundColor: 'rgba(200,137,74,0.18)', borderColor: 'rgba(200,137,74,0.35)' },
+                                tier.badgeColor === 'moss' && { backgroundColor: 'rgba(62,130,80,0.18)', borderColor: 'rgba(62,130,80,0.38)' },
+                              ]}>
+                                <Text style={[
+                                  styles.tierBadgeText,
+                                  { color: C.accentDark },
+                                  tier.badgeColor === 'moss' && { color: '#8ED09A' },
+                                ]}>{tier.badge}</Text>
                               </View>
                             )}
                           </View>
-                          <View style={styles.impactRow}>
-                            <Check size={11} color={C.sage} strokeWidth={2.5} />
-                            <Text style={[styles.cardImpact, { color: C.sageDark }]}>{info.impact}</Text>
+                          <View style={styles.tierCheckRow}>
+                            <Check size={11} color={C.accent} strokeWidth={2} />
+                            <Text style={[styles.tierCheck, { color: C.textSecondary }]}>{tier.check}</Text>
                           </View>
                         </View>
                       </View>
 
-                      <View style={styles.priceRow}>
-                        <Text style={[styles.price, { color: info.highlight ? C.accentDark : C.text }]}>
-                          {info.price}
-                        </Text>
-                        <Text style={[styles.priceFreq, { color: C.textMuted }]}>/mo</Text>
+                      <View style={styles.tierPriceRow}>
+                        <Text style={[styles.tierPrice, { color: C.text }]}>{tier.price}</Text>
+                        <Text style={[styles.tierPeriod, { color: C.textMuted }]}>{tier.period}</Text>
                       </View>
 
-                      <Text style={[styles.cardDesc, { color: C.textSecondary }]}>{info.description}</Text>
+                      <Text style={[styles.tierDesc, { color: C.textSecondary }]}>{tier.desc}</Text>
 
-                      <View style={[
-                        styles.cardButton,
-                        { backgroundColor: info.highlight ? C.accentDark : C.accentBg }
-                      ]}>
-                        {isPurchasing ? (
-                          <ActivityIndicator color={info.highlight ? C.white : C.accentDark} size="small" />
+                      <TouchableOpacity
+                        style={[
+                          styles.tierBtn,
+                          tier.btnStyle === 'outline' && { borderWidth: 1, borderColor: 'rgba(200,137,74,0.3)', backgroundColor: 'transparent' },
+                        ]}
+                        onPress={() => handlePurchase(tier)}
+                        activeOpacity={0.82}
+                        disabled={purchaseMutation.isPending || restoreMutation.isPending}
+                        testID={`purchase-${tier.id}`}
+                      >
+                        {tier.btnStyle === 'amber' ? (
+                          <LinearGradient
+                            colors={['#C8894A', '#A06228']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.tierBtnGradient}
+                          >
+                            <Text style={[styles.tierBtnText, { color: '#fff' }]}>Subscribe</Text>
+                            <ArrowRight size={14} color="#fff" />
+                          </LinearGradient>
+                        ) : tier.btnStyle === 'moss' ? (
+                          <LinearGradient
+                            colors={['#4A9E5C', '#2E7040']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.tierBtnGradient}
+                          >
+                            <Text style={[styles.tierBtnText, { color: '#fff' }]}>Subscribe</Text>
+                            <ArrowRight size={14} color="#fff" />
+                          </LinearGradient>
                         ) : (
-                          <View style={styles.cardButtonInner}>
-                            <Text style={[
-                              styles.cardButtonText,
-                              { color: info.highlight ? C.white : C.accentDark }
-                            ]}>
-                              Subscribe
-                            </Text>
-                            <ArrowRight size={14} color={info.highlight ? C.white : C.accentDark} />
+                          <View style={styles.tierBtnGradient}>
+                            <Text style={[styles.tierBtnText, { color: C.accentDark }]}>Subscribe</Text>
+                            <ArrowRight size={14} color={C.accentDark} />
                           </View>
                         )}
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
+                      </TouchableOpacity>
+                    </LinearGradient>
+                  </View>
+                ))}
               </View>
             )}
 
-            <View style={[styles.noteBox, { backgroundColor: C.sageBg, borderColor: C.sageLight }]}>
-              <Text style={[styles.noteText, { color: C.sageDark }]}>
-                No investors. No ads. Every dollar goes directly to app development or global missions. Just people who pray, supporting people who pray.
-              </Text>
+            <View style={[styles.footerNote, { borderColor: 'rgba(62,130,80,0.2)' }]}>
+              <LinearGradient
+                colors={['rgba(62,130,80,0.07)', 'rgba(62,130,80,0.03)']}
+                style={styles.footerNoteInner}
+              >
+                <Text style={[styles.footerNoteText, { color: 'rgba(175,215,185,0.85)' }]}>
+                  No investors. No ads. Every dollar goes directly to app development or global missions. Just people who pray, supporting people who pray.
+                </Text>
+              </LinearGradient>
             </View>
 
             <TouchableOpacity
               style={styles.restoreBtn}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 restoreMutation.mutate();
               }}
               disabled={purchaseMutation.isPending || restoreMutation.isPending}
@@ -313,7 +351,7 @@ export default function PaywallScreen() {
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -324,8 +362,18 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  glowT: {
+    position: 'absolute',
+    top: -50,
+    left: '50%',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    opacity: 0.07,
+    transform: [{ translateX: -140 }],
+  },
   closeBtn: {
-    position: 'absolute' as const,
+    position: 'absolute',
     top: 56,
     right: 20,
     width: 36,
@@ -337,190 +385,165 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: 56,
+    paddingHorizontal: 24,
+    paddingTop: 64,
     paddingBottom: 40,
   },
-  content: {
-    alignItems: 'center',
-  },
-  iconOuter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 28,
-  },
-  iconGlow: {
-    position: 'absolute' as const,
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    opacity: 0.4,
-  },
-  iconGlowInner: {
-    position: 'absolute' as const,
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    opacity: 0.6,
-  },
-  iconWrap: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  subtitleDecorator: {
-    flexDirection: 'row' as const,
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
-  },
-  subtitleDecorLine: {
-    width: 28,
-    height: 1,
+  content: {},
+  eyebrow: {
+    fontSize: 9,
+    fontWeight: '500' as const,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
+    marginBottom: 10,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700' as const,
-    letterSpacing: -1,
-    marginBottom: 10,
-    textAlign: 'center',
+    fontSize: 34,
+    fontWeight: '300' as const,
+    lineHeight: 40,
+    letterSpacing: -0.5,
+    marginBottom: 12,
   },
-  subtitle: {
-    fontSize: 15,
-    lineHeight: 24,
-    textAlign: 'center',
-    paddingHorizontal: 12,
+  titleRule: {
+    width: 44,
+    height: 1.5,
+    opacity: 0.55,
+    marginBottom: 18,
+  },
+  mission: {
+    fontSize: 17,
+    fontStyle: 'italic' as const,
+    lineHeight: 30,
     marginBottom: 24,
   },
-  divider: {
-    height: 1,
-    width: '100%',
-    marginBottom: 24,
-  },
-  cards: {
-    width: '100%',
+  tiersContainer: {
     gap: 14,
     marginBottom: 20,
   },
-  card: {
-    borderRadius: 24,
-    padding: 22,
-    position: 'relative' as const,
-    overflow: 'hidden' as const,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 3,
+  tierCard: {
+    borderRadius: 22,
+    borderWidth: 1,
+    overflow: 'hidden',
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    marginLeft: 8,
+  tierCardInner: {
+    padding: 24,
+    position: 'relative',
   },
-  badgeText: {
-    fontSize: 9,
-    fontWeight: '800' as const,
-    color: '#FFFFFF',
-    letterSpacing: 1,
+  tierCardTopLine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
   },
-  cardTop: {
-    flexDirection: 'row' as const,
+  tierTop: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 10,
+    gap: 14,
+    marginBottom: 16,
   },
-  cardIcon: {
+  tierIco: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
-  cardTitleGroup: {
+  tierEmojiText: {
+    fontSize: 20,
+  },
+  tierNameWrap: {
     flex: 1,
-    gap: 3,
   },
-  titleRow: {
-    flexDirection: 'row' as const,
+  tierNameRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+    marginBottom: 2,
   },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    letterSpacing: -0.2,
-  },
-  impactRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center',
-    gap: 4,
-  },
-  cardImpact: {
-    fontSize: 12,
-    fontWeight: '500' as const,
-  },
-  priceRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'baseline',
-    gap: 2,
-    marginBottom: 6,
-  },
-  price: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    letterSpacing: -0.5,
-  },
-  priceFreq: {
-    fontSize: 11,
-    fontWeight: '500' as const,
-    marginTop: -2,
-  },
-  cardDesc: {
+  tierName: {
     fontSize: 13,
-    lineHeight: 20,
-    marginBottom: 14,
-  },
-  cardButton: {
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardButtonInner: {
-    flexDirection: 'row' as const,
-    alignItems: 'center',
-    gap: 6,
-  },
-  cardButtonText: {
-    fontSize: 15,
-    fontWeight: '700' as const,
+    fontWeight: '600' as const,
     letterSpacing: 0.3,
   },
-  noteBox: {
-    borderRadius: 20,
-    padding: 22,
+  tierBadge: {
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 100,
     borderWidth: 1,
-    marginBottom: 24,
-    width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
   },
-  noteText: {
+  tierBadgeText: {
+    fontSize: 8,
+    fontWeight: '700' as const,
+    letterSpacing: 2,
+  },
+  tierCheckRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  tierCheck: {
     fontSize: 13,
-    lineHeight: 23,
-    textAlign: 'center',
     fontStyle: 'italic' as const,
-    letterSpacing: 0.15,
+  },
+  tierPriceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 2,
+    marginBottom: 4,
+  },
+  tierPrice: {
+    fontSize: 46,
+    fontWeight: '100' as const,
+    letterSpacing: -1.5,
+    lineHeight: 50,
+  },
+  tierPeriod: {
+    fontSize: 18,
+    fontWeight: '300' as const,
+  },
+  tierDesc: {
+    fontSize: 15,
+    lineHeight: 26,
+    marginBottom: 18,
+  },
+  tierBtn: {
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  tierBtnGradient: {
+    paddingVertical: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  tierBtnText: {
+    fontSize: 12,
+    fontWeight: '500' as const,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase' as const,
+  },
+  footerNote: {
+    borderRadius: 18,
+    borderWidth: 1,
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+  footerNoteInner: {
+    padding: 22,
+  },
+  footerNoteText: {
+    fontSize: 16,
+    fontStyle: 'italic' as const,
+    lineHeight: 28,
+    textAlign: 'center',
   },
   restoreBtn: {
-    flexDirection: 'row' as const,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
     paddingVertical: 12,
     marginBottom: 12,
@@ -530,19 +553,9 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
   legal: {
-    fontSize: 11,
+    fontSize: 9,
     textAlign: 'center',
-    lineHeight: 17,
-    paddingHorizontal: 16,
-  },
-  errorBox: {
-    borderRadius: 12,
-    padding: 16,
-    width: '100%',
-    marginVertical: 20,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: 'center',
+    lineHeight: 16,
+    letterSpacing: 0.5,
   },
 });

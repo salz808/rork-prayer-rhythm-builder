@@ -68,17 +68,17 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
   }, [visible, slideAnim, bgAnim]);
 
   const handleSoundscape = (id: Soundscape) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSoundscape(id);
   };
 
   const handleDarkMode = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     toggleDarkMode();
   };
 
   const handleFontSize = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setFontSize(state.fontSize === 'normal' ? 'large' : 'normal');
   };
 
@@ -218,7 +218,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
           <TouchableOpacity
             style={[styles.supportRow, { backgroundColor: C.accentBg, borderColor: C.accentLight }]}
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               onClose();
               setTimeout(() => router.push('/paywall'), 300);
             }}
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(8,4,1,0.85)',
   },
   sheet: {
     borderTopLeftRadius: 36,
