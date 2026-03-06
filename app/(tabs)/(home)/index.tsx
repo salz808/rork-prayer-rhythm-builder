@@ -171,7 +171,7 @@ export default function HomeScreen() {
               </View>
             </View>
             <Text style={[styles.completionEyebrow, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>JOURNEY COMPLETE</Text>
-            <Text style={[styles.completionTitle, { color: C.text, fontFamily: Fonts.titleLight }]}>30 days of{'\n'}showing up</Text>
+            <Text style={[styles.completionTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>30 days of{'\n'}showing up</Text>
             <Text style={[styles.completionMessage, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
               You have built a sacred daily rhythm.{'\n'}Stay close and begin again.
             </Text>
@@ -269,8 +269,8 @@ export default function HomeScreen() {
               <Text style={[styles.greetingLabel, { color: C.accent, fontFamily: Fonts.titleMedium }]}>
                 {timeOfDay.greeting}
               </Text>
-              <Text style={[styles.nameTitle, { color: C.text, fontFamily: Fonts.titleLight }, isLargeFont && { fontSize: 46, lineHeight: 50 }]}>{greetingName}</Text>
-              <Text style={[styles.subText, { color: C.textSecondary, fontFamily: Fonts.italic }, isLargeFont && { fontSize: 17 }]}>{encouragingSub}</Text>
+              <Text style={[styles.nameTitle, { color: C.text, fontFamily: Fonts.serifLight }, isLargeFont && { fontSize: 46, lineHeight: 50 }]}>{greetingName}</Text>
+              <Text style={[styles.subText, { color: C.textSecondary, fontFamily: Fonts.italic }, isLargeFont && { fontSize: 18 }]}>{encouragingSub}</Text>
             </View>
 
             <View style={[styles.streakCard, { backgroundColor: C.accentBg, borderColor: C.border }]}>
@@ -344,10 +344,10 @@ export default function HomeScreen() {
                 <Text style={[styles.todayCardDay, { color: C.accent, fontFamily: Fonts.titleSemiBold }]}>
                   {'Day ' + state.currentDay + ' · ' + phaseLabel}
                 </Text>
-                <Text style={[styles.todayCardTitle, { color: C.text, fontFamily: Fonts.titleLight }, isLargeFont && { fontSize: 34, lineHeight: 38 }]}>
+                <Text style={[styles.todayCardTitle, { color: C.text, fontFamily: Fonts.serifLight }, isLargeFont && { fontSize: 34, lineHeight: 38 }]}>
                   {dayContent.title}
                 </Text>
-                <Text style={[styles.todayCardDesc, { color: C.textSecondary, fontFamily: Fonts.italic }, isLargeFont && { fontSize: 17 }]} numberOfLines={3}>
+                <Text style={[styles.todayCardDesc, { color: C.textSecondary, fontFamily: Fonts.italic }, isLargeFont && { fontSize: 18 }]} numberOfLines={3}>
                   {dayContent.settle}
                 </Text>
 

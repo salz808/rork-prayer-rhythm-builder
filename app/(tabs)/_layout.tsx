@@ -14,8 +14,8 @@ export default function TabLayout() {
         tabBarActiveTintColor: C.accent,
         tabBarInactiveTintColor: C.textMuted,
         tabBarStyle: {
-          backgroundColor: 'rgba(18,10,3,0.95)',
-          borderTopColor: C.border,
+          backgroundColor: 'rgba(26,18,11,0.97)',
+          borderTopColor: 'rgba(200,154,90,0.1)',
           borderTopWidth: 1,
           ...(Platform.OS === 'web' ? {} : {
             shadowColor: '#000',

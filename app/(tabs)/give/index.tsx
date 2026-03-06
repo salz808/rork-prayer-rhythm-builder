@@ -195,7 +195,7 @@ export default function GiveScreen() {
               <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>
                 SUPPORT THIS CAUSE
               </Text>
-              <Text style={[styles.title, { color: C.text, fontFamily: Fonts.titleLight }]}>
+              <Text style={[styles.title, { color: C.text, fontFamily: Fonts.serifLight }]}>
                 This app is free.{'\n'}
                 <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium, fontSize: 32 }}>
                   Always will be.
@@ -369,9 +369,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
-    fontSize: 34,
-    lineHeight: 40,
-    letterSpacing: -0.5,
+    fontSize: 36,
+    lineHeight: 42,
+    letterSpacing: -0.3,
     marginBottom: 12,
   },
   titleRule: {

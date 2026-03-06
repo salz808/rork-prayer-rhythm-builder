@@ -115,7 +115,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
           <View style={[styles.handle, { backgroundColor: C.border }]} />
 
           <View style={styles.header}>
-            <Text style={[styles.title, { color: C.text, fontFamily: Fonts.titleBold }]}>Settings</Text>
+            <Text style={[styles.title, { color: C.text, fontFamily: Fonts.serifRegular }]}>Settings</Text>
             <TouchableOpacity
               onPress={onClose}
               style={[styles.closeBtn, { backgroundColor: C.overlayLight }]}
@@ -275,9 +275,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    letterSpacing: -0.6,
+    fontSize: 28,
+    letterSpacing: -0.3,
   },
   closeBtn: {
     width: 32,

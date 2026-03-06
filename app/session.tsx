@@ -458,7 +458,7 @@ export default function SessionScreen() {
                 </View>
 
                 <Text style={[styles.completeDayLabel, { color: C.textMuted, fontFamily: Fonts.titleMedium }]}>DAY {completedDay}</Text>
-                <Text style={[styles.completeTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>
+                <Text style={[styles.completeTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>
                   Prayer Complete
                 </Text>
                 <Text style={[styles.completeSubtitle, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
@@ -590,7 +590,7 @@ export default function SessionScreen() {
               </View>
 
               {currentStep.subtitle ? (
-                <Text style={[styles.phaseSubtitle, { color: C.text, fontFamily: Fonts.titleBold }, largeFontSize && styles.phaseSubtitleLarge]}>
+                <Text style={[styles.phaseSubtitle, { color: C.text, fontFamily: Fonts.serifRegular }, largeFontSize && styles.phaseSubtitleLarge]}>
                   {currentStep.subtitle}
                 </Text>
               ) : null}
@@ -758,11 +758,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
   },
   phaseSubtitle: {
-    fontSize: 26,
-    fontWeight: '700' as const,
+    fontSize: 28,
     marginBottom: 16,
-    letterSpacing: -0.6,
-    lineHeight: 34,
+    letterSpacing: -0.3,
+    lineHeight: 36,
   },
   phaseSubtitleLarge: {
     fontSize: 30,
@@ -913,10 +912,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
   },
   completeTitle: {
-    fontSize: 34,
-    fontWeight: '700' as const,
+    fontSize: 36,
     marginBottom: 10,
-    letterSpacing: -1,
+    letterSpacing: -0.5,
   },
   completeSubtitle: {
     fontSize: 16,

@@ -196,7 +196,7 @@ export default function PaywallScreen() {
         >
           <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>SUPPORT THIS CAUSE</Text>
-            <Text style={[styles.title, { color: C.text, fontFamily: Fonts.titleLight }]}>
+            <Text style={[styles.title, { color: C.text, fontFamily: Fonts.serifLight }]}>
               This app is free.{'\n'}
               <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium, fontSize: 32 }}>Always will be.</Text>
             </Text>
@@ -267,7 +267,7 @@ export default function PaywallScreen() {
                       </View>
 
                       <View style={styles.tierPriceRow}>
-                        <Text style={[styles.tierPrice, { color: C.text, fontFamily: Fonts.titleLight }]}>{tier.price}</Text>
+                        <Text style={[styles.tierPrice, { color: C.text, fontFamily: Fonts.serifLight }]}>{tier.price}</Text>
                         <Text style={[styles.tierPeriod, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>{tier.period}</Text>
                       </View>
 

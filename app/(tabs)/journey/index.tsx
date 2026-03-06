@@ -138,7 +138,7 @@ export default function JourneyScreen() {
         >
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: headerSlide }] }}>
             <View style={styles.titleRow}>
-              <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>Your Journey</Text>
+              <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>Your Journey</Text>
               {completedDays > 0 && (
                 <View style={[styles.completedBadge, { backgroundColor: C.sageBg, borderColor: C.sageLight, borderWidth: 1 }]}>
                   <Sparkles size={11} color={C.sage} />
@@ -276,7 +276,7 @@ export default function JourneyScreen() {
               </View>
             )}
 
-            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>Progress</Text>
+            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.serifRegular }]}>Progress</Text>
 
             <View style={styles.weeksContainer}>
               <WeekSection
@@ -313,7 +313,7 @@ export default function JourneyScreen() {
               />
             </View>
 
-            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>Milestones</Text>
+            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.serifRegular }]}>Milestones</Text>
             <View style={styles.milestonesContainer}>
               {milestones.map((m, idx) => {
                 const reached = completedDays >= m.day;
@@ -504,9 +504,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   screenTitle: {
-    fontSize: 32,
-    fontWeight: '700' as const,
-    letterSpacing: -0.8,
+    fontSize: 36,
+    letterSpacing: -0.5,
   },
   completedBadge: {
     flexDirection: 'row',
@@ -708,8 +707,7 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
   sectionTitle: {
-    fontSize: 19,
-    fontWeight: '700' as const,
+    fontSize: 22,
     marginBottom: 14,
     letterSpacing: -0.3,
   },

@@ -72,9 +72,15 @@ export default function RootLayout() {
           Montserrat_500Medium: require('@expo-google-fonts/montserrat/Montserrat_500Medium.ttf'),
           Montserrat_600SemiBold: require('@expo-google-fonts/montserrat/Montserrat_600SemiBold.ttf'),
           Montserrat_700Bold: require('@expo-google-fonts/montserrat/Montserrat_700Bold.ttf'),
-          CormorantGaramond_400Regular_Italic: require('@expo-google-fonts/cormorant-garamond/CormorantGaramond_400Regular_Italic.ttf'),
-          CormorantGaramond_500Medium_Italic: require('@expo-google-fonts/cormorant-garamond/CormorantGaramond_500Medium_Italic.ttf'),
-          CormorantGaramond_600SemiBold_Italic: require('@expo-google-fonts/cormorant-garamond/CormorantGaramond_600SemiBold_Italic.ttf'),
+          CormorantGaramond_300Light: require('@expo-google-fonts/cormorant-garamond/300Light/CormorantGaramond_300Light.ttf'),
+          CormorantGaramond_400Regular: require('@expo-google-fonts/cormorant-garamond/400Regular/CormorantGaramond_400Regular.ttf'),
+          CormorantGaramond_500Medium: require('@expo-google-fonts/cormorant-garamond/500Medium/CormorantGaramond_500Medium.ttf'),
+          CormorantGaramond_600SemiBold: require('@expo-google-fonts/cormorant-garamond/600SemiBold/CormorantGaramond_600SemiBold.ttf'),
+          CormorantGaramond_700Bold: require('@expo-google-fonts/cormorant-garamond/700Bold/CormorantGaramond_700Bold.ttf'),
+          CormorantGaramond_300Light_Italic: require('@expo-google-fonts/cormorant-garamond/300Light_Italic/CormorantGaramond_300Light_Italic.ttf'),
+          CormorantGaramond_400Regular_Italic: require('@expo-google-fonts/cormorant-garamond/400Regular_Italic/CormorantGaramond_400Regular_Italic.ttf'),
+          CormorantGaramond_500Medium_Italic: require('@expo-google-fonts/cormorant-garamond/500Medium_Italic/CormorantGaramond_500Medium_Italic.ttf'),
+          CormorantGaramond_600SemiBold_Italic: require('@expo-google-fonts/cormorant-garamond/600SemiBold_Italic/CormorantGaramond_600SemiBold_Italic.ttf'),
         });
       } catch (e) {
         console.log('[Fonts] Failed to load custom fonts:', e);

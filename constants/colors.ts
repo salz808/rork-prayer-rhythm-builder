@@ -8,7 +8,7 @@ export default {
   textSecondary: '#6F5335',
   textMuted: '#9B7A56',
 
-  accent: '#C8894A',
+  accent: '#C89A5A',
   accentDark: '#B47435',
   accentLight: '#DBA96E',
   accentBg: 'rgba(200, 137, 74, 0.10)',
