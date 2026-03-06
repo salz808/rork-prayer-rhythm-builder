@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useColors } from '@/hooks/useColors';
 import { useApp, scheduleReminderNotification } from '@/providers/AppProvider';
 import { UserProfile } from '@/types';
+import { Fonts } from '@/constants/fonts';
 
 type Step = 'splash' | 'name' | 'blocker' | 'promise' | 'framework' | 'reminder';
 
@@ -143,6 +144,8 @@ export default function OnboardingScreen() {
     return true;
   };
 
+  const displayName = firstName.trim() || 'Friend';
+
   const stepMap: Record<Step, number> = { splash: -1, name: 0, blocker: 1, promise: 2, framework: 3, reminder: 4 };
   const stepIndex = stepMap[step];
   const totalDots = 5;
@@ -189,7 +192,7 @@ export default function OnboardingScreen() {
                     { opacity: splashFade, transform: [{ translateY: splashSlide }] },
                   ]}
                 >
-                  <Text style={[styles.splashWordmark, { color: C.text }]}>Amen</Text>
+                  <Text style={[styles.splashWordmark, { color: C.text, fontFamily: Fonts.titleLight }]}>Amen</Text>
                 </Animated.View>
 
                 <Animated.View style={[styles.splashRuleWrap, { opacity: splashRuleFade }]}>
@@ -207,8 +210,8 @@ export default function OnboardingScreen() {
                     { opacity: splashRuleFade, transform: [{ translateY: splashSlide }] },
                   ]}
                 >
-                  <Text style={[styles.splashTag, { color: C.textSecondary }]}>
-                    God is <Text style={[styles.splashTagEm, { color: C.accentDark }]}>much closer</Text> than you think.
+                  <Text style={[styles.splashTag, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
+                    God is <Text style={[styles.splashTagEm, { color: C.accentDark, fontFamily: Fonts.italicMedium }]}>much closer</Text> than you think.
                   </Text>
                 </Animated.View>
 
@@ -224,9 +227,9 @@ export default function OnboardingScreen() {
                     activeOpacity={0.8}
                     testID="onboarding-begin"
                   >
-                    <Text style={[styles.ghostBtnText, { color: C.text }]}>BEGIN YOUR 30 DAYS</Text>
+                    <Text style={[styles.ghostBtnText, { color: C.text, fontFamily: Fonts.titleLight }]}>BEGIN YOUR 30 DAYS</Text>
                   </TouchableOpacity>
-                  <Text style={[styles.splashSub, { color: C.textMuted }]}>
+                  <Text style={[styles.splashSub, { color: C.textMuted, fontFamily: Fonts.italic }]}>
                     No experience needed. No perfect words required.
                   </Text>
                 </Animated.View>
@@ -246,17 +249,17 @@ export default function OnboardingScreen() {
                   >
                     {step === 'name' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent }]}>A NEW BEGINNING</Text>
-                        <Text style={[styles.screenTitle, { color: C.text }]}>
-                          What do people{'\n'}call <Text style={[styles.titleEm, { color: C.accentDark }]}>you?</Text>
+                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>A NEW BEGINNING</Text>
+                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.titleLight }]}>
+                          What do people{'\n'}call <Text style={[styles.titleEm, { color: C.accentDark, fontFamily: Fonts.italicSemiBold }]}>you?</Text>
                         </Text>
                         <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary }]}>
+                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>
                           God has known your name since before the foundations of the earth. He calls you beloved. We just want to say it back.
                         </Text>
                         <View style={styles.nameInputWrap}>
                           <TextInput
-                            style={[styles.nameInput, { color: C.text, borderBottomColor: C.border }]}
+                            style={[styles.nameInput, { color: C.text, borderBottomColor: C.accent, fontFamily: Fonts.italic }]}
                             value={firstName}
                             onChangeText={setFirstName}
                             placeholder="Your first name"
@@ -267,7 +270,7 @@ export default function OnboardingScreen() {
                             onSubmitEditing={handleNext}
                             testID="onboarding-name-input"
                           />
-                          <Text style={[styles.nameHelp, { color: C.textMuted }]}>
+                          <Text style={[styles.nameHelp, { color: C.textMuted, fontFamily: Fonts.italic }]}>
                             This is just between you and God, and us.
                           </Text>
                         </View>
@@ -276,15 +279,14 @@ export default function OnboardingScreen() {
 
                     {step === 'blocker' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent }]}>BE HONEST WITH US</Text>
-                        <Text style={[styles.screenTitle, { color: C.text }]}>
+                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>BE HONEST WITH US</Text>
+                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.titleLight }]}>
                           What usually{'\n'}holds back your{'\n'}
-                          <Text style={[styles.titleEm, { color: C.accentDark }]}>prayer life?</Text>
+                          <Text style={[styles.titleEm, { color: C.accentDark, fontFamily: Fonts.italicSemiBold }]}>prayer life, {displayName}?</Text>
                         </Text>
-                        <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary }]}>
+                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>
                           No wrong answers here.{' '}
-                          <Text style={{ color: C.accentDark, fontStyle: 'italic' }}>Every struggle is a doorway</Text>.
+                          <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium }}>Every struggle is a doorway</Text>.
                           {' '}Freedom is on the other side of this one.
                         </Text>
                         <View style={styles.choices}>
@@ -295,8 +297,8 @@ export default function OnboardingScreen() {
                                 key={option}
                                 style={[
                                   styles.choiceBtn,
-                                  { backgroundColor: C.surface, borderColor: C.border },
-                                  isSelected && { backgroundColor: C.accentBg, borderColor: C.accent, transform: [{ translateX: 4 }] },
+                                  { backgroundColor: 'transparent', borderColor: C.border },
+                                  isSelected && { backgroundColor: C.accentBg, borderColor: C.accent },
                                 ]}
                                 onPress={() => {
                                   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -307,7 +309,7 @@ export default function OnboardingScreen() {
                                 <Text
                                   style={[
                                     styles.choiceBtnText,
-                                    { color: C.textSecondary },
+                                    { color: C.textSecondary, fontFamily: Fonts.titleLight },
                                     isSelected && { color: C.text },
                                   ]}
                                 >
@@ -322,42 +324,44 @@ export default function OnboardingScreen() {
 
                     {step === 'promise' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent }]}>YOUR INHERITANCE</Text>
-                        <Text style={[styles.screenTitle, { color: C.text }]}>
-                          Not a program.{'\n'}A{' '}
-                          <Text style={[styles.titleEm, { color: C.accentDark }]}>journey into wholeness.</Text>
+                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>THAT FEELING IS A LIE.</Text>
+                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.titleLight }]}>
+                          The distance{'\n'}isn't real.
                         </Text>
-                        <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary }]}>
-                          Thirty days from now, you will pray without a script. You'll know your voice with God, and{' '}
-                          <Text style={{ fontStyle: 'italic', color: C.accentDark }}>His</Text> voice in return.
-                        </Text>
-                        <Text style={[styles.screenBody, { color: C.textSecondary, marginTop: 16 }]}>
-                          You weren't meant to live stuck in prayerless silence.{' '}
-                          <Text style={{ color: C.text, fontWeight: '500' as const }}>
-                            Freedom is possible. A deeper relationship with God is possible.
+                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>
+                          The distance you feel is not the truth about where God is. He hasn't moved.{' '}
+                          <Text style={{ color: C.text, fontFamily: Fonts.titleMedium }}>
+                            And the fact that you're here, uncertain, maybe ashamed, opening an app about prayer, is itself a movement toward Him.
+                          </Text>
+                          {' '}He doesn't meet cleaned-up people. He meets people in the middle of the mess. That's the whole story of the Gospel.{' '}
+                          <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium }}>
+                            You are exactly the kind of person this was made for.
                           </Text>
                         </Text>
-                        <Text style={[styles.screenBody, { color: C.textSecondary, marginTop: 16 }]}>
-                          You are not too far gone. Not too ordinary. Not starting too late. You are exactly the kind of person this was made for.
-                        </Text>
+
+                        <View style={[styles.scriptureCard, { borderLeftColor: C.accent, backgroundColor: C.accentBg }]}>
+                          <Text style={[styles.scriptureRef, { color: C.accent, fontFamily: Fonts.titleMedium }]}>ROMANS 8:38-39</Text>
+                          <Text style={[styles.scriptureText, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
+                            "Nothing in all creation will be able to separate us from the love of God."
+                          </Text>
+                        </View>
                       </View>
                     )}
 
                     {step === 'framework' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent }]}>YOUR DAILY GUIDE</Text>
-                        <Text style={[styles.screenTitle, { color: C.text }]}>
+                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>YOUR DAILY GUIDE</Text>
+                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.titleLight }]}>
                           The TRIAD{'\n'}
-                          <Text style={[styles.titleEm, { color: C.accentDark }]}>framework</Text>
+                          <Text style={[styles.titleEm, { color: C.accentDark, fontFamily: Fonts.italicSemiBold }]}>framework</Text>
                         </Text>
                         <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary, marginBottom: 22 }]}>
+                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.titleLight, marginBottom: 22 }]}>
                           Five anchors covering the full range of authentic prayer: spirit, soul, and body. You learn them by doing, not by studying.
                         </Text>
                         <View style={styles.triadList}>
                           {TRIAD_ITEMS.map((item) => (
-                            <Animated.View
+                            <View
                               key={item.name}
                               style={[
                                 styles.triadItem,
@@ -366,10 +370,10 @@ export default function OnboardingScreen() {
                             >
                               <Text style={styles.triadEmoji}>{item.emoji}</Text>
                               <View style={styles.triadTextWrap}>
-                                <Text style={[styles.triadName, { color: C.accent }]}>{item.name.toUpperCase()}</Text>
-                                <Text style={[styles.triadDesc, { color: C.textSecondary }]}>{item.desc}</Text>
+                                <Text style={[styles.triadName, { color: C.accent, fontFamily: Fonts.titleSemiBold }]}>{item.name.toUpperCase()}</Text>
+                                <Text style={[styles.triadDesc, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>{item.desc}</Text>
                               </View>
-                            </Animated.View>
+                            </View>
                           ))}
                         </View>
                       </View>
@@ -377,13 +381,13 @@ export default function OnboardingScreen() {
 
                     {step === 'reminder' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent }]}>NEVER MISS A DAY</Text>
-                        <Text style={[styles.screenTitle, { color: C.text }]}>
+                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>NEVER MISS A DAY</Text>
+                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.titleLight }]}>
                           When should we{'\n'}remind{' '}
-                          <Text style={[styles.titleEm, { color: C.accentDark }]}>you?</Text>
+                          <Text style={[styles.titleEm, { color: C.accentDark, fontFamily: Fonts.italicSemiBold }]}>you?</Text>
                         </Text>
                         <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary }]}>
+                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>
                           A gentle nudge at the right moment is the difference between a habit and a wish.
                         </Text>
                         <View style={styles.reminderOptions}>
@@ -394,7 +398,7 @@ export default function OnboardingScreen() {
                                 key={time.value}
                                 style={[
                                   styles.reminderCard,
-                                  { backgroundColor: C.surface, borderColor: C.border },
+                                  { backgroundColor: 'transparent', borderColor: C.border },
                                   isSelected && { backgroundColor: C.accentBg, borderColor: C.accent },
                                 ]}
                                 onPress={() => {
@@ -405,10 +409,10 @@ export default function OnboardingScreen() {
                               >
                                 <Text style={styles.reminderEmoji}>{time.emoji}</Text>
                                 <View style={styles.reminderTextWrap}>
-                                  <Text style={[styles.reminderLabel, { color: isSelected ? C.text : C.textSecondary }]}>
+                                  <Text style={[styles.reminderLabel, { color: isSelected ? C.text : C.textSecondary, fontFamily: Fonts.titleRegular }]}>
                                     {time.label}
                                   </Text>
-                                  <Text style={[styles.reminderValue, { color: isSelected ? C.accentDark : C.textMuted }]}>
+                                  <Text style={[styles.reminderValue, { color: isSelected ? C.accentDark : C.textMuted, fontFamily: Fonts.titleLight }]}>
                                     {time.value}
                                   </Text>
                                 </View>
@@ -421,7 +425,7 @@ export default function OnboardingScreen() {
                         </View>
                         <View style={[styles.graceBadge, { backgroundColor: C.accentBg, borderColor: C.border }]}>
                           <Text style={styles.graceEmoji}>🛡️</Text>
-                          <Text style={[styles.graceBadgeText, { color: C.accent }]}>
+                          <Text style={[styles.graceBadgeText, { color: C.accent, fontFamily: Fonts.titleMedium }]}>
                             Grace day: one miss forgiven per week
                           </Text>
                         </View>
@@ -447,7 +451,7 @@ export default function OnboardingScreen() {
                         end={{ x: 1, y: 1 }}
                         style={styles.amberBtnInner}
                       >
-                        <Text style={styles.amberBtnText}>STEP INTO DAY 1</Text>
+                        <Text style={[styles.amberBtnText, { fontFamily: Fonts.titleMedium }]}>STEP INTO DAY 1</Text>
                         <ChevronRight size={16} color="#180C02" />
                       </LinearGradient>
                     </TouchableOpacity>
@@ -465,7 +469,7 @@ export default function OnboardingScreen() {
                           end={{ x: 1, y: 1 }}
                           style={styles.amberBtnInner}
                         >
-                          <Text style={styles.amberBtnText}>SET MY REMINDER</Text>
+                          <Text style={[styles.amberBtnText, { fontFamily: Fonts.titleMedium }]}>SET MY REMINDER</Text>
                           <ChevronRight size={16} color="#180C02" />
                         </LinearGradient>
                       </TouchableOpacity>
@@ -474,7 +478,7 @@ export default function OnboardingScreen() {
                         onPress={handleNext}
                         activeOpacity={0.7}
                       >
-                        <Text style={[styles.skipBtnText, { color: C.textMuted }]}>Skip for now</Text>
+                        <Text style={[styles.skipBtnText, { color: C.textMuted, fontFamily: Fonts.titleRegular }]}>Skip for now</Text>
                       </TouchableOpacity>
                     </View>
                   ) : (
@@ -489,7 +493,7 @@ export default function OnboardingScreen() {
                       activeOpacity={0.8}
                       testID="onboarding-next"
                     >
-                      <Text style={[styles.ghostBtnText, { color: C.text }]}>
+                      <Text style={[styles.ghostBtnText, { color: C.text, fontFamily: Fonts.titleLight }]}>
                         {step === 'name'
                           ? "THAT'S ME →"
                           : step === 'blocker'
@@ -520,13 +524,13 @@ const styles = StyleSheet.create({
   },
   glowT: {
     position: 'absolute',
-    top: -50,
+    top: -80,
     left: '50%',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    opacity: 0.07,
-    transform: [{ translateX: -140 }],
+    width: 340,
+    height: 340,
+    borderRadius: 170,
+    opacity: 0.06,
+    transform: [{ translateX: -170 }],
   },
   splashContainer: {
     flex: 1,
@@ -540,54 +544,49 @@ const styles = StyleSheet.create({
   },
   splashGlowBottom: {
     position: 'absolute',
-    bottom: -60,
+    bottom: -80,
     left: '50%',
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    opacity: 0.12,
-    transform: [{ translateX: -160 }],
+    width: 380,
+    height: 380,
+    borderRadius: 190,
+    opacity: 0.1,
+    transform: [{ translateX: -190 }],
   },
   splashGlowCenter: {
     position: 'absolute',
     top: '36%',
     left: '50%',
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    opacity: 0.04,
-    transform: [{ translateX: -120 }, { translateY: -120 }],
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    opacity: 0.035,
+    transform: [{ translateX: -140 }, { translateY: -140 }],
   },
   splashBrand: {
     alignItems: 'center',
     marginBottom: 20,
   },
   splashWordmark: {
-    fontSize: 76,
-    fontWeight: '200' as const,
-    letterSpacing: 11,
-    lineHeight: 80,
+    fontSize: 78,
+    letterSpacing: 14,
+    lineHeight: 84,
   },
   splashRuleWrap: {
     marginBottom: 22,
   },
   splashRule: {
-    width: 180,
-    height: 1.5,
+    width: 200,
+    height: 1,
   },
   splashTagWrap: {
     marginBottom: 60,
   },
   splashTag: {
-    fontSize: 16.5,
-    fontStyle: 'italic' as const,
+    fontSize: 17,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 26,
   },
-  splashTagEm: {
-    fontStyle: 'normal' as const,
-    fontWeight: '500' as const,
-  },
+  splashTagEm: {},
   splashActions: {
     position: 'absolute',
     bottom: 60,
@@ -598,7 +597,6 @@ const styles = StyleSheet.create({
   },
   splashSub: {
     fontSize: 13,
-    fontStyle: 'italic' as const,
     textAlign: 'center',
   },
   scrollContent: {
@@ -611,64 +609,71 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   eyebrow: {
-    fontSize: 9,
-    fontWeight: '500' as const,
-    letterSpacing: 3,
+    fontSize: 10,
+    letterSpacing: 3.5,
     textTransform: 'uppercase' as const,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   screenTitle: {
     fontSize: 42,
-    fontWeight: '300' as const,
-    lineHeight: 46,
+    lineHeight: 48,
     letterSpacing: -0.5,
-    marginBottom: 12,
+    marginBottom: 14,
   },
-  titleEm: {
-    fontStyle: 'italic' as const,
-  },
+  titleEm: {},
   screenRule: {
     width: 44,
     height: 1.5,
     opacity: 0.55,
-    marginBottom: 18,
+    marginBottom: 20,
   },
   screenBody: {
     fontSize: 18,
     lineHeight: 32,
-    fontWeight: '300' as const,
   },
   nameInputWrap: {
-    marginTop: 36,
+    marginTop: 40,
   },
   nameInput: {
     fontSize: 30,
-    fontWeight: '300' as const,
     paddingVertical: 14,
     paddingHorizontal: 0,
     borderBottomWidth: 1,
-    fontStyle: 'italic' as const,
   },
   nameHelp: {
     fontSize: 13,
-    fontStyle: 'italic' as const,
-    marginTop: 10,
-    opacity: 0.48,
+    marginTop: 12,
+    opacity: 0.6,
   },
   choices: {
-    gap: 10,
-    marginTop: 28,
+    gap: 12,
+    marginTop: 30,
   },
   choiceBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 14,
+    paddingHorizontal: 22,
+    paddingVertical: 18,
+    borderRadius: 16,
     borderWidth: 1,
   },
   choiceBtnText: {
     fontSize: 17,
     lineHeight: 24,
-    fontWeight: '300' as const,
+  },
+  scriptureCard: {
+    borderLeftWidth: 3,
+    borderRadius: 4,
+    paddingLeft: 20,
+    paddingVertical: 18,
+    marginTop: 32,
+  },
+  scriptureRef: {
+    fontSize: 10,
+    letterSpacing: 2.5,
+    marginBottom: 8,
+  },
+  scriptureText: {
+    fontSize: 17,
+    lineHeight: 28,
   },
   triadList: {
     gap: 8,
@@ -678,8 +683,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     paddingHorizontal: 16,
-    paddingVertical: 13,
-    borderRadius: 13,
+    paddingVertical: 14,
+    borderRadius: 14,
     borderWidth: 1,
   },
   triadEmoji: {
@@ -692,13 +697,11 @@ const styles = StyleSheet.create({
   },
   triadName: {
     fontSize: 9,
-    fontWeight: '600' as const,
     letterSpacing: 2,
     marginBottom: 3,
   },
   triadDesc: {
     fontSize: 14,
-    fontWeight: '300' as const,
     lineHeight: 20,
   },
   reminderOptions: {
@@ -724,11 +727,9 @@ const styles = StyleSheet.create({
   },
   reminderLabel: {
     fontSize: 15,
-    fontWeight: '500' as const,
   },
   reminderValue: {
     fontSize: 12,
-    fontWeight: '300' as const,
     marginTop: 1,
   },
   reminderRadio: {
@@ -760,7 +761,6 @@ const styles = StyleSheet.create({
   },
   graceBadgeText: {
     fontSize: 9,
-    fontWeight: '500' as const,
     letterSpacing: 1.2,
     textTransform: 'uppercase' as const,
   },
@@ -785,16 +785,15 @@ const styles = StyleSheet.create({
   },
   ghostBtn: {
     width: '100%',
-    paddingVertical: 17,
+    paddingVertical: 18,
     borderRadius: 100,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   ghostBtnText: {
-    fontSize: 12.5,
-    fontWeight: '300' as const,
-    letterSpacing: 2,
+    fontSize: 13,
+    letterSpacing: 2.5,
     textTransform: 'uppercase' as const,
   },
   amberBtn: {
@@ -807,7 +806,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   amberBtnInner: {
-    paddingVertical: 17,
+    paddingVertical: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -815,7 +814,6 @@ const styles = StyleSheet.create({
   },
   amberBtnText: {
     fontSize: 12.5,
-    fontWeight: '500' as const,
     letterSpacing: 2,
     color: '#180C02',
   },
@@ -831,6 +829,5 @@ const styles = StyleSheet.create({
   },
   skipBtnText: {
     fontSize: 13,
-    fontWeight: '400' as const,
   },
 });

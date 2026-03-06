@@ -605,6 +605,7 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 15,
     lineHeight: 22,
+    letterSpacing: 0.1,
   },
   streakCard: {
     flexDirection: 'row',
@@ -622,7 +623,6 @@ const styles = StyleSheet.create({
   streakCardText: {
     flex: 1,
     fontSize: 12,
-    fontWeight: '300' as const,
     letterSpacing: 0.3,
   },
   streakCardStrong: {},
@@ -642,7 +642,6 @@ const styles = StyleSheet.create({
   },
   progressDay: {
     fontSize: 11,
-    fontWeight: '300' as const,
   },
   progressTrack: {
     height: 2,

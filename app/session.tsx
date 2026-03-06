@@ -457,7 +457,7 @@ export default function SessionScreen() {
                   </View>
                 </View>
 
-                <Text style={[styles.completeDayLabel, { color: C.textMuted }]}>DAY {completedDay}</Text>
+                <Text style={[styles.completeDayLabel, { color: C.textMuted, fontFamily: Fonts.titleMedium }]}>DAY {completedDay}</Text>
                 <Text style={[styles.completeTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>
                   Prayer Complete
                 </Text>
@@ -474,14 +474,14 @@ export default function SessionScreen() {
                       <Text style={styles.milestoneRecapEmoji}>&#127942;</Text>
                     </LinearGradient>
                     <View style={styles.milestoneRecapTextWrap}>
-                      <Text style={[styles.milestoneRecapLabel, { color: C.accentDark }]}>MILESTONE REACHED</Text>
-                      <Text style={[styles.milestoneRecapMessage, { color: C.text }]}>{milestone.message}</Text>
+                      <Text style={[styles.milestoneRecapLabel, { color: C.accentDark, fontFamily: Fonts.titleMedium }]}>MILESTONE REACHED</Text>
+                      <Text style={[styles.milestoneRecapMessage, { color: C.text, fontFamily: Fonts.titleRegular }]}>{milestone.message}</Text>
                     </View>
                   </View>
                 )}
 
                 <View style={[styles.recapSection, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
-                  <Text style={[styles.recapSectionTitle, { color: C.textMuted }]}>WHAT YOU COVERED</Text>
+                  <Text style={[styles.recapSectionTitle, { color: C.textMuted, fontFamily: Fonts.titleMedium }]}>WHAT YOU COVERED</Text>
                   {[
                     { label: 'Settle', color: sectionColorMap.settle, bg: sectionBgMap.settle },
                     { label: 'Teach', color: sectionColorMap.teach, bg: sectionBgMap.teach },
@@ -492,7 +492,7 @@ export default function SessionScreen() {
                       <View style={[styles.recapPhaseCheck, { backgroundColor: item.bg }]}>
                         <Check size={12} color={item.color} strokeWidth={2.5} />
                       </View>
-                      <Text style={[styles.recapPhaseTitle, { color: C.text }]}>{item.label}</Text>
+                      <Text style={[styles.recapPhaseTitle, { color: C.text, fontFamily: Fonts.titleRegular }]}>{item.label}</Text>
                       <Check size={14} color={C.sage} style={styles.recapCheckmark} />
                     </View>
                   ))}
@@ -552,7 +552,7 @@ export default function SessionScreen() {
                   />
                 ))}
               </View>
-              <Text style={[styles.stepCounter, { color: C.textMuted }]}>
+              <Text style={[styles.stepCounter, { color: C.textMuted, fontFamily: Fonts.titleMedium }]}>
                 {stepNumber}/{totalSteps}
               </Text>
             </View>
@@ -640,8 +640,8 @@ export default function SessionScreen() {
                       ]}
                     />
                   </View>
-                  <Text style={[styles.breathLabelText, { color: sectionColor }]}>{breathLabel}</Text>
-                  <Text style={[styles.breathHintText, { color: C.textMuted }]}>Follow the circle</Text>
+                  <Text style={[styles.breathLabelText, { color: sectionColor, fontFamily: Fonts.titleMedium }]}>{breathLabel}</Text>
+                  <Text style={[styles.breathHintText, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>Follow the circle</Text>
                 </View>
               )}
 
@@ -840,7 +840,6 @@ const styles = StyleSheet.create({
   },
   breathLabelText: {
     fontSize: 15,
-    fontWeight: '600' as const,
     letterSpacing: 1.2,
     textTransform: 'uppercase' as const,
   },

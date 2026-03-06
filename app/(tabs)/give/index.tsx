@@ -257,7 +257,7 @@ export default function GiveScreen() {
                           <Text style={[styles.tierPeriod, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>{tier.period}</Text>
                         </View>
 
-                        <Text style={[styles.tierDesc, { color: C.textSecondary }]}>{tier.desc}</Text>
+                        <Text style={[styles.tierDesc, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>{tier.desc}</Text>
 
                         <View style={styles.tierBtnWrap}>
                           <LinearGradient
@@ -302,12 +302,12 @@ export default function GiveScreen() {
               ) : (
                 <>
                   <RefreshCw size={13} color={C.textMuted} />
-                  <Text style={[styles.restoreText, { color: C.textMuted }]}>Restore purchases</Text>
+                  <Text style={[styles.restoreText, { color: C.textMuted, fontFamily: Fonts.titleRegular }]}>Restore purchases</Text>
                 </>
               )}
             </TouchableOpacity>
 
-            <Text style={[styles.legal, { color: C.textMuted }]}>
+            <Text style={[styles.legal, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>
               Subscriptions renew monthly. Cancel anytime in your device settings.
             </Text>
           </Animated.View>

@@ -356,7 +356,7 @@ export default function JourneyScreen() {
                       <Text
                         style={[
                           styles.milestoneTitle,
-                          { color: C.textSecondary },
+                          { color: C.textSecondary, fontFamily: Fonts.titleMedium },
                           reached && { color: C.sageDark },
                         ]}
                       >
@@ -365,7 +365,7 @@ export default function JourneyScreen() {
                       <Text
                         style={[
                           styles.milestoneMessage,
-                          { color: C.textMuted },
+                          { color: C.textMuted, fontFamily: Fonts.titleLight },
                           reached && { color: C.textSecondary },
                         ]}
                       >

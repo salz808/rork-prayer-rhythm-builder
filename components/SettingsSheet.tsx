@@ -151,10 +151,10 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
                   >
                     <Icon size={16} color={isSelected ? C.accentDark : C.textMuted} />
                   </View>
-                  <Text style={[styles.soundscapeLabel, { color: isSelected ? C.accentDark : C.text }]}>
+                  <Text style={[styles.soundscapeLabel, { color: isSelected ? C.accentDark : C.text, fontFamily: Fonts.titleMedium }]}>
                     {label}
                   </Text>
-                  <Text style={[styles.soundscapeDesc, { color: isSelected ? C.accent : C.textMuted }]}>
+                  <Text style={[styles.soundscapeDesc, { color: isSelected ? C.accent : C.textMuted, fontFamily: Fonts.titleLight }]}>
                     {description}
                   </Text>
                 </TouchableOpacity>
@@ -177,7 +177,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
               </View>
               <View>
                 <Text style={[styles.toggleLabel, { color: C.text, fontFamily: Fonts.titleSemiBold }]}>Dark Mode</Text>
-                <Text style={[styles.toggleSub, { color: C.textMuted }]}>
+                <Text style={[styles.toggleSub, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>
                   {state.darkMode ? 'Warm charcoal theme' : 'Light parchment theme'}
                 </Text>
               </View>
@@ -199,7 +199,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
               </View>
               <View>
                 <Text style={[styles.toggleLabel, { color: C.text, fontFamily: Fonts.titleSemiBold }]}>Larger Text</Text>
-                <Text style={[styles.toggleSub, { color: C.textMuted }]}>
+                <Text style={[styles.toggleSub, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>
                   {state.fontSize === 'large' ? 'Larger prayer text' : 'Standard text size'}
                 </Text>
               </View>
