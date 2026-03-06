@@ -7,7 +7,6 @@ interface ProgressRingProps {
   progress: number;
   size?: number;
   strokeWidth?: number;
-  color?: string;
   backgroundColor?: string;
   children?: React.ReactNode;
 }
@@ -16,12 +15,11 @@ export default function ProgressRing({
   progress,
   size = 200,
   strokeWidth = 6,
-  color,
   backgroundColor,
   children,
 }: ProgressRingProps) {
   const C = useColors();
-  const ringBg = backgroundColor ?? C.borderLight;
+  const ringBg = backgroundColor ?? C.border;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const radius = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -31,13 +29,13 @@ export default function ProgressRing({
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.02,
-          duration: 2000,
+          toValue: 1.015,
+          duration: 2800,
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 2000,
+          duration: 2800,
           useNativeDriver: true,
         }),
       ])
@@ -51,8 +49,17 @@ export default function ProgressRing({
         { width: size, height: size, transform: [{ scale: pulseAnim }] },
       ]}
     >
-      <View style={[styles.glowRing, { width: size + 28, height: size + 28, borderRadius: (size + 28) / 2, backgroundColor: C.accentBg }]} />
-      <View style={[styles.innerGlow, { width: size - 20, height: size - 20, borderRadius: (size - 20) / 2, backgroundColor: C.surfaceElevated }]} />
+      <View
+        style={[
+          styles.glowRing,
+          {
+            width: size + 20,
+            height: size + 20,
+            borderRadius: (size + 20) / 2,
+            backgroundColor: C.accentBg,
+          },
+        ]}
+      />
       <Svg width={size} height={size} style={styles.svg}>
         <Defs>
           <LinearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
@@ -67,13 +74,14 @@ export default function ProgressRing({
           stroke={ringBg}
           strokeWidth={strokeWidth}
           fill="none"
+          opacity={0.5}
         />
         <Circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           stroke="url(#ringGrad)"
-          strokeWidth={strokeWidth + 1}
+          strokeWidth={strokeWidth + 0.5}
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={circumference * (1 - clampedProgress)}
@@ -95,15 +103,7 @@ const styles = StyleSheet.create({
   },
   glowRing: {
     position: 'absolute' as const,
-    opacity: 0.6,
-  },
-  innerGlow: {
-    position: 'absolute' as const,
-    opacity: 0.3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.05,
-    shadowRadius: 20,
+    opacity: 0.5,
   },
   svg: {
     position: 'absolute' as const,

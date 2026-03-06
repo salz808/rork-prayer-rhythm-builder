@@ -11,24 +11,24 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: C.accentDark,
+        tabBarActiveTintColor: C.accent,
         tabBarInactiveTintColor: C.textMuted,
         tabBarStyle: {
-          backgroundColor: C.surfaceElevated,
-          borderTopColor: C.borderLight,
+          backgroundColor: C.surface,
+          borderTopColor: C.border,
           borderTopWidth: 0.5,
           ...(Platform.OS === 'web' ? {} : {
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: -6 },
-            shadowOpacity: 0.08,
-            shadowRadius: 16,
+            shadowOffset: { width: 0, height: -8 },
+            shadowOpacity: 0.12,
+            shadowRadius: 20,
           }),
-          elevation: 12,
+          elevation: 16,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600' as const,
-          letterSpacing: 0.3,
+          letterSpacing: 0.4,
         },
         tabBarIconStyle: {
           marginBottom: -2,

@@ -16,7 +16,7 @@ const defaultState: AppState = {
   journeyComplete: false,
   ambientMuted: false,
   soundscape: 'piano',
-  darkMode: false,
+  darkMode: true,
   fontSize: 'normal',
   lastOpenedDate: null,
   openStreakCount: 0,
@@ -135,7 +135,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
       return newState;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['appState'] });
+      void queryClient.invalidateQueries({ queryKey: ['appState'] });
     },
   });
   const persistState = saveMutation.mutate;
@@ -279,7 +279,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     updateState({ fontSize });
   }, [updateState]);
 
-  return {
+  return useMemo(() => ({
     state,
     isLoading: stateQuery.isLoading,
     completeOnboarding,
@@ -293,5 +293,19 @@ export const [AppProvider, useApp] = createContextHook(() => {
     setSoundscape,
     toggleDarkMode,
     setFontSize,
-  };
+  }), [
+    state,
+    stateQuery.isLoading,
+    completeOnboarding,
+    completeDay,
+    isTodayComplete,
+    hasCompletedSessionToday,
+    graceWindowRemaining,
+    resetJourney,
+    continueDaily,
+    toggleAmbientMute,
+    setSoundscape,
+    toggleDarkMode,
+    setFontSize,
+  ]);
 });

@@ -5,9 +5,9 @@ import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppProvider } from '@/providers/AppProvider';
-import Colors from '@/constants/colors';
+import DarkColors from '@/constants/darkColors';
 
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync();
 
 try {
   const Purchases = require('react-native-purchases').default;
@@ -35,7 +35,7 @@ function RootLayoutNav() {
     <Stack
       screenOptions={{
         headerBackTitle: 'Back',
-        contentStyle: { backgroundColor: Colors.background },
+        contentStyle: { backgroundColor: DarkColors.background },
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -61,7 +61,7 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   useEffect(() => {
-    SplashScreen.hideAsync();
+    void SplashScreen.hideAsync();
   }, []);
 
   return (

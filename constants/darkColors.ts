@@ -1,8 +1,8 @@
 export default {
-  background: '#140C05',
-  surface: '#1C1208',
-  surfaceAlt: '#251808',
-  surfaceElevated: '#21150A',
+  background: '#1C1208',
+  surface: '#251808',
+  surfaceAlt: '#2B1D0E',
+  surfaceElevated: '#211510',
 
   text: '#F2EBE0',
   textSecondary: '#CBAF8C',
@@ -11,7 +11,7 @@ export default {
   accent: '#C8894A',
   accentDark: '#DBA96E',
   accentLight: '#6A4320',
-  accentBg: '#2B1B0C',
+  accentBg: 'rgba(200, 137, 74, 0.10)',
   accentDeep: '#A8672A',
 
   sage: '#8EB084',
@@ -26,16 +26,16 @@ export default {
   rose: '#D4A38E',
   roseBg: '#2C1B14',
 
-  border: '#3B2814',
-  borderLight: '#2D1D0E',
+  border: 'rgba(242, 235, 224, 0.08)',
+  borderLight: 'rgba(242, 235, 224, 0.05)',
 
   overlay: 'rgba(0, 0, 0, 0.74)',
-  overlayLight: 'rgba(242, 235, 224, 0.08)',
+  overlayLight: 'rgba(242, 235, 224, 0.04)',
 
   white: '#FFFFFF',
   transparent: 'transparent',
 
-  gradientStart: '#0D0804',
-  gradientMid: '#140C05',
+  gradientStart: '#140C05',
+  gradientMid: '#1C1208',
   gradientEnd: '#1C1208',
 };
