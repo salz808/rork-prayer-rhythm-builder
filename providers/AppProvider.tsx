@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { AppState, UserProfile, DayProgress, Soundscape, FontSize } from '@/types';
 
-const STORAGE_KEY = 'first30_app_state';
+const STORAGE_KEY = 'amen_app_state';
 
 const defaultState: AppState = {
   user: null,
@@ -83,7 +83,7 @@ async function scheduleReminderNotification(reminderTime: string) {
     const body = messages[Math.floor(Math.random() * messages.length)];
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'First 30',
+        title: 'Amen',
         body,
         sound: true,
       },

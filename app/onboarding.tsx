@@ -9,10 +9,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, Cross } from 'lucide-react-native';
+import { ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/colors';
@@ -200,18 +201,22 @@ export default function OnboardingScreen() {
                       { opacity: welcomeTitleFade, transform: [{ translateY: welcomeTitleSlide }] },
                     ]}
                   >
-                    <View style={styles.welcomeCrossWrap}>
-                      <Cross size={14} color={Colors.accentDark} style={{ opacity: 0.35 }} />
-                    </View>
-                    <Text style={styles.welcomeFirstLabel}>FIRST</Text>
-                    <Text style={styles.welcomeNumber}>30</Text>
+                    <Image
+                      source={require('@/assets/images/amen-logo.png')}
+                      style={styles.welcomeLogo}
+                      resizeMode="contain"
+                      testID="amen-logo-onboarding"
+                    />
+                    <Text style={styles.welcomeAppName}>Amen</Text>
                   </Animated.View>
 
                   <Animated.View
                     style={{ opacity: welcomeSubFade, transform: [{ translateY: welcomeSubSlide }] }}
                   >
                     <Text style={styles.welcomeTagline}>
-                      A 30-day guided journey{'\n'}into the heart of prayer
+                      30 days to discover God is{' '}
+                      <Text style={styles.welcomeTaglineHighlight}>much closer</Text>
+                      {' '}than you think.
                     </Text>
                   </Animated.View>
 
@@ -251,11 +256,12 @@ export default function OnboardingScreen() {
                     <View>
                       <View style={styles.stepLabelRow}>
                         <View style={styles.stepLabelDot} />
-                        <Text style={styles.stepLabel}>WELCOME</Text>
+                        <Text style={styles.stepLabel}>LET&apos;S START HERE</Text>
                       </View>
-                      <Text style={styles.title}>What should{'\n'}we call you?</Text>
+                      <Text style={styles.title}>What do people call you?</Text>
                       <Text style={styles.subtitle}>
-                        We{"'"}ll use your name to make{'\n'}this journey personal.
+                        This isn{"'"}t a program. It{"'"}s a conversation.{"\n"}
+                        And conversations start with a name.
                       </Text>
                       <View style={styles.inputContainer}>
                         <TextInput
@@ -281,7 +287,8 @@ export default function OnboardingScreen() {
                       </View>
                       <View style={styles.nameEncouragement}>
                         <Text style={styles.nameEncouragementText}>
-                          God already knows it. We just want to say it back to you.
+                          God already knows it. He{"'"}s known it before you were born.{"\n"}
+                          We just want to say it back.
                         </Text>
                       </View>
                     </View>
@@ -542,29 +549,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 22,
   },
-  welcomeCrossWrap: {
+  welcomeLogo: {
+    width: 180,
+    height: 72,
     marginBottom: 8,
   },
-  welcomeFirstLabel: {
-    fontSize: 13,
-    fontWeight: '800' as const,
-    letterSpacing: 14,
+  welcomeAppName: {
+    fontSize: 18,
+    fontWeight: '500' as const,
+    letterSpacing: 2,
     color: Colors.textMuted,
-    marginBottom: -6,
-  },
-  welcomeNumber: {
-    fontSize: 80,
-    fontWeight: '200' as const,
-    color: Colors.text,
-    letterSpacing: -5,
+    textTransform: 'uppercase' as const,
   },
   welcomeTagline: {
-    fontSize: 18,
+    fontSize: 19,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 30,
+    lineHeight: 31,
     marginBottom: 32,
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
+    maxWidth: 320,
+  },
+  welcomeTaglineHighlight: {
+    color: Colors.accentDark,
+    fontWeight: '800' as const,
   },
   welcomeFeatures: {
     flexDirection: 'row',
@@ -656,28 +664,29 @@ const styles = StyleSheet.create({
     color: Colors.accentDark,
   },
   title: {
-    fontSize: 38,
+    fontSize: 48,
     fontWeight: '700' as const,
     color: Colors.text,
-    marginBottom: 14,
-    letterSpacing: -1.2,
-    lineHeight: 46,
+    marginBottom: 16,
+    letterSpacing: -1.8,
+    lineHeight: 54,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 17,
     color: Colors.textSecondary,
-    lineHeight: 25,
-    marginBottom: 36,
+    lineHeight: 30,
+    marginBottom: 34,
   },
   inputContainer: {
     marginTop: 8,
   },
   input: {
-    fontSize: 24,
+    fontSize: 52,
     color: Colors.text,
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 0,
-    fontWeight: '500' as const,
+    fontWeight: '300' as const,
+    fontStyle: 'italic' as const,
   },
   inputUnderline: {
     height: 2,
@@ -688,10 +697,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   nameEncouragementText: {
-    fontSize: 14,
-    color: Colors.textMuted,
+    fontSize: 16,
+    color: Colors.accentDark,
     fontStyle: 'italic' as const,
-    lineHeight: 22,
+    lineHeight: 29,
   },
   optionsContainer: {
     gap: 12,
