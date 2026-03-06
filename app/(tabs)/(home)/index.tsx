@@ -29,6 +29,7 @@ import * as Haptics from 'expo-haptics';
 import AnimatedPressable from '@/components/AnimatedPressable';
 import SettingsSheet from '@/components/SettingsSheet';
 import { useColors } from '@/hooks/useColors';
+import { Fonts } from '@/constants/fonts';
 import { getDayContent, getPhaseLabel } from '@/mocks/content';
 import { getDailyEncouragement } from '@/mocks/encouragements';
 import { useApp } from '@/providers/AppProvider';
@@ -67,6 +68,7 @@ export default function HomeScreen() {
     resetJourney,
     continueDaily,
   } = useApp();
+  const isLargeFont = state.fontSize === 'large';
   const [settingsVisible, setSettingsVisible] = useState<boolean>(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -159,6 +161,7 @@ export default function HomeScreen() {
   if (state.journeyComplete) {
     return (
       <View style={[styles.root, { backgroundColor: C.background }]}>
+        <Animated.View style={[styles.ambientGlowOuter, { opacity: Animated.multiply(glowPulse, 0.4), backgroundColor: C.accent }]} />
         <Animated.View style={[styles.ambientGlow, { opacity: glowPulse, backgroundColor: C.accent }]} />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.completionContainer}>
@@ -167,9 +170,9 @@ export default function HomeScreen() {
                 <Check size={28} color={C.accent} strokeWidth={2.4} />
               </View>
             </View>
-            <Text style={[styles.completionEyebrow, { color: C.textMuted }]}>JOURNEY COMPLETE</Text>
-            <Text style={[styles.completionTitle, { color: C.text }]}>30 days of{'\n'}showing up</Text>
-            <Text style={[styles.completionMessage, { color: C.textSecondary }]}>
+            <Text style={[styles.completionEyebrow, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>JOURNEY COMPLETE</Text>
+            <Text style={[styles.completionTitle, { color: C.text, fontFamily: Fonts.titleLight }]}>30 days of{'\n'}showing up</Text>
+            <Text style={[styles.completionMessage, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
               You have built a sacred daily rhythm.{'\n'}Stay close and begin again.
             </Text>
             <AnimatedPressable
@@ -178,7 +181,7 @@ export default function HomeScreen() {
                 console.log('[HomeScreen] Continue daily pressed from completion state');
                 continueDaily();
               }}
-              scaleValue={0.97}
+              scaleValue={0.96}
               testID="continue-daily"
             >
               <LinearGradient
@@ -188,7 +191,7 @@ export default function HomeScreen() {
                 style={styles.primaryButton}
               >
                 <RotateCcw size={17} color="#180C02" />
-                <Text style={[styles.primaryButtonText, { color: '#180C02' }]}>Continue Daily</Text>
+                <Text style={[styles.primaryButtonText, { color: '#180C02', fontFamily: Fonts.titleMedium }]}>Continue Daily</Text>
               </LinearGradient>
             </AnimatedPressable>
             <AnimatedPressable
@@ -197,10 +200,10 @@ export default function HomeScreen() {
                 console.log('[HomeScreen] Restart journey pressed from completion state');
                 resetJourney();
               }}
-              scaleValue={0.98}
+              scaleValue={0.97}
               testID="restart-journey"
             >
-              <Text style={[styles.ghostButtonText, { color: C.textMuted }]}>Restart 30 Days</Text>
+              <Text style={[styles.ghostButtonText, { color: C.textMuted, fontFamily: Fonts.titleSemiBold }]}>Restart 30 Days</Text>
             </AnimatedPressable>
           </View>
         </SafeAreaView>
@@ -210,7 +213,9 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.root, { backgroundColor: C.background }]}>
+      <Animated.View style={[styles.ambientGlowOuter, { opacity: Animated.multiply(glowPulse, 0.4), backgroundColor: C.accent }]} />
       <Animated.View style={[styles.ambientGlow, { opacity: glowPulse, backgroundColor: C.accent }]} />
+      <Animated.View style={[styles.ambientGlowBottom, { opacity: Animated.multiply(glowPulse, 0.3), backgroundColor: C.accent }]} />
 
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
@@ -228,7 +233,7 @@ export default function HomeScreen() {
                 {state.streakCount > 0 && !showGraceBadge ? (
                   <View style={[styles.streakPill, { backgroundColor: C.accentBg, borderColor: C.border }]}>
                     <Text style={styles.streakEmoji}>🔥</Text>
-                    <Text style={[styles.streakText, { color: C.accentDark }]}>
+                    <Text style={[styles.streakText, { color: C.accentDark, fontFamily: Fonts.titleMedium }]}>
                       {state.streakCount}-day streak
                     </Text>
                   </View>
@@ -241,7 +246,7 @@ export default function HomeScreen() {
                     ]}
                   >
                     <AlertTriangle size={13} color={graceUrgent ? C.rose : C.accent} />
-                    <Text style={[styles.streakText, { color: graceUrgent ? C.rose : C.textSecondary }]}>
+                    <Text style={[styles.streakText, { color: graceUrgent ? C.rose : C.textSecondary, fontFamily: Fonts.titleMedium }]}>
                       {graceUrgent ? 'Pray today' : 'Grace window'}
                     </Text>
                   </View>
@@ -261,17 +266,17 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.headerSection}>
-              <Text style={[styles.greetingLabel, { color: C.accent }]}>
+              <Text style={[styles.greetingLabel, { color: C.accent, fontFamily: Fonts.titleMedium }]}>
                 {timeOfDay.greeting}
               </Text>
-              <Text style={[styles.nameTitle, { color: C.text }]}>{greetingName}</Text>
-              <Text style={[styles.subText, { color: C.textSecondary }]}>{encouragingSub}</Text>
+              <Text style={[styles.nameTitle, { color: C.text, fontFamily: Fonts.titleLight }, isLargeFont && { fontSize: 46, lineHeight: 50 }]}>{greetingName}</Text>
+              <Text style={[styles.subText, { color: C.textSecondary, fontFamily: Fonts.italic }, isLargeFont && { fontSize: 17 }]}>{encouragingSub}</Text>
             </View>
 
             <View style={[styles.streakCard, { backgroundColor: C.accentBg, borderColor: C.border }]}>
               <Text style={styles.streakCardEmoji}>🔥</Text>
               <Text style={[styles.streakCardText, { color: C.textSecondary }]}>
-                <Text style={[styles.streakCardStrong, { color: C.accentDark }]}>
+                <Text style={[styles.streakCardStrong, { color: C.accentDark, fontFamily: Fonts.titleMedium }]}>
                   {state.streakCount > 0 ? `${state.streakCount}-day streak` : 'Start your streak'}
                 </Text>
                 {' · Keep walking in freedom'}
@@ -287,7 +292,7 @@ export default function HomeScreen() {
           >
             <View style={styles.progressSection}>
               <View style={styles.progressLabelRow}>
-                <Text style={[styles.progressLabel, { color: C.accent }]}>JOURNEY TO WHOLENESS</Text>
+                <Text style={[styles.progressLabel, { color: C.accent, fontFamily: Fonts.titleMedium }]}>JOURNEY TO WHOLENESS</Text>
                 <Text style={[styles.progressDay, { color: C.textMuted }]}>
                   Day {state.currentDay} of 30
                 </Text>
@@ -314,7 +319,7 @@ export default function HomeScreen() {
               transform: [{ translateY: translateAnim }],
             }}
           >
-            <Text style={[styles.sectionEyebrow, { color: C.accent }]}>TODAY&apos;S PRACTICE</Text>
+            <Text style={[styles.sectionEyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>TODAY&apos;S PRACTICE</Text>
 
             <AnimatedPressable
               style={[styles.todayCard, { borderColor: C.border }]}
@@ -324,7 +329,7 @@ export default function HomeScreen() {
                   router.push('/session');
                 }
               }}
-              scaleValue={0.98}
+              scaleValue={0.97}
               testID="begin-today"
             >
               <LinearGradient
@@ -336,13 +341,13 @@ export default function HomeScreen() {
                 <View style={[styles.todayCardTopLine, { backgroundColor: C.accent }]} />
                 <View style={[styles.todayCardGlow, { backgroundColor: C.accent }]} />
 
-                <Text style={[styles.todayCardDay, { color: C.accent }]}>
-                  {'• Day ' + state.currentDay + ' · ' + phaseLabel}
+                <Text style={[styles.todayCardDay, { color: C.accent, fontFamily: Fonts.titleSemiBold }]}>
+                  {'Day ' + state.currentDay + ' · ' + phaseLabel}
                 </Text>
-                <Text style={[styles.todayCardTitle, { color: C.text }]}>
+                <Text style={[styles.todayCardTitle, { color: C.text, fontFamily: Fonts.titleLight }, isLargeFont && { fontSize: 34, lineHeight: 38 }]}>
                   {dayContent.title}
                 </Text>
-                <Text style={[styles.todayCardDesc, { color: C.textSecondary }]} numberOfLines={3}>
+                <Text style={[styles.todayCardDesc, { color: C.textSecondary, fontFamily: Fonts.italic }, isLargeFont && { fontSize: 17 }]} numberOfLines={3}>
                   {dayContent.settle}
                 </Text>
 
@@ -351,7 +356,7 @@ export default function HomeScreen() {
                 <View style={styles.triadPills}>
                   {['Thank', 'Repent', 'Invite', 'Ask', 'Declare'].map((pill) => (
                     <View key={pill} style={[styles.triadPill, { borderColor: C.border }]}>
-                      <Text style={[styles.triadPillText, { color: C.accent }]}>{pill}</Text>
+                      <Text style={[styles.triadPillText, { color: C.accent, fontFamily: Fonts.titleMedium }]}>{pill}</Text>
                     </View>
                   ))}
                 </View>
@@ -363,11 +368,11 @@ export default function HomeScreen() {
                     <View style={[styles.completedBadge, { backgroundColor: C.sageBg }]}>
                       <Check size={12} color={C.sage} strokeWidth={2.5} />
                     </View>
-                    <Text style={[styles.todayCardCtaText, { color: C.sage }]}>Completed today</Text>
+                    <Text style={[styles.todayCardCtaText, { color: C.sage, fontFamily: Fonts.titleMedium }]}>Completed today</Text>
                   </View>
                 ) : (
                   <View style={styles.todayCardCta}>
-                    <Text style={[styles.todayCardCtaText, { color: C.accent }]}>
+                    <Text style={[styles.todayCardCtaText, { color: C.accent, fontFamily: Fonts.titleMedium }]}>
                       Begin today&apos;s prayer
                     </Text>
                     <ChevronRight size={14} color={C.accent} />
@@ -383,7 +388,7 @@ export default function HomeScreen() {
               transform: [{ translateY: ctaSlide }],
             }}
           >
-            <Text style={[styles.sectionEyebrow, { color: C.accent }]}>30-DAY JOURNEY</Text>
+            <Text style={[styles.sectionEyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>30-DAY JOURNEY</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -409,9 +414,9 @@ export default function HomeScreen() {
                     <Text
                       style={[
                         styles.dayChipNum,
-                        { color: C.textMuted },
+                        { color: C.textMuted, fontFamily: Fonts.titleLight },
                         isDone && { color: C.accent },
-                        isToday && { color: C.text },
+                        isToday && { color: C.text, fontFamily: Fonts.titleBold },
                         isLocked && { color: C.textMuted },
                       ]}
                     >
@@ -439,10 +444,10 @@ export default function HomeScreen() {
           >
             <View style={[styles.quoteCard, { backgroundColor: C.surface, borderColor: C.border }]}>
               <Sparkles size={12} color={C.accent} style={{ marginBottom: 8 }} />
-              <Text style={[styles.quoteText, { color: C.textSecondary }]}>
+              <Text style={[styles.quoteText, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
                 &ldquo;{encouragement.text}&rdquo;
               </Text>
-              <Text style={[styles.quoteAuthor, { color: C.textMuted }]}>
+              <Text style={[styles.quoteAuthor, { color: C.textMuted, fontFamily: Fonts.titleSemiBold }]}>
                 {encouragement.author}
               </Text>
             </View>
@@ -454,13 +459,13 @@ export default function HomeScreen() {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/paywall');
               }}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
               testID="support-cause-home"
             >
               <View style={[styles.supportHeart, { backgroundColor: C.accent }]}>
                 <Heart size={12} color={C.white} fill={C.white} />
               </View>
-              <Text style={[styles.supportLabel, { color: C.text }]} numberOfLines={1}>Support This Cause</Text>
+              <Text style={[styles.supportLabel, { color: C.text, fontFamily: Fonts.titleSemiBold }]} numberOfLines={1}>Support This Cause</Text>
               <ChevronRight size={14} color={C.textMuted} />
             </TouchableOpacity>
           </Animated.View>
@@ -480,7 +485,7 @@ export default function HomeScreen() {
                   console.log('[HomeScreen] Starting today\'s session from CTA');
                   router.push('/session');
                 }}
-                scaleValue={0.97}
+                scaleValue={0.96}
                 hapticStyle={Haptics.ImpactFeedbackStyle.Medium}
                 testID="begin-today-cta"
               >
@@ -491,7 +496,7 @@ export default function HomeScreen() {
                   style={styles.primaryButton}
                 >
                   <Play size={17} color="#180C02" fill="#180C02" />
-                  <Text style={[styles.primaryButtonText, { color: '#180C02' }]}>Begin Today</Text>
+                  <Text style={[styles.primaryButtonText, { color: '#180C02', fontFamily: Fonts.titleMedium }]}>Begin Today</Text>
                 </LinearGradient>
               </AnimatedPressable>
             </Animated.View>
@@ -516,14 +521,31 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 32,
   },
+  ambientGlowOuter: {
+    position: 'absolute',
+    top: -180,
+    left: '50%',
+    width: 600,
+    height: 400,
+    borderRadius: 300,
+    transform: [{ translateX: -300 }],
+  },
   ambientGlow: {
     position: 'absolute',
-    top: -60,
+    top: -80,
     left: '50%',
-    width: 320,
-    height: 200,
-    borderRadius: 160,
-    transform: [{ translateX: -160 }],
+    width: 380,
+    height: 260,
+    borderRadius: 190,
+    transform: [{ translateX: -190 }],
+  },
+  ambientGlowBottom: {
+    position: 'absolute',
+    bottom: -120,
+    right: -80,
+    width: 400,
+    height: 400,
+    borderRadius: 200,
   },
   loadingContainer: {
     flex: 1,
@@ -555,7 +577,6 @@ const styles = StyleSheet.create({
   },
   streakText: {
     fontSize: 12,
-    fontWeight: '500' as const,
     letterSpacing: 0.3,
   },
   settingsBtn: {
@@ -571,21 +592,18 @@ const styles = StyleSheet.create({
   },
   greetingLabel: {
     fontSize: 11,
-    fontWeight: '300' as const,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
     marginBottom: 6,
   },
   nameTitle: {
     fontSize: 40,
-    fontWeight: '300' as const,
     letterSpacing: -0.5,
     lineHeight: 44,
     marginBottom: 6,
   },
   subText: {
     fontSize: 15,
-    fontStyle: 'italic' as const,
     lineHeight: 22,
   },
   streakCard: {
@@ -607,9 +625,7 @@ const styles = StyleSheet.create({
     fontWeight: '300' as const,
     letterSpacing: 0.3,
   },
-  streakCardStrong: {
-    fontWeight: '500' as const,
-  },
+  streakCardStrong: {},
   progressSection: {
     marginBottom: 24,
   },
@@ -621,7 +637,6 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 9,
-    fontWeight: '500' as const,
     letterSpacing: 2.5,
     textTransform: 'uppercase' as const,
   },
@@ -641,7 +656,6 @@ const styles = StyleSheet.create({
   },
   sectionEyebrow: {
     fontSize: 9,
-    fontWeight: '500' as const,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
     marginBottom: 14,
@@ -676,21 +690,18 @@ const styles = StyleSheet.create({
   },
   todayCardDay: {
     fontSize: 9,
-    fontWeight: '600' as const,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
     marginBottom: 10,
   },
   todayCardTitle: {
     fontSize: 30,
-    fontWeight: '300' as const,
     lineHeight: 34,
     letterSpacing: -0.5,
     marginBottom: 10,
   },
   todayCardDesc: {
     fontSize: 15,
-    fontStyle: 'italic' as const,
     lineHeight: 26,
     marginBottom: 16,
   },
@@ -711,7 +722,6 @@ const styles = StyleSheet.create({
   },
   triadPillText: {
     fontSize: 8,
-    fontWeight: '500' as const,
     letterSpacing: 1.2,
     textTransform: 'uppercase' as const,
     opacity: 0.65,
@@ -723,7 +733,6 @@ const styles = StyleSheet.create({
   },
   todayCardCtaText: {
     fontSize: 11,
-    fontWeight: '300' as const,
     letterSpacing: 2,
     textTransform: 'uppercase' as const,
   },
@@ -762,7 +771,6 @@ const styles = StyleSheet.create({
   },
   dayChipNum: {
     fontSize: 13,
-    fontWeight: '300' as const,
   },
   dayChipDot: {
     width: 4,
@@ -779,12 +787,10 @@ const styles = StyleSheet.create({
   quoteText: {
     fontSize: 14,
     lineHeight: 24,
-    fontStyle: 'italic' as const,
     marginBottom: 8,
   },
   quoteAuthor: {
     fontSize: 10,
-    fontWeight: '600' as const,
     letterSpacing: 0.3,
   },
   supportRow: {
@@ -807,7 +813,6 @@ const styles = StyleSheet.create({
   supportLabel: {
     flex: 1,
     fontSize: 13,
-    fontWeight: '600' as const,
     letterSpacing: 0.1,
   },
   primaryButtonShell: {
@@ -829,7 +834,6 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: 12.5,
-    fontWeight: '500' as const,
     letterSpacing: 2,
     textTransform: 'uppercase' as const,
   },
@@ -841,7 +845,6 @@ const styles = StyleSheet.create({
   },
   ghostButtonText: {
     fontSize: 14,
-    fontWeight: '600' as const,
     letterSpacing: 0.2,
   },
   completionContainer: {
@@ -868,14 +871,12 @@ const styles = StyleSheet.create({
   },
   completionEyebrow: {
     fontSize: 11,
-    fontWeight: '700' as const,
     letterSpacing: 2.4,
     marginBottom: 12,
   },
   completionTitle: {
     fontSize: 32,
     lineHeight: 40,
-    fontWeight: '200' as const,
     letterSpacing: -1,
     textAlign: 'center',
     marginBottom: 14,
@@ -886,6 +887,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 300,
     marginBottom: 32,
-    fontWeight: '400' as const,
   },
 });

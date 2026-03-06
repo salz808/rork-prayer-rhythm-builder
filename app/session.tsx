@@ -19,6 +19,7 @@ import { getDayContent, getPhaseInstruction, milestones } from '@/mocks/content'
 import { SessionPhase, TriadItem } from '@/types';
 import AnimatedPressable from '@/components/AnimatedPressable';
 import CelebrationParticles from '@/components/CelebrationParticles';
+import { Fonts } from '@/constants/fonts';
 
 const SOUNDSCAPE_URLS: Record<string, string | null> = {
   piano: 'https://cdn.pixabay.com/audio/2024/11/04/audio_4956b4eff1.mp3',
@@ -102,6 +103,7 @@ export default function SessionScreen() {
   const soundRef = useRef<Audio.Sound | null>(null);
   const audioStartedRef = useRef(false);
   const fadeInIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [audioReady, setAudioReady] = useState(false);
 
   const currentStep = steps[currentStepIndex];
   const totalSteps = steps.length;
@@ -160,6 +162,7 @@ export default function SessionScreen() {
           return;
         }
         soundRef.current = sound;
+        setAudioReady(true);
         console.log('[Session] Ambient audio loaded (waiting for prayer zone):', state.soundscape);
       } catch (e) {
         console.log('[Session] Failed to load ambient audio:', e);
@@ -180,7 +183,7 @@ export default function SessionScreen() {
   }, [audioUrl, state.soundscape]);
 
   useEffect(() => {
-    if (!isInPrayerZone || audioStartedRef.current || !soundRef.current) return;
+    if (!isInPrayerZone || audioStartedRef.current || !soundRef.current || !audioReady) return;
     if (state.ambientMuted || state.soundscape === 'silence') {
       audioStartedRef.current = true;
       return;
@@ -211,7 +214,7 @@ export default function SessionScreen() {
       }
     };
     void fadeIn();
-  }, [isInPrayerZone, state.ambientMuted, state.soundscape]);
+  }, [isInPrayerZone, state.ambientMuted, state.soundscape, audioReady]);
 
   useEffect(() => {
     const updateVolume = async () => {
@@ -455,10 +458,10 @@ export default function SessionScreen() {
                 </View>
 
                 <Text style={[styles.completeDayLabel, { color: C.textMuted }]}>DAY {completedDay}</Text>
-                <Text style={[styles.completeTitle, { color: C.text }]}>
+                <Text style={[styles.completeTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>
                   Prayer Complete
                 </Text>
-                <Text style={[styles.completeSubtitle, { color: C.textSecondary }]}>
+                <Text style={[styles.completeSubtitle, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
                   {encouragementForDay(completedDay)}
                 </Text>
 
@@ -508,7 +511,7 @@ export default function SessionScreen() {
                     end={{ x: 1, y: 1 }}
                     style={styles.doneButtonGradient}
                   >
-                    <Text style={[styles.doneButtonText, { color: '#FFFFFF' }]}>Done</Text>
+                    <Text style={[styles.doneButtonText, { color: '#FFFFFF', fontFamily: Fonts.titleSemiBold }]}>Done</Text>
                   </LinearGradient>
                 </AnimatedPressable>
               </Animated.View>
@@ -580,21 +583,21 @@ export default function SessionScreen() {
               <View style={styles.phaseTagRow}>
                 <View style={[styles.phaseTag, { backgroundColor: sectionBg, borderColor: sectionColor + '30', borderWidth: 1 }]}>
                   <View style={[styles.phaseTagDot, { backgroundColor: sectionColor }]} />
-                  <Text style={[styles.phaseTagText, { color: sectionColor }]}>
+                  <Text style={[styles.phaseTagText, { color: sectionColor, fontFamily: Fonts.titleBold }]}>
                     {currentStep.title}
                   </Text>
                 </View>
               </View>
 
               {currentStep.subtitle ? (
-                <Text style={[styles.phaseSubtitle, { color: C.text }, largeFontSize && styles.phaseSubtitleLarge]}>
+                <Text style={[styles.phaseSubtitle, { color: C.text, fontFamily: Fonts.titleBold }, largeFontSize && styles.phaseSubtitleLarge]}>
                   {currentStep.subtitle}
                 </Text>
               ) : null}
 
               <Animated.View style={[styles.decorativeLine, { backgroundColor: sectionColor, opacity: decorLineAnim, width: decorLineAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '12%'] }) }]} />
 
-              <Text style={[styles.phaseText, { color: C.textSecondary }, largeFontSize && styles.phaseTextLarge]}>
+              <Text style={[styles.phaseText, { color: C.textSecondary, fontFamily: currentStep.type === 'triad' ? Fonts.italic : undefined }, largeFontSize && styles.phaseTextLarge]}>
                 {currentStep.content}
               </Text>
 
@@ -665,7 +668,7 @@ export default function SessionScreen() {
                 end={{ x: 1, y: 1 }}
                 style={styles.nextButtonGradient}
               >
-                <Text style={styles.nextButtonText}>
+                <Text style={[styles.nextButtonText, { fontFamily: Fonts.titleSemiBold }]}>
                   {currentStepIndex < totalSteps - 1 ? 'Continue' : 'Complete'}
                 </Text>
                 {currentStepIndex < totalSteps - 1 ? (

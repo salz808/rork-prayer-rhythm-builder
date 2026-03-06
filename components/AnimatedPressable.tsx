@@ -16,7 +16,7 @@ interface AnimatedPressableProps extends TouchableOpacityProps {
 }
 
 function AnimatedPressableComponent({
-  scaleValue = 0.97,
+  scaleValue = 0.96,
   haptic = true,
   hapticStyle = Haptics.ImpactFeedbackStyle.Light,
   onPressIn,
@@ -27,37 +27,52 @@ function AnimatedPressableComponent({
   ...rest
 }: AnimatedPressableProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(
     (e: any) => {
-      Animated.spring(scaleAnim, {
-        toValue: scaleValue,
-        tension: 150,
-        friction: 8,
-        useNativeDriver: true,
-      }).start();
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: scaleValue,
+          tension: 200,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0.85,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
       onPressIn?.(e);
     },
-    [scaleAnim, scaleValue, onPressIn]
+    [scaleAnim, opacityAnim, scaleValue, onPressIn]
   );
 
   const handlePressOut = useCallback(
     (e: any) => {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 150,
-        friction: 8,
-        useNativeDriver: true,
-      }).start();
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          tension: 200,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
       onPressOut?.(e);
     },
-    [scaleAnim, onPressOut]
+    [scaleAnim, opacityAnim, onPressOut]
   );
 
   const handlePress = useCallback(
     (e: any) => {
       if (haptic) {
-        Haptics.impactAsync(hapticStyle);
+        void Haptics.impactAsync(hapticStyle);
       }
       onPress?.(e);
     },
@@ -65,7 +80,7 @@ function AnimatedPressableComponent({
   );
 
   return (
-    <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, style]}>
+    <Animated.View style={[{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }, style]}>
       <TouchableOpacity
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}

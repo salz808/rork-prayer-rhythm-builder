@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import { useApp } from '@/providers/AppProvider';
 import { useColors } from '@/hooks/useColors';
 import { useRouter } from 'expo-router';
+import { Fonts } from '@/constants/fonts';
 import { Soundscape } from '@/types';
 
 const SOUNDSCAPES: { id: Soundscape; label: string; description: string; Icon: typeof Music2 }[] = [
@@ -114,7 +115,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
           <View style={[styles.handle, { backgroundColor: C.border }]} />
 
           <View style={styles.header}>
-            <Text style={[styles.title, { color: C.text }]}>Settings</Text>
+            <Text style={[styles.title, { color: C.text, fontFamily: Fonts.titleBold }]}>Settings</Text>
             <TouchableOpacity
               onPress={onClose}
               style={[styles.closeBtn, { backgroundColor: C.overlayLight }]}
@@ -124,7 +125,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
             </TouchableOpacity>
           </View>
 
-          <Text style={[styles.sectionLabel, { color: C.textMuted }]}>SOUNDSCAPE</Text>
+          <Text style={[styles.sectionLabel, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>SOUNDSCAPE</Text>
           <View style={styles.soundscapeGrid}>
             {SOUNDSCAPES.map(({ id, label, description, Icon }) => {
               const isSelected = state.soundscape === id;
@@ -163,7 +164,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
 
           <View style={[styles.divider, { backgroundColor: C.borderLight }]} />
 
-          <Text style={[styles.sectionLabel, { color: C.textMuted }]}>DISPLAY</Text>
+          <Text style={[styles.sectionLabel, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>DISPLAY</Text>
 
           <View style={[styles.toggleRow, { borderColor: C.borderLight }]}>
             <View style={styles.toggleLeft}>
@@ -175,7 +176,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
                 )}
               </View>
               <View>
-                <Text style={[styles.toggleLabel, { color: C.text }]}>Dark Mode</Text>
+                <Text style={[styles.toggleLabel, { color: C.text, fontFamily: Fonts.titleSemiBold }]}>Dark Mode</Text>
                 <Text style={[styles.toggleSub, { color: C.textMuted }]}>
                   {state.darkMode ? 'Warm charcoal theme' : 'Light parchment theme'}
                 </Text>
@@ -197,7 +198,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
                 <AlignLeft size={16} color={C.sageDark} />
               </View>
               <View>
-                <Text style={[styles.toggleLabel, { color: C.text }]}>Larger Text</Text>
+                <Text style={[styles.toggleLabel, { color: C.text, fontFamily: Fonts.titleSemiBold }]}>Larger Text</Text>
                 <Text style={[styles.toggleSub, { color: C.textMuted }]}>
                   {state.fontSize === 'large' ? 'Larger prayer text' : 'Standard text size'}
                 </Text>
@@ -229,8 +230,8 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
               <Heart size={16} color="#FFFFFF" fill="#FFFFFF" />
             </View>
             <View style={styles.supportText}>
-              <Text style={[styles.supportTitle, { color: C.accentDark }]}>Support the App</Text>
-              <Text style={[styles.supportSub, { color: C.accent }]}>Help fund development & missions</Text>
+              <Text style={[styles.supportTitle, { color: C.accentDark, fontFamily: Fonts.titleBold }]}>Support the App</Text>
+              <Text style={[styles.supportSub, { color: C.accent, fontFamily: Fonts.italic }]}>Help fund development & missions</Text>
             </View>
           </TouchableOpacity>
         </Animated.View>

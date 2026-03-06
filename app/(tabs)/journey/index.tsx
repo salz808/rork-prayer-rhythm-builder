@@ -11,6 +11,7 @@ import { Check, Lock, Flame, Calendar, Clock, Award, TrendingUp, Sparkles } from
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/providers/AppProvider';
 import { useColors } from '@/hooks/useColors';
+import { Fonts } from '@/constants/fonts';
 import { milestones } from '@/mocks/content';
 import { DayProgress } from '@/types';
 
@@ -137,7 +138,7 @@ export default function JourneyScreen() {
         >
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: headerSlide }] }}>
             <View style={styles.titleRow}>
-              <Text style={[styles.screenTitle, { color: C.text }]}>Your Journey</Text>
+              <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>Your Journey</Text>
               {completedDays > 0 && (
                 <View style={[styles.completedBadge, { backgroundColor: C.sageBg, borderColor: C.sageLight, borderWidth: 1 }]}>
                   <Sparkles size={11} color={C.sage} />
@@ -145,7 +146,7 @@ export default function JourneyScreen() {
                 </View>
               )}
             </View>
-            <Text style={[styles.screenSubtitle, { color: C.textSecondary }]}>
+            <Text style={[styles.screenSubtitle, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
               {completedDays === 0
                 ? 'Your story begins today.'
                 : `${completedDays} day${completedDays > 1 ? 's' : ''} of faithfulness.`}
@@ -275,7 +276,7 @@ export default function JourneyScreen() {
               </View>
             )}
 
-            <Text style={[styles.sectionTitle, { color: C.text }]}>Progress</Text>
+            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>Progress</Text>
 
             <View style={styles.weeksContainer}>
               <WeekSection
@@ -312,7 +313,7 @@ export default function JourneyScreen() {
               />
             </View>
 
-            <Text style={[styles.sectionTitle, { color: C.text }]}>Milestones</Text>
+            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.titleBold }]}>Milestones</Text>
             <View style={styles.milestonesContainer}>
               {milestones.map((m, idx) => {
                 const reached = completedDays >= m.day;
@@ -378,7 +379,7 @@ export default function JourneyScreen() {
 
             <View style={[styles.graceNote, { backgroundColor: C.accentBg, borderColor: C.accentLight }]}>
               <View style={[styles.graceNoteAccent, { backgroundColor: C.accentDark }]} />
-              <Text style={[styles.graceNoteText, { color: C.accentDeep }]}>
+              <Text style={[styles.graceNoteText, { color: C.accentDeep, fontFamily: Fonts.italic }]}>
                 Missed a day? That{"'"}s okay.{'\n'}Grace means starting again isn{"'"}t failure. it{"'"}s growth.
               </Text>
             </View>
