@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Prayer Rhythm Builder",
-    "slug": "prayer-rhythm-builder",
+    "name": "Amen - Prayer Life Builder",
+    "slug": "amenprayerlife",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.prayer-rhythm-builder"
+      "bundleIdentifier": "app.rork.amen"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.prayer_rhythm_builder"
+      "package": "app.rork.amen"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
