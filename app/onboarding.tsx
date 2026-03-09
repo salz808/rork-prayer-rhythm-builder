@@ -187,26 +187,50 @@ export default function OnboardingScreen() {
               <View style={styles.splashContainer}>
                 <Animated.View style={[styles.spGlowBottom, { opacity: orbPulse }]} pointerEvents="none">
                   <LinearGradient
-                    colors={['rgba(200,137,74,0.18)', 'rgba(200,137,74,0.08)', 'transparent']}
-                    style={styles.spGlowInner}
-                    start={{ x: 0.5, y: 1 }}
+                    colors={['rgba(200,137,74,0.22)', 'rgba(200,137,74,0.10)', 'rgba(200,137,74,0.02)', 'transparent']}
+                    locations={[0, 0.35, 0.65, 1]}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0.5, y: 0.5 }}
                     end={{ x: 0.5, y: 0 }}
+                  />
+                  <LinearGradient
+                    colors={['transparent', 'rgba(200,137,74,0.18)', 'transparent']}
+                    locations={[0, 0.5, 1]}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
                   />
                 </Animated.View>
                 <View style={styles.spGlowCenter} pointerEvents="none">
                   <LinearGradient
-                    colors={['rgba(200,137,74,0.055)', 'transparent']}
-                    style={styles.spGlowInner}
+                    colors={['rgba(200,137,74,0.07)', 'rgba(200,137,74,0.03)', 'transparent']}
+                    locations={[0, 0.4, 1]}
+                    style={StyleSheet.absoluteFill}
                     start={{ x: 0.5, y: 0.5 }}
                     end={{ x: 0.5, y: 0 }}
+                  />
+                  <LinearGradient
+                    colors={['transparent', 'rgba(200,137,74,0.05)', 'transparent']}
+                    locations={[0, 0.5, 1]}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
                   />
                 </View>
                 <View style={styles.spGlowTop} pointerEvents="none">
                   <LinearGradient
-                    colors={['rgba(200,137,74,0.06)', 'transparent']}
-                    style={styles.spGlowInner}
-                    start={{ x: 0.5, y: 0 }}
+                    colors={['rgba(200,137,74,0.08)', 'rgba(200,137,74,0.03)', 'transparent']}
+                    locations={[0, 0.4, 1]}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0.5, y: 0.5 }}
                     end={{ x: 0.5, y: 1 }}
+                  />
+                  <LinearGradient
+                    colors={['transparent', 'rgba(200,137,74,0.06)', 'transparent']}
+                    locations={[0, 0.5, 1]}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
                   />
                 </View>
 
@@ -621,10 +645,6 @@ const styles = StyleSheet.create({
     height: 260,
     borderRadius: 130,
     overflow: 'hidden',
-  },
-  spGlowInner: {
-    width: '100%',
-    height: '100%',
   },
   obGlowTop: {
     position: 'absolute',
