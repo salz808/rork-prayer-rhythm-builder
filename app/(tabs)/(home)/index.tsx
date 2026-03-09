@@ -74,6 +74,9 @@ export default function HomeScreen() {
 
   const encouragement = useMemo(() => getDailyEncouragement(), []);
 
+  const completedDays = state.progress.filter((item) => item.completed).length;
+  const progressPercent = Math.max(3.3, (completedDays / 30) * 100);
+
   useEffect(() => {
     console.log('[HomeScreen] Rendering Amen home screen');
 
@@ -122,6 +125,14 @@ export default function HomeScreen() {
     ]).start();
   }, [fadeAnim, translateAnim, ctaFade, ctaSlide, glowPulse]);
 
+  useEffect(() => {
+    Animated.timing(progressWidth, {
+      toValue: progressPercent,
+      duration: 1200,
+      useNativeDriver: false,
+    }).start();
+  }, [progressPercent, progressWidth]);
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -135,21 +146,11 @@ export default function HomeScreen() {
   }
 
   const dayContent = getDayContent(state.currentDay);
-  const completedDays = state.progress.filter((item) => item.completed).length;
   const phaseLabel = getPhaseLabel(state.currentDay);
   const showGraceBadge = graceWindowRemaining !== null && state.streakCount > 0;
   const graceUrgent = graceWindowRemaining === 0;
   const greetingName = state.user.firstName || 'Friend';
-  const progressPercent = Math.max(3.3, (completedDays / 30) * 100);
   const encouragingSub = getEncouragingSub(completedDays);
-
-  useEffect(() => {
-    Animated.timing(progressWidth, {
-      toValue: progressPercent,
-      duration: 1200,
-      useNativeDriver: false,
-    }).start();
-  }, [progressPercent, progressWidth]);
 
   if (state.journeyComplete) {
     return (

@@ -3,6 +3,7 @@ import {
   Animated,
   TouchableOpacity,
   TouchableOpacityProps,
+  StyleProp,
   ViewStyle,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -12,7 +13,7 @@ interface AnimatedPressableProps extends TouchableOpacityProps {
   haptic?: boolean;
   hapticStyle?: Haptics.ImpactFeedbackStyle;
   children: React.ReactNode;
-  style?: ViewStyle | ViewStyle[];
+  style?: StyleProp<ViewStyle>;
 }
 
 function AnimatedPressableComponent({

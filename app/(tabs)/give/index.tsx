@@ -221,7 +221,7 @@ export default function GiveScreen() {
                     key={tier.id}
                     style={[
                       styles.tierCard,
-                      tier.featured && styles.tierCardFeatured,
+                      tier.featured ? styles.tierCardFeatured : undefined,
                     ]}
                     onPress={() => handlePurchase(tier)}
                     scaleValue={0.97}
