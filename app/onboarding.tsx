@@ -177,24 +177,6 @@ export default function OnboardingScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.root}>
-        <LinearGradient
-          colors={['rgba(60,36,18,0.4)', 'transparent', 'rgba(60,36,18,0.2)']}
-          style={StyleSheet.absoluteFill}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
-        <LinearGradient
-          colors={['rgba(200,137,74,0.05)', 'transparent']}
-          style={styles.ambientTop}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
-        <LinearGradient
-          colors={['transparent', 'rgba(200,137,74,0.03)']}
-          style={styles.ambientBottom}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
 
         <SafeAreaView style={styles.safeArea}>
           <KeyboardAvoidingView
@@ -203,14 +185,30 @@ export default function OnboardingScreen() {
           >
             {step === 'splash' ? (
               <View style={styles.splashContainer}>
-                <Animated.View style={[styles.splashGlowContainer, { opacity: orbPulse }]} pointerEvents="none">
+                <Animated.View style={[styles.spGlowBottom, { opacity: orbPulse }]} pointerEvents="none">
                   <LinearGradient
-                    colors={['transparent', 'rgba(200,137,74,0.06)', 'transparent']}
-                    style={styles.splashAmbient}
+                    colors={['rgba(200,137,74,0.18)', 'rgba(200,137,74,0.08)', 'transparent']}
+                    style={styles.spGlowInner}
+                    start={{ x: 0.5, y: 1 }}
+                    end={{ x: 0.5, y: 0 }}
+                  />
+                </Animated.View>
+                <View style={styles.spGlowCenter} pointerEvents="none">
+                  <LinearGradient
+                    colors={['rgba(200,137,74,0.055)', 'transparent']}
+                    style={styles.spGlowInner}
+                    start={{ x: 0.5, y: 0.5 }}
+                    end={{ x: 0.5, y: 0 }}
+                  />
+                </View>
+                <View style={styles.spGlowTop} pointerEvents="none">
+                  <LinearGradient
+                    colors={['rgba(200,137,74,0.06)', 'transparent']}
+                    style={styles.spGlowInner}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
                   />
-                </Animated.View>
+                </View>
 
                 <Animated.View
                   style={[
@@ -267,6 +265,14 @@ export default function OnboardingScreen() {
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator={false}
                 >
+                  <View style={styles.obGlowTop} pointerEvents="none">
+                    <LinearGradient
+                      colors={['rgba(200,137,74,0.09)', 'transparent']}
+                      style={styles.obGlowInner}
+                      start={{ x: 0.5, y: 0 }}
+                      end={{ x: 0.5, y: 1 }}
+                    />
+                  </View>
                   <Animated.View
                     style={[
                       styles.content,
@@ -279,7 +285,14 @@ export default function OnboardingScreen() {
                         <Text style={[styles.screenTitle, { fontFamily: Fonts.serifLight }]}>
                           What do people{'\n'}call <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>you?</Text>
                         </Text>
-                        <View style={styles.screenRule} />
+                        <View style={styles.screenRuleWrap}>
+                          <LinearGradient
+                            colors={['#C8894A', 'transparent']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.screenRuleGrad}
+                          />
+                        </View>
                         <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           God has known your name since before the foundations of the earth. He calls you beloved. We just want to say it back.
                         </Text>
@@ -353,7 +366,14 @@ export default function OnboardingScreen() {
                         <Text style={[styles.screenTitle, { fontFamily: Fonts.serifLight }]}>
                           Not a program.{'\n'}A <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>journey into wholeness.</Text>
                         </Text>
-                        <View style={styles.screenRule} />
+                        <View style={styles.screenRuleWrap}>
+                          <LinearGradient
+                            colors={['#C8894A', 'transparent']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.screenRuleGrad}
+                          />
+                        </View>
                         <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           Thirty days from now, you will pray without a script. You'll know your voice with God, and His voice in return.{'\n\n'}You weren't meant to live stuck in prayerless silence.{' '}
                           <Text style={{ color: '#F4EDE0', fontFamily: Fonts.serifSemiBold }}>
@@ -374,7 +394,14 @@ export default function OnboardingScreen() {
                           The TRIAD{'\n'}
                           <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>framework</Text>
                         </Text>
-                        <View style={styles.screenRule} />
+                        <View style={styles.screenRuleWrap}>
+                          <LinearGradient
+                            colors={['#C8894A', 'transparent']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.screenRuleGrad}
+                          />
+                        </View>
                         <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular, marginBottom: 22 }]}>
                           Five anchors covering the full range of authentic prayer: spirit, soul, and body. You learn them by doing, not by studying.
                         </Text>
@@ -402,7 +429,14 @@ export default function OnboardingScreen() {
                           When should we{'\n'}remind{' '}
                           <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>you?</Text>
                         </Text>
-                        <View style={styles.screenRule} />
+                        <View style={styles.screenRuleWrap}>
+                          <LinearGradient
+                            colors={['#C8894A', 'transparent']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.screenRuleGrad}
+                          />
+                        </View>
                         <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           A gentle nudge at the right moment is the difference between a habit and a wish.
                         </Text>
@@ -557,36 +591,60 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  ambientTop: {
+  spGlowBottom: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
+    bottom: -60,
+    left: '50%' as unknown as number,
+    marginLeft: -160,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    overflow: 'hidden',
   },
-  ambientBottom: {
+  spGlowCenter: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 140,
+    top: '36%' as unknown as number,
+    left: '50%' as unknown as number,
+    marginLeft: -120,
+    marginTop: -120,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    overflow: 'hidden',
+  },
+  spGlowTop: {
+    position: 'absolute',
+    top: -80,
+    left: '50%' as unknown as number,
+    marginLeft: -130,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    overflow: 'hidden',
+  },
+  spGlowInner: {
+    width: '100%',
+    height: '100%',
+  },
+  obGlowTop: {
+    position: 'absolute',
+    top: -50,
+    alignSelf: 'center',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    overflow: 'hidden',
+  },
+  obGlowInner: {
+    width: '100%',
+    height: '100%',
   },
   splashContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  splashGlowContainer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-  },
-  splashAmbient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 300,
-  },
+
   splashBrand: {
     alignItems: 'center',
     marginBottom: 20,
@@ -653,12 +711,16 @@ const styles = StyleSheet.create({
     color: '#F4EDE0',
     marginBottom: 14,
   },
-  screenRule: {
+  screenRuleWrap: {
     width: 44,
     height: 1.5,
-    backgroundColor: '#C8894A',
-    opacity: 0.55,
     marginBottom: 18,
+    opacity: 0.55,
+    overflow: 'hidden',
+  },
+  screenRuleGrad: {
+    width: '100%',
+    height: '100%',
   },
   screenBody: {
     fontSize: 18,
