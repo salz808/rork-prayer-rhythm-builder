@@ -32,7 +32,7 @@ function AnimatedPressableComponent({
 }: AnimatedPressableProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState<boolean>(false);
 
   const handlePressIn = useCallback(
     (e: any) => {
@@ -51,7 +51,7 @@ function AnimatedPressableComponent({
       ]).start();
       onPressIn?.(e);
     },
-    [scaleAnim, opacityAnim, scaleValue, onPressIn]
+    [opacityAnim, onPressIn, scaleAnim, scaleValue]
   );
 
   const handlePressOut = useCallback(
@@ -71,7 +71,7 @@ function AnimatedPressableComponent({
       ]).start();
       onPressOut?.(e);
     },
-    [scaleAnim, opacityAnim, onPressOut]
+    [opacityAnim, onPressOut, scaleAnim]
   );
 
   const handlePress = useCallback(
@@ -84,37 +84,36 @@ function AnimatedPressableComponent({
     [haptic, hapticStyle, onPress]
   );
 
-  const hoverProps = Platform.OS === 'web' ? {
-    onMouseEnter: () => {
-      setHovered(true);
-      Animated.spring(scaleAnim, {
-        toValue: 1.02,
-        tension: 200,
-        friction: 12,
-        useNativeDriver: true,
-      }).start();
-    },
-    onMouseLeave: () => {
-      setHovered(false);
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 200,
-        friction: 12,
-        useNativeDriver: true,
-      }).start();
-    },
-  } : {};
+  const hoverProps = Platform.OS === 'web'
+    ? {
+        onMouseEnter: () => {
+          setHovered(true);
+          Animated.spring(scaleAnim, {
+            toValue: 1.02,
+            tension: 200,
+            friction: 12,
+            useNativeDriver: true,
+          }).start();
+        },
+        onMouseLeave: () => {
+          setHovered(false);
+          Animated.spring(scaleAnim, {
+            toValue: 1,
+            tension: 200,
+            friction: 12,
+            useNativeDriver: true,
+          }).start();
+        },
+      }
+    : {};
 
   return (
     <Animated.View
-      style={[
-        { transform: [{ scale: scaleAnim }], opacity: opacityAnim },
-        style,
-        hovered && hoverStyle,
-      ]}
+      style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}
       {...(Platform.OS === 'web' ? hoverProps : {})}
     >
       <Pressable
+        style={[style, hovered && hoverStyle]}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={handlePress}

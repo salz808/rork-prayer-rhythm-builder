@@ -7,6 +7,7 @@ import {
   Pressable,
   Animated,
   ScrollView,
+  LayoutChangeEvent,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -33,6 +34,25 @@ interface PhaseSection {
   content: string | null;
   isPrompt: boolean;
 }
+
+interface SessionNavItem {
+  id: string;
+  label: string;
+  opensPhase: boolean;
+}
+
+const SECTION_LABELS: Record<string, string> = {
+  settle: 'Settle',
+  focus: 'Focus',
+  thank: 'Thank',
+  repent: 'Repent',
+  invite: 'Invite',
+  ask: 'Ask',
+  declare: 'Declare',
+  selah: 'Selah',
+  act: 'Live It',
+  verse: 'Verse',
+};
 
 function buildPhases(d: HtmlDayData): PhaseSection[] {
   const phases: PhaseSection[] = [];
@@ -80,6 +100,8 @@ export default function SessionScreen() {
   const slideAnim = useRef(new Animated.Value(20)).current;
   const completeScaleAnim = useRef(new Animated.Value(0.8)).current;
   const scrollRef = useRef<ScrollView>(null);
+  const sectionOffsetsRef = useRef<Record<string, number>>({});
+  const pendingScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const soundRef = useRef<Audio.Sound | null>(null);
   const audioStartedRef = useRef(false);
@@ -87,6 +109,24 @@ export default function SessionScreen() {
 
   const currentSoundscape = SOUNDSCAPE_MAP[state.soundscape];
   const audioUrl = currentSoundscape?.uri ?? null;
+  const quickNavItems = useMemo<SessionNavItem[]>(() => {
+    const phaseItems: SessionNavItem[] = [
+      { id: 'focus', label: SECTION_LABELS.focus, opensPhase: true },
+      ...phases.map((phase) => ({
+        id: phase.id,
+        label: SECTION_LABELS[phase.id] ?? phase.name,
+        opensPhase: true,
+      })),
+    ];
+
+    return [
+      { id: 'settle', label: SECTION_LABELS.settle, opensPhase: false },
+      ...phaseItems,
+      { id: 'selah', label: SECTION_LABELS.selah, opensPhase: false },
+      { id: 'act', label: SECTION_LABELS.act, opensPhase: false },
+      { id: 'verse', label: SECTION_LABELS.verse, opensPhase: false },
+    ];
+  }, [phases]);
 
   useEffect(() => {
     Animated.parallel([
@@ -177,12 +217,17 @@ export default function SessionScreen() {
     toggleAmbientMute();
   }, [toggleAmbientMute]);
 
-  const togglePhase = useCallback((phaseId: string) => {
+  function togglePhase(phaseId: string) {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    console.log('[Session] Toggling phase', { phaseId, openPhase });
+
     if (openPhase && phaseStart) {
       const elapsed = Math.floor((Date.now() - phaseStart) / 1000);
-      if (elapsed > 0) updatePhaseTimings(openPhase, elapsed);
+      if (elapsed > 0) {
+        updatePhaseTimings(openPhase, elapsed);
+      }
     }
+
     if (openPhase === phaseId) {
       setOpenPhase(null);
       setPhaseStart(null);
@@ -190,7 +235,9 @@ export default function SessionScreen() {
       setOpenPhase(phaseId);
       setPhaseStart(Date.now());
     }
-  }, [openPhase, phaseStart, updatePhaseTimings]);
+
+    scheduleScrollToSection(phaseId);
+  }
 
   const handleStartTimer = useCallback(() => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -215,8 +262,45 @@ export default function SessionScreen() {
   useEffect(() => {
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      if (pendingScrollTimeoutRef.current) {
+        clearTimeout(pendingScrollTimeoutRef.current);
+        pendingScrollTimeoutRef.current = null;
+      }
     };
   }, []);
+
+  const registerSection = useCallback((sectionId: string) => {
+    return (event: LayoutChangeEvent) => {
+      const nextY = event.nativeEvent.layout.y;
+      sectionOffsetsRef.current[sectionId] = nextY;
+      console.log('[Session] Registered section layout', { sectionId, y: nextY });
+    };
+  }, []);
+
+  const scrollToSection = useCallback((sectionId: string) => {
+    const nextY = sectionOffsetsRef.current[sectionId];
+
+    if (typeof nextY !== 'number') {
+      console.log('[Session] Missing section layout for scroll', { sectionId });
+      return;
+    }
+
+    const targetY = Math.max(nextY - 20, 0);
+    console.log('[Session] Scrolling to section', { sectionId, targetY });
+    scrollRef.current?.scrollTo({ y: targetY, animated: true });
+  }, []);
+
+  const scheduleScrollToSection = useCallback((sectionId: string) => {
+    if (pendingScrollTimeoutRef.current) {
+      clearTimeout(pendingScrollTimeoutRef.current);
+      pendingScrollTimeoutRef.current = null;
+    }
+
+    pendingScrollTimeoutRef.current = setTimeout(() => {
+      scrollToSection(sectionId);
+      pendingScrollTimeoutRef.current = null;
+    }, 90);
+  }, [scrollToSection]);
 
   const handleComplete = useCallback(() => {
     if (openPhase && phaseStart) {
@@ -235,6 +319,18 @@ export default function SessionScreen() {
     const isMilestone = milestones.some(m => m.day === dayNum);
     if (isMilestone) setTimeout(() => setShowCelebration(true), 400);
   }, [openPhase, phaseStart, sessionStartTime, state.currentDay, completeDay, updatePhaseTimings]);
+
+  function handleSectionNavPress(item: SessionNavItem) {
+    console.log('[Session] Quick nav pressed', item);
+
+    if (item.opensPhase) {
+      togglePhase(item.id);
+      return;
+    }
+
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    scheduleScrollToSection(item.id);
+  }
 
   const handleClose = useCallback(() => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -336,8 +432,46 @@ export default function SessionScreen() {
               </Text>
             </Animated.View>
 
+            <Animated.View style={[styles.quickNavWrap, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}> 
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.quickNavContent}
+                testID="session-quick-nav"
+              >
+                {quickNavItems.map((item) => {
+                  const isActive = openPhase === item.id;
+
+                  return (
+                    <Pressable
+                      key={item.id}
+                      onPress={() => handleSectionNavPress(item)}
+                      style={({ pressed, hovered }: any) => [
+                        styles.quickNavChip,
+                        isActive && styles.quickNavChipActive,
+                        hovered && styles.quickNavChipHovered,
+                        pressed && styles.quickNavChipPressed,
+                      ]}
+                      testID={`session-nav-${item.id}`}
+                    >
+                      <Text
+                        style={[
+                          styles.quickNavChipText,
+                          { fontFamily: isActive ? Fonts.titleMedium : Fonts.titleLight },
+                          isActive && styles.quickNavChipTextActive,
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </Animated.View>
+
             <Animated.View style={[styles.phasesContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-              <View style={styles.settleCard}>
+              <View onLayout={registerSection('settle')} collapsable={false} testID="section-settle">
+                <View style={styles.settleCard}>
                 <LinearGradient
                   colors={['rgba(200,137,74,0.25)', 'transparent']}
                   start={{ x: 0, y: 0 }}
@@ -346,8 +480,10 @@ export default function SessionScreen() {
                 />
                 <Text style={[styles.settleLbl, { fontFamily: Fonts.titleSemiBold }]}>SETTLE</Text>
                 <Text style={[styles.settleTxt, { fontFamily: Fonts.italic }]}>{dayData.settle}</Text>
+                </View>
               </View>
 
+              <View onLayout={registerSection('focus')} collapsable={false} testID="section-focus">
               <Pressable
                 style={({ pressed, hovered }: any) => [
                   styles.phase,
@@ -390,10 +526,11 @@ export default function SessionScreen() {
                   </View>
                 )}
               </Pressable>
+              </View>
 
               {phases.map(p => (
+                <View key={p.id} onLayout={registerSection(p.id)} collapsable={false} testID={`section-${p.id}`}>
                 <Pressable
-                  key={p.id}
                   style={({ pressed, hovered }: any) => [
                     styles.phase,
                     openPhase === p.id && styles.phaseOpen,
@@ -432,9 +569,11 @@ export default function SessionScreen() {
                     </View>
                   )}
                 </Pressable>
+                </View>
               ))}
 
               {dayData.silence > 0 ? (
+                <View onLayout={registerSection('selah')} collapsable={false} testID="section-selah">
                 <View style={styles.timerCard}>
                   <Text style={[styles.timerLbl, { fontFamily: Fonts.titleSemiBold }]}>SELAH</Text>
                   <Text style={[styles.timerEyebrow, { fontFamily: Fonts.italic }]}>
@@ -462,13 +601,17 @@ export default function SessionScreen() {
                     </Text>
                   </TouchableOpacity>
                 </View>
+                </View>
               ) : (
+                <View onLayout={registerSection('selah')} collapsable={false} testID="section-selah">
                 <View style={styles.timerCard}>
                   <Text style={[styles.timerLbl, { fontFamily: Fonts.titleSemiBold }]}>SELAH</Text>
                   <Text style={[styles.timerOpenTxt, { fontFamily: Fonts.italic }]}>{dayData.silenceTxt}</Text>
                 </View>
+                </View>
               )}
 
+              <View onLayout={registerSection('act')} collapsable={false} testID="section-act">
               <View style={styles.actCard}>
                 <LinearGradient
                   colors={['rgba(200,137,74,0.4)', 'transparent']}
@@ -479,10 +622,13 @@ export default function SessionScreen() {
                 <Text style={[styles.actLbl, { fontFamily: Fonts.titleSemiBold }]}>GO & LIVE IT</Text>
                 <Text style={[styles.actTxt, { fontFamily: Fonts.serifRegular }]}>{dayData.act}</Text>
               </View>
+              </View>
 
+              <View onLayout={registerSection('verse')} collapsable={false} testID="section-verse">
               <View style={styles.verseBar}>
                 <Text style={styles.verseIcon}>📜</Text>
                 <Text style={[styles.verseText, { fontFamily: Fonts.italic }]}>{dayData.verse}</Text>
+              </View>
               </View>
 
               <AnimatedPressable
@@ -584,6 +730,41 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
     color: 'rgba(200,137,74,0.68)',
     marginBottom: 24,
+  },
+  quickNavWrap: {
+    marginBottom: 18,
+  },
+  quickNavContent: {
+    gap: 8,
+    paddingRight: 8,
+  },
+  quickNavChip: {
+    paddingHorizontal: 15,
+    paddingVertical: 11,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.14)',
+    backgroundColor: 'rgba(39,26,10,0.55)',
+  },
+  quickNavChipActive: {
+    borderColor: 'rgba(212,149,80,0.38)',
+    backgroundColor: 'rgba(212,149,80,0.14)',
+  },
+  quickNavChipHovered: {
+    borderColor: 'rgba(200,137,74,0.24)',
+    backgroundColor: 'rgba(44,30,12,0.84)',
+  },
+  quickNavChipPressed: {
+    opacity: 0.82,
+  },
+  quickNavChipText: {
+    fontSize: 10,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase' as const,
+    color: 'rgba(244,237,224,0.6)',
+  },
+  quickNavChipTextActive: {
+    color: '#F4EDE0',
   },
   phasesContainer: {
     gap: 14,
