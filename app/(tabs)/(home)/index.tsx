@@ -8,6 +8,7 @@ import {
   Animated,
   ActivityIndicator,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -574,14 +575,12 @@ const styles = StyleSheet.create({
   ambientTopGlow: {
     position: 'absolute',
     top: -164,
-    left: '50%' as unknown as number,
-    marginLeft: -280,
+    left: Math.round(Dimensions.get('window').width / 2) - 280,
   },
   ambientTopGlowWide: {
     position: 'absolute',
     top: -208,
-    left: '50%' as unknown as number,
-    marginLeft: -350,
+    left: Math.round(Dimensions.get('window').width / 2) - 350,
     opacity: 0.92,
   },
   ambientEllipse: {

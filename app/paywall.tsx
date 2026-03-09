@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
+  Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -366,8 +367,7 @@ const styles = StyleSheet.create({
   ambientTopGlow: {
     position: 'absolute',
     top: -80,
-    left: '50%' as unknown as number,
-    marginLeft: -190,
+    left: Math.round(Dimensions.get('window').width / 2) - 190,
   },
   closeBtn: {
     position: 'absolute',

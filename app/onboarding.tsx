@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -181,7 +182,10 @@ export default function OnboardingScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.root}>
-
+        <LinearGradient
+          colors={['#0D0804', '#1A1006', '#0D0804']}
+          style={StyleSheet.absoluteFill}
+        />
         <SafeAreaView style={styles.safeArea}>
           <KeyboardAvoidingView
             style={styles.flex}
@@ -623,21 +627,17 @@ const styles = StyleSheet.create({
   spGlowBottomWrap: {
     position: 'absolute',
     bottom: -80,
-    left: '50%' as unknown as number,
-    marginLeft: -190,
+    left: Math.round(Dimensions.get('window').width / 2) - 190,
   },
   spGlowCenterWrap: {
     position: 'absolute',
-    top: '36%' as unknown as number,
-    left: '50%' as unknown as number,
-    marginLeft: -130,
-    marginTop: -130,
+    top: Math.round(Dimensions.get('window').height * 0.36) - 130,
+    left: Math.round(Dimensions.get('window').width / 2) - 130,
   },
   spGlowTopWrap: {
     position: 'absolute',
     top: -100,
-    left: '50%' as unknown as number,
-    marginLeft: -140,
+    left: Math.round(Dimensions.get('window').width / 2) - 140,
   },
   obGlowTopWrap: {
     position: 'absolute',

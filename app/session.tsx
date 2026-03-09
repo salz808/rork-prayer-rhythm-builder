@@ -8,6 +8,7 @@ import {
   Animated,
   ScrollView,
   LayoutChangeEvent,
+  Dimensions,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -135,6 +136,9 @@ export default function SessionScreen() {
     ]).start();
   }, [fadeAnim, slideAnim]);
 
+  const ambientMutedRef = useRef(state.ambientMuted);
+  ambientMutedRef.current = state.ambientMuted;
+
   useEffect(() => {
     if (!audioUrl) return;
     let mounted = true;
@@ -152,7 +156,7 @@ export default function SessionScreen() {
         if (!mounted) { await sound.unloadAsync(); return; }
         soundRef.current = sound;
         console.log('[Session] Audio loaded');
-        if (!state.ambientMuted) {
+        if (!ambientMutedRef.current) {
           audioStartedRef.current = true;
           await sound.setVolumeAsync(0);
           await sound.playAsync();
@@ -178,7 +182,7 @@ export default function SessionScreen() {
       if (fadeInIntervalRef.current) { clearInterval(fadeInIntervalRef.current); fadeInIntervalRef.current = null; }
       if (soundRef.current) { void soundRef.current.unloadAsync(); soundRef.current = null; }
     };
-  }, [audioUrl, state.soundscape, state.ambientMuted]);
+  }, [audioUrl, state.soundscape]);
 
   useEffect(() => {
     const updateVolume = async () => {
@@ -315,10 +319,19 @@ export default function SessionScreen() {
     setCompletedDay(dayNum);
     completeDay(dayNum, duration);
     setIsComplete(true);
+
+    completeScaleAnim.setValue(0.8);
+    Animated.spring(completeScaleAnim, {
+      toValue: 1,
+      tension: 40,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     const isMilestone = milestones.some(m => m.day === dayNum);
     if (isMilestone) setTimeout(() => setShowCelebration(true), 400);
-  }, [openPhase, phaseStart, sessionStartTime, state.currentDay, completeDay, updatePhaseTimings]);
+  }, [openPhase, phaseStart, sessionStartTime, state.currentDay, completeDay, updatePhaseTimings, completeScaleAnim]);
 
   function handleSectionNavPress(item: SessionNavItem) {
     console.log('[Session] Quick nav pressed', item);
@@ -668,8 +681,7 @@ const styles = StyleSheet.create({
   ambientTopGlowWrap: {
     position: 'absolute',
     top: -80,
-    left: '50%' as unknown as number,
-    marginLeft: -170,
+    left: Math.round(Dimensions.get('window').width / 2) - 170,
     zIndex: 0,
   },
   topBar: {

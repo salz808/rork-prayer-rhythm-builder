@@ -170,12 +170,6 @@ export const [AppProvider, useApp] = createContextHook(() => {
     const dayDiff = state.lastOpenedDate ? getDayDifference(state.lastOpenedDate, today) : 1;
     const nextOpenStreakCount = dayDiff === 1 ? state.openStreakCount + 1 : 1;
 
-    const nextState: AppState = {
-      ...state,
-      lastOpenedDate: today,
-      openStreakCount: nextOpenStreakCount,
-    };
-
     console.log('[AppProvider] Daily open check-in complete', {
       today,
       previousOpenDate: state.lastOpenedDate,
@@ -183,9 +177,16 @@ export const [AppProvider, useApp] = createContextHook(() => {
       nextOpenStreakCount,
     });
 
-    setState(nextState);
-    persistState(nextState);
-  }, [state, stateQuery.isLoading, persistState]);
+    setState(prev => {
+      const nextState: AppState = {
+        ...prev,
+        lastOpenedDate: today,
+        openStreakCount: nextOpenStreakCount,
+      };
+      persistState(nextState);
+      return nextState;
+    });
+  }, [state.lastOpenedDate, state.openStreakCount, stateQuery.isLoading, persistState]);
 
   const updateState = useCallback((updates: Partial<AppState>) => {
     setState(prev => {
