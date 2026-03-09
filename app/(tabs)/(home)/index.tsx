@@ -160,14 +160,17 @@ export default function HomeScreen() {
           style={StyleSheet.absoluteFill}
         />
         <Animated.View style={[styles.glowLayer, { opacity: glowPulse }]} pointerEvents="none">
-          <View style={styles.topGlowCore} />
-          <View style={styles.topGlowMid} />
-          <View style={styles.topGlowOuter} />
           <LinearGradient
-            colors={['rgba(180,116,53,0.18)', 'rgba(180,116,53,0.06)', 'transparent', 'transparent']}
-            style={styles.topGlowGrad}
+            colors={['rgba(180,120,50,0.28)', 'rgba(160,100,40,0.12)', 'rgba(140,85,30,0.04)', 'transparent']}
+            style={styles.topGlowVertical}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(170,110,45,0.15)', 'rgba(180,120,50,0.22)', 'rgba(170,110,45,0.15)', 'transparent']}
+            style={styles.topGlowHorizontal}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
           />
         </Animated.View>
         <SafeAreaView style={styles.safeArea}>
@@ -219,26 +222,38 @@ export default function HomeScreen() {
       />
 
       <Animated.View style={[styles.glowLayer, { opacity: glowPulse }]} pointerEvents="none">
-        <View style={styles.topGlowCore} />
-        <View style={styles.topGlowMid} />
-        <View style={styles.topGlowOuter} />
         <LinearGradient
-          colors={['rgba(160,98,40,0.12)', 'rgba(160,98,40,0.04)', 'transparent', 'transparent']}
-          style={styles.topGlowGrad}
+          colors={['rgba(180,120,50,0.28)', 'rgba(160,100,40,0.12)', 'rgba(140,85,30,0.04)', 'transparent']}
+          style={styles.topGlowVertical}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
+        <LinearGradient
+          colors={['transparent', 'rgba(170,110,45,0.15)', 'rgba(180,120,50,0.22)', 'rgba(170,110,45,0.15)', 'transparent']}
+          style={styles.topGlowHorizontal}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+        />
+        <LinearGradient
+          colors={['rgba(200,140,60,0.18)', 'rgba(180,116,53,0.06)', 'transparent']}
+          style={styles.topGlowSpot}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         />
       </Animated.View>
 
-      <Animated.View style={[styles.glowLayer, { opacity: Animated.multiply(glowPulse, 0.8) }]} pointerEvents="none">
-        <View style={styles.bottomGlowCore} />
-        <View style={styles.bottomGlowMid} />
-        <View style={styles.bottomGlowOuter} />
+      <Animated.View style={[styles.glowLayer, { opacity: Animated.multiply(glowPulse, 0.7) }]} pointerEvents="none">
         <LinearGradient
-          colors={['transparent', 'transparent', 'rgba(140,100,45,0.05)', 'rgba(160,110,50,0.14)']}
-          style={styles.bottomGlowGrad}
+          colors={['transparent', 'rgba(160,110,50,0.05)', 'rgba(180,130,60,0.16)', 'rgba(200,150,70,0.22)']}
+          style={styles.bottomGlowVertical}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
+        />
+        <LinearGradient
+          colors={['transparent', 'rgba(170,115,50,0.12)', 'rgba(190,135,60,0.18)', 'rgba(170,115,50,0.12)', 'transparent']}
+          style={styles.bottomGlowHorizontal}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
         />
       </Animated.View>
 
@@ -571,73 +586,40 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
   },
-  topGlowCore: {
-    position: 'absolute',
-    top: -SCREEN_H * 0.12,
-    left: SCREEN_W * 0.15,
-    width: SCREEN_W * 0.7,
-    height: SCREEN_H * 0.22,
-    borderRadius: SCREEN_W * 0.35,
-    backgroundColor: 'rgba(180,116,53,0.10)',
-  },
-  topGlowMid: {
-    position: 'absolute',
-    top: -SCREEN_H * 0.18,
-    left: SCREEN_W * 0.02,
-    width: SCREEN_W * 0.96,
-    height: SCREEN_H * 0.34,
-    borderRadius: SCREEN_W * 0.48,
-    backgroundColor: 'rgba(160,100,45,0.05)',
-  },
-  topGlowOuter: {
-    position: 'absolute',
-    top: -SCREEN_H * 0.22,
-    left: -SCREEN_W * 0.15,
-    width: SCREEN_W * 1.3,
-    height: SCREEN_H * 0.42,
-    borderRadius: SCREEN_W * 0.65,
-    backgroundColor: 'rgba(140,90,35,0.025)',
-  },
-  topGlowGrad: {
+  topGlowVertical: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: SCREEN_H * 0.35,
+    height: SCREEN_H * 0.45,
   },
-  bottomGlowCore: {
+  topGlowHorizontal: {
     position: 'absolute',
-    bottom: -SCREEN_H * 0.08,
-    left: SCREEN_W * 0.2,
-    width: SCREEN_W * 0.6,
-    height: SCREEN_H * 0.18,
-    borderRadius: SCREEN_W * 0.3,
-    backgroundColor: 'rgba(180,130,60,0.09)',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: SCREEN_H * 0.3,
   },
-  bottomGlowMid: {
+  topGlowSpot: {
     position: 'absolute',
-    bottom: -SCREEN_H * 0.14,
-    left: SCREEN_W * 0.05,
-    width: SCREEN_W * 0.9,
-    height: SCREEN_H * 0.28,
-    borderRadius: SCREEN_W * 0.45,
-    backgroundColor: 'rgba(160,110,50,0.04)',
+    top: 0,
+    left: SCREEN_W * 0.15,
+    right: SCREEN_W * 0.15,
+    height: SCREEN_H * 0.25,
   },
-  bottomGlowOuter: {
-    position: 'absolute',
-    bottom: -SCREEN_H * 0.2,
-    left: -SCREEN_W * 0.1,
-    width: SCREEN_W * 1.2,
-    height: SCREEN_H * 0.38,
-    borderRadius: SCREEN_W * 0.6,
-    backgroundColor: 'rgba(140,95,40,0.02)',
-  },
-  bottomGlowGrad: {
+  bottomGlowVertical: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: SCREEN_H * 0.3,
+    height: SCREEN_H * 0.4,
+  },
+  bottomGlowHorizontal: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: SCREEN_H * 0.25,
   },
   topBar: {
     flexDirection: 'row',
