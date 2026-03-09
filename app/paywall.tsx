@@ -183,25 +183,27 @@ export default function PaywallScreen() {
         <RadialGlow size={380} maxOpacity={0.07} />
       </View>
       <SafeAreaView style={styles.safeArea}>
-        <Pressable
-          style={({ pressed, hovered }: any) => [
-            styles.closeBtn,
-            (pressed || hovered) && styles.closeBtnHovered,
-          ]}
-          onPress={() => {
-            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.back();
-          }}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          testID="paywall-close"
-        >
-          <X size={18} color="rgba(244,237,224,0.28)" />
-        </Pressable>
-
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
+          <View style={styles.closeBtnRow}>
+            <View style={{ flex: 1 }} />
+            <Pressable
+              style={({ pressed, hovered }: any) => [
+                styles.closeBtn,
+                (pressed || hovered) && styles.closeBtnHovered,
+              ]}
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.back();
+              }}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              testID="paywall-close"
+            >
+              <X size={18} color="rgba(244,237,224,0.28)" />
+            </Pressable>
+          </View>
           <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>SUPPORT THIS CAUSE</Text>
             <Text style={[styles.title, { fontFamily: Fonts.serifLight }]}>
@@ -369,16 +371,17 @@ const styles = StyleSheet.create({
     top: -80,
     left: Math.round(Dimensions.get('window').width / 2) - 190,
   },
+  closeBtnRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: 8,
+  },
   closeBtn: {
-    position: 'absolute',
-    top: 56,
-    right: 20,
     width: 36,
     height: 36,
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
     backgroundColor: 'rgba(200,137,74,0.06)',
   },
   closeBtnHovered: {
@@ -387,7 +390,7 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     paddingHorizontal: 32,
-    paddingTop: 64,
+    paddingTop: 12,
     paddingBottom: 40,
   },
   content: {},

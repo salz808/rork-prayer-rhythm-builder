@@ -1,12 +1,12 @@
 import { Stack } from 'expo-router';
-import Colors from '@/constants/colors';
+import DarkColors from '@/constants/darkColors';
 
 export default function JourneyLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: Colors.background },
+        contentStyle: { backgroundColor: DarkColors.background },
       }}
     />
   );

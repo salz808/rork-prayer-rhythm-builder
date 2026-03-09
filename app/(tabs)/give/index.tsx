@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   ActivityIndicator,
   Animated,
@@ -214,14 +214,12 @@ export default function GiveScreen() {
             ) : (
               <View style={styles.tiersContainer}>
                 {tiers.map((tier) => (
-                  <AnimatedPressable
+                  <View
                     key={tier.id}
                     style={[
                       styles.tierCard,
                       tier.featured ? styles.tierCardFeatured : undefined,
                     ]}
-                    onPress={() => handlePurchase(tier)}
-                    scaleValue={0.97}
                     testID={`give-${tier.id}`}
                   >
                     <LinearGradient
@@ -274,16 +272,16 @@ export default function GiveScreen() {
 
                       <Text style={[styles.tierDesc, { fontFamily: Fonts.serifRegular }]}>{tier.desc}</Text>
 
-                      {tier.btnStyle === 'outline' ? (
-                        <TouchableOpacity
-                          style={styles.tierBtnOutline}
-                          onPress={() => handlePurchase(tier)}
-                          activeOpacity={0.8}
-                        >
-                          <Text style={[styles.tierBtnOutlineText, { fontFamily: Fonts.titleMedium }]}>Subscribe →</Text>
-                        </TouchableOpacity>
-                      ) : tier.btnStyle === 'amber' ? (
-                        <View style={styles.tierBtnWrap}>
+                      <AnimatedPressable
+                        style={[
+                          styles.tierBtnWrap,
+                          tier.btnStyle === 'outline' && styles.tierBtnOutline,
+                        ]}
+                        onPress={() => handlePurchase(tier)}
+                        scaleValue={0.97}
+                        testID={`give-subscribe-${tier.id}`}
+                      >
+                        {tier.btnStyle === 'amber' ? (
                           <LinearGradient
                             colors={['#D49550', '#A86B2A']}
                             start={{ x: 0, y: 0 }}
@@ -292,9 +290,7 @@ export default function GiveScreen() {
                           >
                             <Text style={[styles.tierBtnText, { fontFamily: Fonts.titleMedium }]}>Subscribe →</Text>
                           </LinearGradient>
-                        </View>
-                      ) : (
-                        <View style={styles.tierBtnWrap}>
+                        ) : tier.btnStyle === 'moss' ? (
                           <LinearGradient
                             colors={['#4A9E5C', '#2E7040']}
                             start={{ x: 0, y: 0 }}
@@ -303,10 +299,14 @@ export default function GiveScreen() {
                           >
                             <Text style={[styles.tierBtnText, { fontFamily: Fonts.titleMedium }]}>Subscribe →</Text>
                           </LinearGradient>
-                        </View>
-                      )}
+                        ) : (
+                          <View style={styles.tierBtnGradient}>
+                            <Text style={[styles.tierBtnOutlineText, { fontFamily: Fonts.titleMedium }]}>Subscribe →</Text>
+                          </View>
+                        )}
+                      </AnimatedPressable>
                     </LinearGradient>
-                  </AnimatedPressable>
+                  </View>
                 ))}
               </View>
             )}
@@ -317,8 +317,11 @@ export default function GiveScreen() {
               </Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.restoreBtn}
+            <Pressable
+              style={({ pressed }: { pressed: boolean }) => [
+                styles.restoreBtn,
+                pressed && { opacity: 0.6 },
+              ]}
               onPress={() => {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 restoreMutation.mutate();
@@ -334,7 +337,7 @@ export default function GiveScreen() {
                   <Text style={[styles.restoreText, { fontFamily: Fonts.titleRegular }]}>Restore purchases</Text>
                 </>
               )}
-            </TouchableOpacity>
+            </Pressable>
 
             <Text style={[styles.legal, { fontFamily: Fonts.titleLight }]}>
               Subscriptions renew monthly. Cancel anytime in your device settings.
@@ -509,13 +512,9 @@ const styles = StyleSheet.create({
     color: 'rgba(244,237,224,0.55)',
   },
   tierBtnOutline: {
-    width: '100%',
-    paddingVertical: 15,
-    borderRadius: 14,
     borderWidth: 1,
     borderColor: 'rgba(200,137,74,0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   tierBtnOutlineText: {
     fontSize: 12,
