@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Defs, RadialGradient as SvgRadialGradient, Stop, Rect } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 import AnimatedPressable from '@/components/AnimatedPressable';
 import SettingsSheet from '@/components/SettingsSheet';
@@ -33,6 +34,69 @@ import { useApp } from '@/providers/AppProvider';
 import { WeeklyReflection } from '@/types';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
+
+function RadialGlow({
+  cx,
+  cy,
+  rx,
+  ry,
+  color,
+  opacity,
+  width,
+  height,
+  top,
+  bottom,
+  left,
+}: {
+  cx: string;
+  cy: string;
+  rx: string;
+  ry: string;
+  color: string;
+  opacity: number;
+  width: number;
+  height: number;
+  top?: number;
+  bottom?: number;
+  left?: number;
+}) {
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        width,
+        height,
+        top,
+        bottom,
+        left,
+      }}
+      pointerEvents="none"
+    >
+      <Svg width={width} height={height}>
+        <Defs>
+          <SvgRadialGradient
+            id={`glow-${cx}-${cy}-${opacity}`}
+            cx={cx}
+            cy={cy}
+            rx={rx}
+            ry={ry}
+          >
+            <Stop offset="0%" stopColor={color} stopOpacity={opacity} />
+            <Stop offset="55%" stopColor={color} stopOpacity={opacity * 0.4} />
+            <Stop offset="100%" stopColor={color} stopOpacity={0} />
+          </SvgRadialGradient>
+        </Defs>
+        <Rect
+          x="0"
+          y="0"
+          width={width}
+          height={height}
+          fill={`url(#glow-${cx}-${cy}-${opacity})`}
+        />
+      </Svg>
+    </View>
+  );
+}
 
 function getEncouragingSub(completedDays: number): string {
   if (completedDays === 0) return "You showed up. That's everything.";
@@ -160,17 +224,19 @@ export default function HomeScreen() {
           style={StyleSheet.absoluteFill}
         />
         <Animated.View style={[styles.glowLayer, { opacity: glowPulse }]} pointerEvents="none">
-          <LinearGradient
-            colors={['rgba(180,120,50,0.28)', 'rgba(160,100,40,0.12)', 'rgba(140,85,30,0.04)', 'transparent']}
-            style={styles.topGlowVertical}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
+          <RadialGlow
+            cx="50%" cy="50%" rx="50%" ry="50%"
+            color="#C8894A" opacity={0.18}
+            width={SCREEN_W} height={SCREEN_H * 0.5}
+            top={-SCREEN_H * 0.1}
+            left={0}
           />
-          <LinearGradient
-            colors={['transparent', 'rgba(170,110,45,0.15)', 'rgba(180,120,50,0.22)', 'rgba(170,110,45,0.15)', 'transparent']}
-            style={styles.topGlowHorizontal}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
+          <RadialGlow
+            cx="50%" cy="50%" rx="50%" ry="50%"
+            color="#C8894A" opacity={0.14}
+            width={SCREEN_W * 0.85} height={SCREEN_W * 0.85}
+            bottom={-SCREEN_W * 0.15}
+            left={SCREEN_W * 0.075}
           />
         </Animated.View>
         <SafeAreaView style={styles.safeArea}>
@@ -222,38 +288,29 @@ export default function HomeScreen() {
       />
 
       <Animated.View style={[styles.glowLayer, { opacity: glowPulse }]} pointerEvents="none">
-        <LinearGradient
-          colors={['rgba(180,120,50,0.28)', 'rgba(160,100,40,0.12)', 'rgba(140,85,30,0.04)', 'transparent']}
-          style={styles.topGlowVertical}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
+        <RadialGlow
+          cx="50%" cy="40%" rx="55%" ry="50%"
+          color="#C8894A" opacity={0.2}
+          width={SCREEN_W} height={SCREEN_H * 0.55}
+          top={-SCREEN_H * 0.08}
+          left={0}
         />
-        <LinearGradient
-          colors={['transparent', 'rgba(170,110,45,0.15)', 'rgba(180,120,50,0.22)', 'rgba(170,110,45,0.15)', 'transparent']}
-          style={styles.topGlowHorizontal}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-        />
-        <LinearGradient
-          colors={['rgba(200,140,60,0.18)', 'rgba(180,116,53,0.06)', 'transparent']}
-          style={styles.topGlowSpot}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
+        <RadialGlow
+          cx="50%" cy="50%" rx="45%" ry="45%"
+          color="#C8894A" opacity={0.06}
+          width={SCREEN_W * 0.7} height={SCREEN_W * 0.7}
+          top={SCREEN_H * 0.25}
+          left={SCREEN_W * 0.15}
         />
       </Animated.View>
 
       <Animated.View style={[styles.glowLayer, { opacity: Animated.multiply(glowPulse, 0.7) }]} pointerEvents="none">
-        <LinearGradient
-          colors={['transparent', 'rgba(160,110,50,0.05)', 'rgba(180,130,60,0.16)', 'rgba(200,150,70,0.22)']}
-          style={styles.bottomGlowVertical}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
-        <LinearGradient
-          colors={['transparent', 'rgba(170,115,50,0.12)', 'rgba(190,135,60,0.18)', 'rgba(170,115,50,0.12)', 'transparent']}
-          style={styles.bottomGlowHorizontal}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
+        <RadialGlow
+          cx="50%" cy="60%" rx="55%" ry="50%"
+          color="#D4A050" opacity={0.18}
+          width={SCREEN_W} height={SCREEN_H * 0.5}
+          bottom={-SCREEN_H * 0.08}
+          left={0}
         />
       </Animated.View>
 
@@ -586,41 +643,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
   },
-  topGlowVertical: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: SCREEN_H * 0.45,
-  },
-  topGlowHorizontal: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: SCREEN_H * 0.3,
-  },
-  topGlowSpot: {
-    position: 'absolute',
-    top: 0,
-    left: SCREEN_W * 0.15,
-    right: SCREEN_W * 0.15,
-    height: SCREEN_H * 0.25,
-  },
-  bottomGlowVertical: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: SCREEN_H * 0.4,
-  },
-  bottomGlowHorizontal: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: SCREEN_H * 0.25,
-  },
+
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
