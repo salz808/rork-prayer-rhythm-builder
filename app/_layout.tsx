@@ -67,6 +67,8 @@ export default function RootLayout() {
     const loadFonts = async () => {
       try {
         await Font.loadAsync({
+          Montserrat_100Thin: require('@expo-google-fonts/montserrat/100Thin/Montserrat_100Thin.ttf'),
+          Montserrat_200ExtraLight: require('@expo-google-fonts/montserrat/200ExtraLight/Montserrat_200ExtraLight.ttf'),
           Montserrat_300Light: require('@expo-google-fonts/montserrat/Montserrat_300Light.ttf'),
           Montserrat_400Regular: require('@expo-google-fonts/montserrat/Montserrat_400Regular.ttf'),
           Montserrat_500Medium: require('@expo-google-fonts/montserrat/Montserrat_500Medium.ttf'),

@@ -36,13 +36,7 @@ const TRIAD_ITEMS = [
   { emoji: '✨', name: 'Declare', desc: 'Speak your identity in Christ out loud' },
 ];
 
-const REMINDER_TIMES = [
-  { label: 'Early Morning', value: '6:00 AM', emoji: '🌅' },
-  { label: 'Morning', value: '8:00 AM', emoji: '☀️' },
-  { label: 'Midday', value: '12:00 PM', emoji: '🌤️' },
-  { label: 'Evening', value: '7:00 PM', emoji: '🌇' },
-  { label: 'Night', value: '9:00 PM', emoji: '🌙' },
-];
+
 
 const BLOCKER_TO_PRAYER: Record<string, UserProfile['prayerLife']> = {
   "I don't know the right words to pray": 'new',
@@ -58,7 +52,9 @@ export default function OnboardingScreen() {
   const [step, setStep] = useState<Step>('splash');
   const [firstName, setFirstName] = useState('');
   const [selectedBlocker, setSelectedBlocker] = useState<string | null>(null);
-  const [reminderTime, setReminderTime] = useState<string>('8:00 AM');
+  const [reminderHour, setReminderHour] = useState<number>(8);
+  const [reminderMin, setReminderMin] = useState<number>(0);
+  const [reminderAmPm, setReminderAmPm] = useState<'AM' | 'PM'>('AM');
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -124,14 +120,15 @@ export default function OnboardingScreen() {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const prayerLife = BLOCKER_TO_PRAYER[selectedBlocker ?? ''] ?? 'new';
       const blockerIdx = selectedBlocker ? BLOCKER_OPTIONS.indexOf(selectedBlocker) : -1;
+      const formattedTime = `${reminderHour}:${reminderMin.toString().padStart(2, '0')} ${reminderAmPm}`;
       completeOnboarding({
         firstName: firstName.trim(),
         prayerLife,
-        reminderTime,
+        reminderTime: formattedTime,
         onboardingComplete: true,
         blocker: blockerIdx,
       });
-      void scheduleReminderNotification(reminderTime);
+      void scheduleReminderNotification(formattedTime);
       router.replace('/');
     }
   };
@@ -207,7 +204,7 @@ export default function OnboardingScreen() {
                     { opacity: splashFade, transform: [{ translateY: splashSlide }] },
                   ]}
                 >
-                  <Text style={[styles.splashWordmark, { fontFamily: Fonts.serifLight }]}>Amen</Text>
+                  <Text style={[styles.splashWordmark, { fontFamily: Fonts.titleExtraLight }]}>Amen</Text>
                 </Animated.View>
 
                 <Animated.View style={[styles.splashRuleWrap, { opacity: splashRuleFade }]}>
@@ -395,37 +392,63 @@ export default function OnboardingScreen() {
                         <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           A gentle nudge at the right moment is the difference between a habit and a wish.
                         </Text>
-                        <View style={styles.reminderOptions}>
-                          {REMINDER_TIMES.map((time) => {
-                            const isSelected = reminderTime === time.value;
-                            return (
-                              <TouchableOpacity
-                                key={time.value}
-                                style={[
-                                  styles.reminderCard,
-                                  isSelected && styles.reminderCardSelected,
-                                ]}
-                                onPress={() => {
-                                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                  setReminderTime(time.value);
-                                }}
-                                activeOpacity={0.7}
-                              >
-                                <Text style={styles.reminderEmoji}>{time.emoji}</Text>
-                                <View style={styles.reminderTextWrap}>
-                                  <Text style={[styles.reminderLabel, { color: isSelected ? '#F4EDE0' : 'rgba(244,237,224,0.55)', fontFamily: Fonts.titleRegular }]}>
-                                    {time.label}
-                                  </Text>
-                                  <Text style={[styles.reminderValue, { color: isSelected ? '#E0A868' : 'rgba(244,237,224,0.28)', fontFamily: Fonts.titleLight }]}>
-                                    {time.value}
-                                  </Text>
-                                </View>
-                                <View style={[styles.reminderRadio, { borderColor: isSelected ? '#C8894A' : 'rgba(200,137,74,0.25)' }]}>
-                                  {isSelected && <View style={styles.reminderRadioDot} />}
-                                </View>
-                              </TouchableOpacity>
-                            );
-                          })}
+                        <View style={styles.timePickerWrap}>
+                          <Text style={[styles.timeDisplay, { fontFamily: Fonts.titleThin }]}>
+                            {reminderHour}:{reminderMin.toString().padStart(2, '0')}
+                          </Text>
+                          <View style={styles.timeAmPmRow}>
+                            <TouchableOpacity
+                              style={[styles.amPmBtn, reminderAmPm === 'AM' && styles.amPmBtnActive]}
+                              onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderAmPm('AM'); }}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={[styles.amPmBtnText, { fontFamily: Fonts.titleRegular }, reminderAmPm === 'AM' && styles.amPmBtnTextActive]}>AM</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.amPmBtn, reminderAmPm === 'PM' && styles.amPmBtnActive]}
+                              onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderAmPm('PM'); }}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={[styles.amPmBtnText, { fontFamily: Fonts.titleRegular }, reminderAmPm === 'PM' && styles.amPmBtnTextActive]}>PM</Text>
+                            </TouchableOpacity>
+                          </View>
+                          <View style={styles.timeAdjRow}>
+                            <TouchableOpacity
+                              style={styles.timeAdjBtn}
+                              onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderHour(h => h <= 1 ? 12 : h - 1); }}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.timeAdjBtnText}>−</Text>
+                            </TouchableOpacity>
+                            <Text style={[styles.timeAdjLabel, { fontFamily: Fonts.titleMedium }]}>HOUR</Text>
+                            <TouchableOpacity
+                              style={styles.timeAdjBtn}
+                              onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderHour(h => h >= 12 ? 1 : h + 1); }}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.timeAdjBtnText}>+</Text>
+                            </TouchableOpacity>
+                          </View>
+                          <View style={styles.timeAdjRow}>
+                            <TouchableOpacity
+                              style={styles.timeAdjBtn}
+                              onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderMin(m => m <= 0 ? 55 : m - 5); }}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.timeAdjBtnText}>−</Text>
+                            </TouchableOpacity>
+                            <Text style={[styles.timeAdjLabel, { fontFamily: Fonts.titleMedium }]}>MIN</Text>
+                            <TouchableOpacity
+                              style={styles.timeAdjBtn}
+                              onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderMin(m => m >= 55 ? 0 : m + 5); }}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.timeAdjBtnText}>+</Text>
+                            </TouchableOpacity>
+                          </View>
+                          <Text style={[styles.timeHelper, { fontFamily: Fonts.italic }]}>
+                            We will send a <Text style={{ color: '#E0A868' }}>gentle reminder</Text> at this time each day.
+                          </Text>
                         </View>
                         <View style={styles.graceBadge}>
                           <Text style={styles.graceEmoji}>🛡️</Text>
@@ -741,53 +764,82 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: 'rgba(244,237,224,0.55)',
   },
-  reminderOptions: {
-    gap: 10,
-    marginTop: 24,
-  },
-  reminderCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 14,
+  timePickerWrap: {
+    marginTop: 28,
+    backgroundColor: 'rgba(200,137,74,0.055)',
     borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.13)',
+    borderRadius: 20,
+    paddingVertical: 26,
+    paddingHorizontal: 20,
+    alignItems: 'center' as const,
+    gap: 16,
+  },
+  timeDisplay: {
+    fontSize: 62,
+    letterSpacing: 2,
+    color: '#F4EDE0',
+    lineHeight: 68,
+  },
+  timeAmPmRow: {
+    flexDirection: 'row' as const,
+    gap: 8,
+  },
+  amPmBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.13)',
     backgroundColor: 'transparent',
-    borderColor: 'rgba(200,137,74,0.2)',
   },
-  reminderCardSelected: {
-    backgroundColor: 'rgba(200,137,74,0.07)',
-    borderColor: '#C8894A',
+  amPmBtnActive: {
+    backgroundColor: 'rgba(200,137,74,0.12)',
+    borderColor: 'rgba(200,137,74,0.4)',
   },
-  reminderEmoji: {
-    fontSize: 20,
-    width: 30,
-    textAlign: 'center',
+  amPmBtnText: {
+    fontSize: 11,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase' as const,
+    color: 'rgba(244,237,224,0.55)',
   },
-  reminderTextWrap: {
-    flex: 1,
+  amPmBtnTextActive: {
+    color: '#F4EDE0',
   },
-  reminderLabel: {
-    fontSize: 15,
+  timeAdjRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 14,
   },
-  reminderValue: {
-    fontSize: 12,
-    marginTop: 1,
+  timeAdjBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.13)',
+    backgroundColor: 'rgba(200,137,74,0.06)',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
   },
-  reminderRadio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
+  timeAdjBtnText: {
+    fontSize: 22,
+    color: '#F4EDE0',
+    lineHeight: 26,
   },
-  reminderRadioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#C8894A',
+  timeAdjLabel: {
+    fontSize: 9,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+    color: 'rgba(200,137,74,0.55)',
+    minWidth: 36,
+    textAlign: 'center' as const,
+  },
+  timeHelper: {
+    fontSize: 14,
+    color: 'rgba(244,237,224,0.55)',
+    textAlign: 'center' as const,
+    lineHeight: 24,
+    paddingHorizontal: 6,
   },
   graceBadge: {
     flexDirection: 'row',

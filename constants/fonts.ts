@@ -1,4 +1,6 @@
 export const Fonts = {
+  titleThin: 'Montserrat_100Thin',
+  titleExtraLight: 'Montserrat_200ExtraLight',
   serifLight: 'CormorantGaramond_300Light',
   serifRegular: 'CormorantGaramond_400Regular',
   serifMedium: 'CormorantGaramond_500Medium',
