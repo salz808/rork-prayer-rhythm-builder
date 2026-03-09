@@ -183,8 +183,18 @@ export default function OnboardingScreen() {
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         />
-        <View style={styles.glowT} />
-        <View style={styles.glowB} />
+        <LinearGradient
+          colors={['rgba(200,137,74,0.05)', 'transparent']}
+          style={styles.ambientTop}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
+        <LinearGradient
+          colors={['transparent', 'rgba(200,137,74,0.03)']}
+          style={styles.ambientBottom}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
 
         <SafeAreaView style={styles.safeArea}>
           <KeyboardAvoidingView
@@ -193,10 +203,14 @@ export default function OnboardingScreen() {
           >
             {step === 'splash' ? (
               <View style={styles.splashContainer}>
-                <View style={styles.splashGlowContainer}>
-                  <Animated.View style={[styles.splashGlowBottom, { opacity: orbPulse }]} />
-                  <Animated.View style={styles.splashGlowCenter} />
-                </View>
+                <Animated.View style={[styles.splashGlowContainer, { opacity: orbPulse }]} pointerEvents="none">
+                  <LinearGradient
+                    colors={['transparent', 'rgba(200,137,74,0.06)', 'transparent']}
+                    style={styles.splashAmbient}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                  />
+                </Animated.View>
 
                 <Animated.View
                   style={[
@@ -543,27 +557,19 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  glowT: {
+  ambientTop: {
     position: 'absolute',
-    top: -120,
-    left: '50%',
-    width: 400,
-    height: 400,
-    borderRadius: 200,
-    opacity: 0.06,
-    backgroundColor: '#C8894A',
-    transform: [{ translateX: -200 }],
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200,
   },
-  glowB: {
+  ambientBottom: {
     position: 'absolute',
-    bottom: -100,
-    left: '50%',
-    width: 380,
-    height: 380,
-    borderRadius: 190,
-    opacity: 0.04,
-    backgroundColor: '#C8894A',
-    transform: [{ translateX: -190 }],
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 140,
   },
   splashContainer: {
     flex: 1,
@@ -571,31 +577,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   splashGlowContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
   },
-  splashGlowBottom: {
+  splashAmbient: {
     position: 'absolute',
-    bottom: -80,
-    left: '50%',
-    width: 380,
-    height: 380,
-    borderRadius: 190,
-    backgroundColor: '#C8894A',
-    opacity: 0.12,
-    transform: [{ translateX: -190 }],
-  },
-  splashGlowCenter: {
-    position: 'absolute',
-    top: '36%',
-    left: '50%',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: '#C8894A',
-    opacity: 0.035,
-    transform: [{ translateX: -140 }, { translateY: -140 }],
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 300,
   },
   splashBrand: {
     alignItems: 'center',

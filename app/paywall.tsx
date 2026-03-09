@@ -177,7 +177,12 @@ export default function PaywallScreen() {
   return (
     <View style={styles.root}>
       <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
-      <View style={styles.glowT} />
+      <LinearGradient
+        colors={['rgba(200,137,74,0.05)', 'transparent']}
+        style={styles.ambientTop}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      />
       <SafeAreaView style={styles.safeArea}>
         <TouchableOpacity
           style={styles.closeBtn}
@@ -354,16 +359,12 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  glowT: {
+  ambientTop: {
     position: 'absolute',
-    top: -50,
-    left: '50%',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    opacity: 0.07,
-    backgroundColor: '#C8894A',
-    transform: [{ translateX: -140 }],
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200,
   },
   closeBtn: {
     position: 'absolute',

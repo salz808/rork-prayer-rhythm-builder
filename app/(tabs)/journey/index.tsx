@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   Animated,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,7 +12,7 @@ import { useApp } from '@/providers/AppProvider';
 import { Fonts } from '@/constants/fonts';
 import { DAYS } from '@/mocks/content';
 
-const { width: SCREEN_W } = Dimensions.get('window');
+
 
 export default function InsightsScreen() {
   const { state } = useApp();
@@ -61,14 +60,12 @@ export default function InsightsScreen() {
   return (
     <View style={styles.root}>
       <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
-      <View style={styles.topGlowWrap}>
-        <LinearGradient
-          colors={['rgba(200,137,74,0.08)', 'transparent']}
-          style={styles.topGlow}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
-      </View>
+      <LinearGradient
+        colors={['rgba(200,137,74,0.05)', 'transparent']}
+        style={styles.ambientTop}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
@@ -178,18 +175,13 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  topGlowWrap: {
+  ambientTop: {
     position: 'absolute',
-    top: -20,
+    top: 0,
     left: 0,
     right: 0,
-    alignItems: 'center',
-    zIndex: 0,
-  },
-  topGlow: {
-    width: SCREEN_W * 1.2,
     height: 200,
-    borderRadius: 160,
+    zIndex: 0,
   },
   scroll: {
     paddingHorizontal: 32,

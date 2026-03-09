@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,7 +17,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { Fonts } from '@/constants/fonts';
 import AnimatedPressable from '@/components/AnimatedPressable';
 
-const { width: SCREEN_W } = Dimensions.get('window');
+
 
 type PurchasesPackage = {
   identifier: string;
@@ -181,16 +180,14 @@ export default function GiveScreen() {
   return (
     <View style={styles.root}>
       <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
-      <View style={styles.topGlowWrap}>
-        <Animated.View style={{ opacity: glowPulse }}>
-          <LinearGradient
-            colors={['rgba(200,137,74,0.09)', 'transparent']}
-            style={styles.topGlow}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-          />
-        </Animated.View>
-      </View>
+      <Animated.View style={[styles.ambientTopWrap, { opacity: glowPulse }]} pointerEvents="none">
+        <LinearGradient
+          colors={['rgba(200,137,74,0.05)', 'transparent']}
+          style={styles.ambientTop}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
+      </Animated.View>
 
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
@@ -357,18 +354,15 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  topGlowWrap: {
+  ambientTopWrap: {
     position: 'absolute',
-    top: -20,
+    top: 0,
     left: 0,
     right: 0,
-    alignItems: 'center',
     zIndex: 0,
   },
-  topGlow: {
-    width: SCREEN_W * 1.2,
+  ambientTop: {
     height: 200,
-    borderRadius: 160,
   },
   scroll: {
     paddingHorizontal: 32,

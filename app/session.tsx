@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Animated,
   ScrollView,
-  Dimensions,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,7 +20,7 @@ import AnimatedPressable from '@/components/AnimatedPressable';
 import CelebrationParticles from '@/components/CelebrationParticles';
 import { Fonts } from '@/constants/fonts';
 
-const { width: SCREEN_W } = Dimensions.get('window');
+
 
 const SOUNDSCAPE_URLS: Record<string, string | null> = {
   piano: 'https://cdn.pixabay.com/audio/2024/11/04/audio_4956b4eff1.mp3',
@@ -310,14 +309,12 @@ export default function SessionScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.root}>
         <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
-        <View style={styles.topGlowWrap}>
-          <LinearGradient
-            colors={['rgba(200,137,74,0.09)', 'transparent']}
-            style={styles.topGlow}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-          />
-        </View>
+        <LinearGradient
+          colors={['rgba(200,137,74,0.05)', 'transparent']}
+          style={styles.ambientTop}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.topBar}>
             <TouchableOpacity onPress={handleClose} style={styles.backBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
@@ -517,18 +514,13 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  topGlowWrap: {
+  ambientTop: {
     position: 'absolute',
-    top: -20,
+    top: 0,
     left: 0,
     right: 0,
-    alignItems: 'center',
-    zIndex: 0,
-  },
-  topGlow: {
-    width: SCREEN_W * 1.2,
     height: 200,
-    borderRadius: 160,
+    zIndex: 0,
   },
   topBar: {
     flexDirection: 'row',
