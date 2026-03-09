@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   ActivityIndicator,
   Animated,
@@ -17,6 +17,7 @@ import * as Haptics from 'expo-haptics';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
 import { Fonts } from '@/constants/fonts';
+import RadialGlow from '@/components/RadialGlow';
 
 type PurchasesPackage = {
   identifier: string;
@@ -177,15 +178,15 @@ export default function PaywallScreen() {
   return (
     <View style={styles.root}>
       <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
-      <LinearGradient
-        colors={['rgba(200,137,74,0.05)', 'transparent']}
-        style={styles.ambientTop}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-      />
+      <View style={styles.ambientTopGlow} pointerEvents="none">
+        <RadialGlow size={380} maxOpacity={0.07} />
+      </View>
       <SafeAreaView style={styles.safeArea}>
-        <TouchableOpacity
-          style={styles.closeBtn}
+        <Pressable
+          style={({ pressed, hovered }: any) => [
+            styles.closeBtn,
+            (pressed || hovered) && styles.closeBtnHovered,
+          ]}
           onPress={() => {
             void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             router.back();
@@ -194,7 +195,7 @@ export default function PaywallScreen() {
           testID="paywall-close"
         >
           <X size={18} color="rgba(244,237,224,0.28)" />
-        </TouchableOpacity>
+        </Pressable>
 
         <ScrollView
           contentContainerStyle={styles.scroll}
@@ -276,13 +277,13 @@ export default function PaywallScreen() {
 
                       <Text style={[styles.tierDesc, { fontFamily: Fonts.serifRegular }]}>{tier.desc}</Text>
 
-                      <TouchableOpacity
-                        style={[
+                      <Pressable
+                        style={({ pressed, hovered }: any) => [
                           styles.tierBtn,
                           tier.btnStyle === 'outline' && { borderWidth: 1, borderColor: 'rgba(200,137,74,0.3)', backgroundColor: 'transparent' },
+                          (pressed || hovered) && styles.tierBtnHovered,
                         ]}
                         onPress={() => handlePurchase(tier)}
-                        activeOpacity={0.82}
                         disabled={purchaseMutation.isPending || restoreMutation.isPending}
                         testID={`purchase-${tier.id}`}
                       >
@@ -309,7 +310,7 @@ export default function PaywallScreen() {
                             <Text style={[styles.tierBtnText, { color: '#E0A868' }]}>Subscribe →</Text>
                           </View>
                         )}
-                      </TouchableOpacity>
+                      </Pressable>
                     </LinearGradient>
                   </View>
                 ))}
@@ -322,8 +323,11 @@ export default function PaywallScreen() {
                 </Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.restoreBtn}
+            <Pressable
+              style={({ pressed, hovered }: any) => [
+                styles.restoreBtn,
+                (pressed || hovered) && styles.restoreBtnHovered,
+              ]}
               onPress={() => {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 restoreMutation.mutate();
@@ -339,7 +343,7 @@ export default function PaywallScreen() {
                   <Text style={[styles.restoreText, { fontFamily: Fonts.titleRegular }]}>Restore purchases</Text>
                 </>
               )}
-            </TouchableOpacity>
+            </Pressable>
 
             <Text style={[styles.legal, { fontFamily: Fonts.titleLight }]}>
               Subscriptions renew monthly. Cancel anytime in your device settings.
@@ -359,12 +363,11 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  ambientTop: {
+  ambientTopGlow: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
+    top: -80,
+    left: '50%' as unknown as number,
+    marginLeft: -190,
   },
   closeBtn: {
     position: 'absolute',
@@ -377,6 +380,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 10,
     backgroundColor: 'rgba(200,137,74,0.06)',
+  },
+  closeBtnHovered: {
+    backgroundColor: 'rgba(200,137,74,0.14)',
   },
   scroll: {
     flexGrow: 1,
@@ -529,6 +535,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: 'hidden',
   },
+  tierBtnHovered: {
+    opacity: 0.88,
+  },
   tierBtnGradient: {
     paddingVertical: 15,
     flexDirection: 'row',
@@ -564,6 +573,9 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 12,
     marginBottom: 12,
+  },
+  restoreBtnHovered: {
+    opacity: 0.65,
   },
   restoreText: {
     fontSize: 13,

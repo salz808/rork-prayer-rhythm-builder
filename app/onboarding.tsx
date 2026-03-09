@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   Animated,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useApp, scheduleReminderNotification } from '@/providers/AppProvider';
 import { UserProfile } from '@/types';
 import { Fonts } from '@/constants/fonts';
+import RadialGlow from '@/components/RadialGlow';
 
 type Step = 'splash' | 'name' | 'blocker' | 'promise' | 'framework' | 'reminder';
 
@@ -35,8 +36,6 @@ const TRIAD_ITEMS = [
   { emoji: '🙌', name: 'Ask & Receive', desc: 'Bring your real needs to a loving Father' },
   { emoji: '✨', name: 'Declare', desc: 'Speak your identity in Christ out loud' },
 ];
-
-
 
 const BLOCKER_TO_PRAYER: Record<string, UserProfile['prayerLife']> = {
   "I don't know the right words to pray": 'new',
@@ -60,12 +59,14 @@ export default function OnboardingScreen() {
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   const splashFade = useRef(new Animated.Value(0)).current;
-  const splashSlide = useRef(new Animated.Value(20)).current;
+  const splashSlide = useRef(new Animated.Value(24)).current;
   const splashRuleFade = useRef(new Animated.Value(0)).current;
+  const splashRuleWidth = useRef(new Animated.Value(0)).current;
   const splashBtnFade = useRef(new Animated.Value(0)).current;
-  const splashBtnSlide = useRef(new Animated.Value(20)).current;
+  const splashBtnSlide = useRef(new Animated.Value(24)).current;
 
-  const orbPulse = useRef(new Animated.Value(0.6)).current;
+  const orbPulse = useRef(new Animated.Value(0.55)).current;
+  const wordmarkScale = useRef(new Animated.Value(0.93)).current;
 
   useEffect(() => {
     if (step !== 'splash') return;
@@ -73,33 +74,37 @@ export default function OnboardingScreen() {
     Animated.loop(
       Animated.sequence([
         Animated.timing(orbPulse, { toValue: 1, duration: 4000, useNativeDriver: true }),
-        Animated.timing(orbPulse, { toValue: 0.6, duration: 4000, useNativeDriver: true }),
+        Animated.timing(orbPulse, { toValue: 0.55, duration: 4000, useNativeDriver: true }),
       ])
     ).start();
 
-    Animated.stagger(400, [
+    Animated.stagger(300, [
       Animated.parallel([
-        Animated.timing(splashFade, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        Animated.timing(splashFade, { toValue: 1, duration: 1100, useNativeDriver: true }),
         Animated.spring(splashSlide, { toValue: 0, tension: 40, friction: 10, useNativeDriver: true }),
+        Animated.spring(wordmarkScale, { toValue: 1, tension: 40, friction: 10, useNativeDriver: true }),
       ]),
-      Animated.timing(splashRuleFade, { toValue: 1, duration: 900, useNativeDriver: true }),
+      Animated.parallel([
+        Animated.timing(splashRuleFade, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.timing(splashRuleWidth, { toValue: 200, duration: 900, useNativeDriver: false }),
+      ]),
       Animated.parallel([
         Animated.timing(splashBtnFade, { toValue: 1, duration: 700, useNativeDriver: true }),
         Animated.spring(splashBtnSlide, { toValue: 0, tension: 50, friction: 10, useNativeDriver: true }),
       ]),
     ]).start();
-  }, [step, orbPulse, splashFade, splashSlide, splashRuleFade, splashBtnFade, splashBtnSlide]);
+  }, [step, orbPulse, splashFade, splashSlide, splashRuleFade, splashRuleWidth, splashBtnFade, splashBtnSlide, wordmarkScale]);
 
   const transitionTo = (nextStep: Step) => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: -50, duration: 200, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: -40, duration: 180, useNativeDriver: true }),
     ]).start(() => {
       setStep(nextStep);
-      slideAnim.setValue(50);
+      slideAnim.setValue(48);
       Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
-        Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 10, useNativeDriver: true }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 420, useNativeDriver: true }),
+        Animated.spring(slideAnim, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
       ]).start();
     });
   };
@@ -157,7 +162,6 @@ export default function OnboardingScreen() {
             key={i}
             style={[
               styles.dot,
-              { backgroundColor: 'rgba(200,137,74,0.18)' },
               i === stepIndex && styles.dotActive,
             ]}
           />
@@ -185,71 +189,45 @@ export default function OnboardingScreen() {
           >
             {step === 'splash' ? (
               <View style={styles.splashContainer}>
-                <Animated.View style={[styles.spGlowBottom, { opacity: orbPulse }]} pointerEvents="none">
-                  <LinearGradient
-                    colors={['rgba(200,137,74,0.22)', 'rgba(200,137,74,0.10)', 'rgba(200,137,74,0.02)', 'transparent']}
-                    locations={[0, 0.35, 0.65, 1]}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0.5, y: 0.5 }}
-                    end={{ x: 0.5, y: 0 }}
-                  />
-                  <LinearGradient
-                    colors={['transparent', 'rgba(200,137,74,0.18)', 'transparent']}
-                    locations={[0, 0.5, 1]}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  />
+                <Animated.View
+                  style={[styles.spGlowBottomWrap, { opacity: orbPulse }]}
+                  pointerEvents="none"
+                >
+                  <RadialGlow size={380} maxOpacity={0.22} />
                 </Animated.View>
-                <View style={styles.spGlowCenter} pointerEvents="none">
-                  <LinearGradient
-                    colors={['rgba(200,137,74,0.07)', 'rgba(200,137,74,0.03)', 'transparent']}
-                    locations={[0, 0.4, 1]}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0.5, y: 0.5 }}
-                    end={{ x: 0.5, y: 0 }}
-                  />
-                  <LinearGradient
-                    colors={['transparent', 'rgba(200,137,74,0.05)', 'transparent']}
-                    locations={[0, 0.5, 1]}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  />
+
+                <View style={styles.spGlowCenterWrap} pointerEvents="none">
+                  <RadialGlow size={260} maxOpacity={0.065} />
                 </View>
-                <View style={styles.spGlowTop} pointerEvents="none">
-                  <LinearGradient
-                    colors={['rgba(200,137,74,0.08)', 'rgba(200,137,74,0.03)', 'transparent']}
-                    locations={[0, 0.4, 1]}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0.5, y: 0.5 }}
-                    end={{ x: 0.5, y: 1 }}
-                  />
-                  <LinearGradient
-                    colors={['transparent', 'rgba(200,137,74,0.06)', 'transparent']}
-                    locations={[0, 0.5, 1]}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  />
+
+                <View style={styles.spGlowTopWrap} pointerEvents="none">
+                  <RadialGlow size={280} maxOpacity={0.07} />
                 </View>
 
                 <Animated.View
                   style={[
                     styles.splashBrand,
-                    { opacity: splashFade, transform: [{ translateY: splashSlide }] },
+                    {
+                      opacity: splashFade,
+                      transform: [
+                        { translateY: splashSlide },
+                        { scale: wordmarkScale },
+                      ],
+                    },
                   ]}
                 >
                   <Text style={[styles.splashWordmark, { fontFamily: Fonts.titleExtraLight }]}>Amen</Text>
                 </Animated.View>
 
                 <Animated.View style={[styles.splashRuleWrap, { opacity: splashRuleFade }]}>
-                  <LinearGradient
-                    colors={['transparent', '#C8894A', 'transparent']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.splashRule}
-                  />
+                  <Animated.View style={{ width: splashRuleWidth, height: 1, overflow: 'hidden' }}>
+                    <LinearGradient
+                      colors={['transparent', '#C8894A', 'transparent']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={{ width: 200, height: 1 }}
+                    />
+                  </Animated.View>
                 </Animated.View>
 
                 <Animated.View
@@ -269,14 +247,24 @@ export default function OnboardingScreen() {
                     { opacity: splashBtnFade, transform: [{ translateY: splashBtnSlide }] },
                   ]}
                 >
-                  <TouchableOpacity
-                    style={styles.ghostBtn}
+                  <Pressable
+                    style={({ pressed, hovered }: any) => [
+                      styles.ghostBtn,
+                      pressed && styles.ghostBtnPressed,
+                      hovered && styles.ghostBtnHovered,
+                    ]}
                     onPress={handleNext}
-                    activeOpacity={0.8}
                     testID="onboarding-begin"
                   >
-                    <Text style={[styles.ghostBtnText, { fontFamily: Fonts.titleLight }]}>BEGIN YOUR 30 DAYS</Text>
-                  </TouchableOpacity>
+                    {({ pressed }: any) => (
+                      <>
+                        {(pressed) && (
+                          <View style={[StyleSheet.absoluteFill, styles.ghostBtnPressedOverlay]} />
+                        )}
+                        <Text style={[styles.ghostBtnText, { fontFamily: Fonts.titleLight }]}>BEGIN YOUR 30 DAYS</Text>
+                      </>
+                    )}
+                  </Pressable>
                   <Text style={[styles.splashSub, { fontFamily: Fonts.italic }]}>
                     No experience needed. No perfect words required.
                   </Text>
@@ -289,13 +277,8 @@ export default function OnboardingScreen() {
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator={false}
                 >
-                  <View style={styles.obGlowTop} pointerEvents="none">
-                    <LinearGradient
-                      colors={['rgba(200,137,74,0.09)', 'transparent']}
-                      style={styles.obGlowInner}
-                      start={{ x: 0.5, y: 0 }}
-                      end={{ x: 0.5, y: 1 }}
-                    />
+                  <View style={styles.obGlowTopWrap} pointerEvents="none">
+                    <RadialGlow size={280} maxOpacity={0.09} />
                   </View>
                   <Animated.View
                     style={[
@@ -356,17 +339,18 @@ export default function OnboardingScreen() {
                           {BLOCKER_OPTIONS.map((option) => {
                             const isSelected = selectedBlocker === option;
                             return (
-                              <TouchableOpacity
+                              <Pressable
                                 key={option}
-                                style={[
+                                style={({ pressed, hovered }: any) => [
                                   styles.choiceBtn,
                                   isSelected && styles.choiceBtnSelected,
+                                  (pressed || hovered) && !isSelected && styles.choiceBtnHovered,
                                 ]}
                                 onPress={() => {
                                   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                   setSelectedBlocker(option);
                                 }}
-                                activeOpacity={0.7}
+                                testID={`blocker-option-${BLOCKER_OPTIONS.indexOf(option)}`}
                               >
                                 <Text
                                   style={[
@@ -377,7 +361,7 @@ export default function OnboardingScreen() {
                                 >
                                   {option}
                                 </Text>
-                              </TouchableOpacity>
+                              </Pressable>
                             );
                           })}
                         </View>
@@ -430,17 +414,31 @@ export default function OnboardingScreen() {
                           Five anchors covering the full range of authentic prayer: spirit, soul, and body. You learn them by doing, not by studying.
                         </Text>
                         <View style={styles.triadList}>
-                          {TRIAD_ITEMS.map((item) => (
-                            <View
+                          {TRIAD_ITEMS.map((item, _idx) => (
+                            <Animated.View
                               key={item.name}
-                              style={styles.triadItem}
+                              style={[
+                                styles.triadItem,
+                                {
+                                  opacity: fadeAnim,
+                                  transform: [{
+                                    translateY: slideAnim.interpolate({
+                                      inputRange: [-100, 0],
+                                      outputRange: [100, 0],
+                                      extrapolate: 'clamp',
+                                    }),
+                                  }],
+                                },
+                              ]}
                             >
-                              <Text style={styles.triadEmoji}>{item.emoji}</Text>
+                              <View style={styles.triadIconWrap}>
+                                <Text style={styles.triadEmoji}>{item.emoji}</Text>
+                              </View>
                               <View style={styles.triadTextWrap}>
                                 <Text style={[styles.triadName, { fontFamily: Fonts.titleSemiBold }]}>{item.name.toUpperCase()}</Text>
                                 <Text style={[styles.triadDesc, { fontFamily: Fonts.serifRegular }]}>{item.desc}</Text>
                               </View>
-                            </View>
+                            </Animated.View>
                           ))}
                         </View>
                       </View>
@@ -469,54 +467,56 @@ export default function OnboardingScreen() {
                             {reminderHour}:{reminderMin.toString().padStart(2, '0')}
                           </Text>
                           <View style={styles.timeAmPmRow}>
-                            <TouchableOpacity
-                              style={[styles.amPmBtn, reminderAmPm === 'AM' && styles.amPmBtnActive]}
+                            <Pressable
+                              style={({ pressed, hovered }: any) => [
+                                styles.amPmBtn,
+                                reminderAmPm === 'AM' && styles.amPmBtnActive,
+                                (pressed || hovered) && reminderAmPm !== 'AM' && styles.amPmBtnHover,
+                              ]}
                               onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderAmPm('AM'); }}
-                              activeOpacity={0.7}
                             >
                               <Text style={[styles.amPmBtnText, { fontFamily: Fonts.titleRegular }, reminderAmPm === 'AM' && styles.amPmBtnTextActive]}>AM</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              style={[styles.amPmBtn, reminderAmPm === 'PM' && styles.amPmBtnActive]}
+                            </Pressable>
+                            <Pressable
+                              style={({ pressed, hovered }: any) => [
+                                styles.amPmBtn,
+                                reminderAmPm === 'PM' && styles.amPmBtnActive,
+                                (pressed || hovered) && reminderAmPm !== 'PM' && styles.amPmBtnHover,
+                              ]}
                               onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderAmPm('PM'); }}
-                              activeOpacity={0.7}
                             >
                               <Text style={[styles.amPmBtnText, { fontFamily: Fonts.titleRegular }, reminderAmPm === 'PM' && styles.amPmBtnTextActive]}>PM</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                           </View>
                           <View style={styles.timeAdjRow}>
-                            <TouchableOpacity
-                              style={styles.timeAdjBtn}
+                            <Pressable
+                              style={({ pressed, hovered }: any) => [styles.timeAdjBtn, (pressed || hovered) && styles.timeAdjBtnHover]}
                               onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderHour(h => h <= 1 ? 12 : h - 1); }}
-                              activeOpacity={0.7}
                             >
                               <Text style={styles.timeAdjBtnText}>−</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                             <Text style={[styles.timeAdjLabel, { fontFamily: Fonts.titleMedium }]}>HOUR</Text>
-                            <TouchableOpacity
-                              style={styles.timeAdjBtn}
+                            <Pressable
+                              style={({ pressed, hovered }: any) => [styles.timeAdjBtn, (pressed || hovered) && styles.timeAdjBtnHover]}
                               onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderHour(h => h >= 12 ? 1 : h + 1); }}
-                              activeOpacity={0.7}
                             >
                               <Text style={styles.timeAdjBtnText}>+</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                           </View>
                           <View style={styles.timeAdjRow}>
-                            <TouchableOpacity
-                              style={styles.timeAdjBtn}
+                            <Pressable
+                              style={({ pressed, hovered }: any) => [styles.timeAdjBtn, (pressed || hovered) && styles.timeAdjBtnHover]}
                               onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderMin(m => m <= 0 ? 55 : m - 5); }}
-                              activeOpacity={0.7}
                             >
                               <Text style={styles.timeAdjBtnText}>−</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                             <Text style={[styles.timeAdjLabel, { fontFamily: Fonts.titleMedium }]}>MIN</Text>
-                            <TouchableOpacity
-                              style={styles.timeAdjBtn}
+                            <Pressable
+                              style={({ pressed, hovered }: any) => [styles.timeAdjBtn, (pressed || hovered) && styles.timeAdjBtnHover]}
                               onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setReminderMin(m => m >= 55 ? 0 : m + 5); }}
-                              activeOpacity={0.7}
                             >
                               <Text style={styles.timeAdjBtnText}>+</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                           </View>
                           <Text style={[styles.timeHelper, { fontFamily: Fonts.italic }]}>
                             We will send a <Text style={{ color: '#E0A868' }}>gentle reminder</Text> at this time each day.
@@ -537,62 +537,67 @@ export default function OnboardingScreen() {
 
                 <View style={styles.footer}>
                   {step === 'framework' ? (
-                    <TouchableOpacity
-                      style={[styles.amberBtn, !canProceed() && styles.btnDisabled]} 
+                    <Pressable
+                      style={({ pressed }: any) => [
+                        styles.amberBtn,
+                        !canProceed() && styles.btnDisabled,
+                        pressed && styles.amberBtnPressed,
+                      ]}
                       onPress={handleNext}
                       disabled={!canProceed()}
-                      activeOpacity={0.8}
                       testID="onboarding-next"
                     >
                       <LinearGradient
-                        colors={['#C89A5A', '#A06228']}
+                        colors={['#D49A5A', '#A06228']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={styles.amberBtnInner}
                       >
                         <Text style={[styles.amberBtnText, { fontFamily: Fonts.titleMedium }]}>STEP INTO DAY 1</Text>
                       </LinearGradient>
-                    </TouchableOpacity>
+                    </Pressable>
                   ) : step === 'reminder' ? (
                     <View style={styles.reminderActions}>
-                      <TouchableOpacity
-                        style={styles.amberBtn}
+                      <Pressable
+                        style={({ pressed }: any) => [styles.amberBtn, pressed && styles.amberBtnPressed]}
                         onPress={handleNext}
-                        activeOpacity={0.8}
                         testID="onboarding-next"
                       >
                         <LinearGradient
-                          colors={['#C89A5A', '#A06228']}
+                          colors={['#D49A5A', '#A06228']}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 1, y: 1 }}
                           style={styles.amberBtnInner}
                         >
                           <Text style={[styles.amberBtnText, { fontFamily: Fonts.titleMedium }]}>SET MY REMINDER</Text>
                         </LinearGradient>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.skipBtn}
+                      </Pressable>
+                      <Pressable
+                        style={({ pressed, hovered }: any) => [
+                          styles.skipBtn,
+                          (pressed || hovered) && styles.skipBtnHover,
+                        ]}
                         onPress={handleNext}
-                        activeOpacity={0.7}
                       >
                         <Text style={[styles.skipBtnText, { fontFamily: Fonts.titleRegular }]}>Skip for now</Text>
-                      </TouchableOpacity>
+                      </Pressable>
                     </View>
                   ) : (
-                    <TouchableOpacity
-                      style={[
+                    <Pressable
+                      style={({ pressed, hovered }: any) => [
                         styles.ghostBtn,
                         !canProceed() && styles.btnDisabled,
+                        pressed && styles.ghostBtnPressed,
+                        hovered && styles.ghostBtnHovered,
                       ]}
                       onPress={handleNext}
                       disabled={!canProceed()}
-                      activeOpacity={0.8}
                       testID="onboarding-next"
                     >
                       <Text style={[styles.ghostBtnText, { fontFamily: Fonts.titleLight }]}>
                         {getButtonLabel()}
                       </Text>
-                    </TouchableOpacity>
+                    </Pressable>
                   )}
                 </View>
               </>
@@ -615,59 +620,39 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  spGlowBottom: {
+  spGlowBottomWrap: {
     position: 'absolute',
-    bottom: -60,
+    bottom: -80,
     left: '50%' as unknown as number,
-    marginLeft: -160,
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    overflow: 'hidden',
+    marginLeft: -190,
   },
-  spGlowCenter: {
+  spGlowCenterWrap: {
     position: 'absolute',
     top: '36%' as unknown as number,
     left: '50%' as unknown as number,
-    marginLeft: -120,
-    marginTop: -120,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    overflow: 'hidden',
-  },
-  spGlowTop: {
-    position: 'absolute',
-    top: -80,
-    left: '50%' as unknown as number,
     marginLeft: -130,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    overflow: 'hidden',
+    marginTop: -130,
   },
-  obGlowTop: {
+  spGlowTopWrap: {
     position: 'absolute',
-    top: -50,
-    alignSelf: 'center',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    overflow: 'hidden',
+    top: -100,
+    left: '50%' as unknown as number,
+    marginLeft: -140,
   },
-  obGlowInner: {
-    width: '100%',
-    height: '100%',
+  obGlowTopWrap: {
+    position: 'absolute',
+    top: -60,
+    alignSelf: 'center',
+    marginLeft: -140,
   },
   splashContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   splashBrand: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 22,
   },
   splashWordmark: {
     fontSize: 76,
@@ -677,10 +662,7 @@ const styles = StyleSheet.create({
   },
   splashRuleWrap: {
     marginBottom: 22,
-  },
-  splashRule: {
-    width: 200,
-    height: 1,
+    alignItems: 'center',
   },
   splashTagWrap: {
     marginBottom: 60,
@@ -764,7 +746,7 @@ const styles = StyleSheet.create({
     color: 'rgba(200,137,74,0.48)',
   },
   choices: {
-    gap: 12,
+    gap: 10,
     marginTop: 30,
   },
   choiceBtn: {
@@ -774,6 +756,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: 'rgba(34,20,8,0.55)',
     borderColor: 'rgba(200,137,74,0.13)',
+  },
+  choiceBtnHovered: {
+    backgroundColor: 'rgba(200,137,74,0.06)',
+    borderColor: 'rgba(200,137,74,0.24)',
   },
   choiceBtnSelected: {
     backgroundColor: 'rgba(200,137,74,0.09)',
@@ -786,22 +772,6 @@ const styles = StyleSheet.create({
   },
   choiceBtnTextSelected: {
     color: '#F4EDE0',
-  },
-  scriptureCard: {
-    borderLeftWidth: 3,
-    borderRadius: 4,
-    paddingLeft: 20,
-    paddingVertical: 18,
-    marginTop: 32,
-  },
-  scriptureRef: {
-    fontSize: 10,
-    letterSpacing: 2.5,
-    marginBottom: 8,
-  },
-  scriptureText: {
-    fontSize: 18,
-    lineHeight: 30,
   },
   triadList: {
     gap: 8,
@@ -817,9 +787,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(200,137,74,0.045)',
     borderColor: 'rgba(200,137,74,0.13)',
   },
+  triadIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(200,137,74,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.18)',
+  },
   triadEmoji: {
-    fontSize: 20,
-    width: 28,
+    fontSize: 18,
     textAlign: 'center',
   },
   triadTextWrap: {
@@ -865,6 +844,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(200,137,74,0.13)',
     backgroundColor: 'transparent',
   },
+  amPmBtnHover: {
+    borderColor: 'rgba(200,137,74,0.28)',
+    backgroundColor: 'rgba(200,137,74,0.06)',
+  },
   amPmBtnActive: {
     backgroundColor: 'rgba(200,137,74,0.12)',
     borderColor: 'rgba(200,137,74,0.4)',
@@ -892,6 +875,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(200,137,74,0.06)',
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
+  },
+  timeAdjBtnHover: {
+    borderColor: 'rgba(200,137,74,0.35)',
+    backgroundColor: 'rgba(200,137,74,0.14)',
   },
   timeAdjBtnText: {
     fontSize: 22,
@@ -944,6 +931,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
+    backgroundColor: 'rgba(200,137,74,0.18)',
   },
   dotActive: {
     width: 22,
@@ -963,6 +951,19 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(200,137,74,0.32)',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  ghostBtnHovered: {
+    borderColor: 'rgba(200,137,74,0.65)',
+    backgroundColor: 'rgba(200,137,74,0.07)',
+  },
+  ghostBtnPressed: {
+    borderColor: 'rgba(200,137,74,0.55)',
+    backgroundColor: 'rgba(200,137,74,0.09)',
+  },
+  ghostBtnPressedOverlay: {
+    backgroundColor: 'rgba(200,137,74,0.06)',
+    borderRadius: 100,
   },
   ghostBtnText: {
     fontSize: 12.5,
@@ -974,10 +975,14 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     overflow: 'hidden',
     shadowColor: '#C89A5A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 28,
     elevation: 8,
+  },
+  amberBtnPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.98 }],
   },
   amberBtnInner: {
     paddingVertical: 18,
@@ -1000,6 +1005,10 @@ const styles = StyleSheet.create({
   skipBtn: {
     alignItems: 'center',
     paddingVertical: 12,
+    borderRadius: 8,
+  },
+  skipBtnHover: {
+    opacity: 0.6,
   },
   skipBtnText: {
     fontSize: 13,

@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   Animated,
   ScrollView,
 } from 'react-native';
@@ -18,6 +19,7 @@ import { getHtmlDay, getPhaseLabel, BLOCKER_OPENERS, milestones } from '@/mocks/
 import { HtmlDayData } from '@/types';
 import AnimatedPressable from '@/components/AnimatedPressable';
 import CelebrationParticles from '@/components/CelebrationParticles';
+import RadialGlow from '@/components/RadialGlow';
 import { Fonts } from '@/constants/fonts';
 
 
@@ -309,12 +311,9 @@ export default function SessionScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.root}>
         <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
-        <LinearGradient
-          colors={['rgba(200,137,74,0.05)', 'transparent']}
-          style={styles.ambientTop}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
+        <View style={styles.ambientTopGlowWrap} pointerEvents="none">
+          <RadialGlow size={340} maxOpacity={0.07} />
+        </View>
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.topBar}>
             <TouchableOpacity onPress={handleClose} style={styles.backBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
@@ -351,10 +350,14 @@ export default function SessionScreen() {
                 <Text style={[styles.settleTxt, { fontFamily: Fonts.italic }]}>{dayData.settle}</Text>
               </View>
 
-              <TouchableOpacity
-                style={[styles.phase, openPhase === 'focus' && styles.phaseOpen]}
+              <Pressable
+                style={({ pressed, hovered }: any) => [
+                  styles.phase,
+                  openPhase === 'focus' && styles.phaseOpen,
+                  (hovered && openPhase !== 'focus') && styles.phaseHovered,
+                  pressed && styles.phasePressed,
+                ]}
                 onPress={() => togglePhase('focus')}
-                activeOpacity={0.8}
               >
                 <View style={styles.phaseHdr}>
                   <View style={[styles.phaseIco, openPhase === 'focus' && styles.phaseIcoOpen]}>
@@ -388,14 +391,18 @@ export default function SessionScreen() {
                     ) : null}
                   </View>
                 )}
-              </TouchableOpacity>
+              </Pressable>
 
               {phases.map(p => (
-                <TouchableOpacity
+                <Pressable
                   key={p.id}
-                  style={[styles.phase, openPhase === p.id && styles.phaseOpen]}
+                  style={({ pressed, hovered }: any) => [
+                    styles.phase,
+                    openPhase === p.id && styles.phaseOpen,
+                    (hovered && openPhase !== p.id) && styles.phaseHovered,
+                    pressed && styles.phasePressed,
+                  ]}
                   onPress={() => togglePhase(p.id)}
-                  activeOpacity={0.8}
                 >
                   <View style={styles.phaseHdr}>
                     <View style={[styles.phaseIco, openPhase === p.id && styles.phaseIcoOpen]}>
@@ -426,7 +433,7 @@ export default function SessionScreen() {
                       )}
                     </View>
                   )}
-                </TouchableOpacity>
+                </Pressable>
               ))}
 
               {dayData.silence > 0 ? (
@@ -514,12 +521,11 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  ambientTop: {
+  ambientTopGlowWrap: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
+    top: -80,
+    left: '50%' as unknown as number,
+    marginLeft: -170,
     zIndex: 0,
   },
   topBar: {
@@ -615,6 +621,13 @@ const styles = StyleSheet.create({
   },
   phaseOpen: {
     borderColor: 'rgba(200,137,74,0.28)',
+  },
+  phaseHovered: {
+    borderColor: 'rgba(200,137,74,0.22)',
+    backgroundColor: 'rgba(44,30,12,0.8)',
+  },
+  phasePressed: {
+    opacity: 0.85,
   },
   phaseHdr: {
     flexDirection: 'row',

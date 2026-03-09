@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   Animated,
   ActivityIndicator,
   ScrollView,
@@ -30,6 +31,7 @@ import { Fonts } from '@/constants/fonts';
 import { getDayContent, getPhaseLabel } from '@/mocks/content';
 import { getDailyEncouragement } from '@/mocks/encouragements';
 import { useApp } from '@/providers/AppProvider';
+import RadialGlow from '@/components/RadialGlow';
 import { WeeklyReflection } from '@/types';
 
 
@@ -208,18 +210,12 @@ export default function HomeScreen() {
       />
 
       <Animated.View style={[styles.ambientWrap, { opacity: glowPulse }]} pointerEvents="none">
-        <LinearGradient
-          colors={['rgba(200,137,74,0.06)', 'transparent']}
-          style={styles.ambientTop}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
-        <LinearGradient
-          colors={['transparent', 'rgba(200,137,74,0.03)']}
-          style={styles.ambientBottom}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-        />
+        <View style={styles.ambientTopGlow}>
+          <RadialGlow size={400} maxOpacity={0.09} />
+        </View>
+        <View style={styles.ambientBottomGlow}>
+          <RadialGlow size={300} maxOpacity={0.05} />
+        </View>
       </Animated.View>
 
       <SafeAreaView style={styles.safeArea}>
@@ -469,14 +465,16 @@ export default function HomeScreen() {
               </Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.supportRow}
+            <Pressable
+              style={({ pressed, hovered }: any) => [
+                styles.supportRow,
+                (pressed || hovered) && styles.supportRowHovered,
+              ]}
               onPress={() => {
                 console.log('[HomeScreen] Navigating to support page');
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/paywall');
               }}
-              activeOpacity={0.7}
               testID="support-cause-home"
             >
               <View style={styles.supportHeart}>
@@ -484,7 +482,7 @@ export default function HomeScreen() {
               </View>
               <Text style={[styles.supportLabel, { fontFamily: Fonts.titleMedium }]} numberOfLines={1}>Support This Cause</Text>
               <ChevronRight size={14} color="rgba(216,203,184,0.3)" />
-            </TouchableOpacity>
+            </Pressable>
           </Animated.View>
 
           {!hasCompletedSessionToday && (
@@ -550,19 +548,17 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
   },
-  ambientTop: {
+  ambientTopGlow: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 220,
+    top: -80,
+    left: '50%' as unknown as number,
+    marginLeft: -200,
   },
-  ambientBottom: {
+  ambientBottomGlow: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 160,
+    bottom: -60,
+    left: '50%' as unknown as number,
+    marginLeft: -150,
   },
 
   topBar: {
@@ -880,6 +876,10 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 4,
     backgroundColor: 'rgba(200,154,90,0.04)',
+  },
+  supportRowHovered: {
+    borderColor: 'rgba(200,154,90,0.28)',
+    backgroundColor: 'rgba(200,154,90,0.09)',
   },
   supportHeart: {
     width: 28,
