@@ -1,854 +1,365 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   Animated,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Check, Lock, Flame, Calendar, Clock, Award, TrendingUp, Sparkles } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/providers/AppProvider';
-import { useColors } from '@/hooks/useColors';
 import { Fonts } from '@/constants/fonts';
-import { milestones } from '@/mocks/content';
-import { DayProgress } from '@/types';
+import { DAYS } from '@/mocks/content';
 
-function useAnimatedCounter(targetValue: number, duration: number = 800) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const animValue = useRef(new Animated.Value(0)).current;
+const { width: SCREEN_W } = Dimensions.get('window');
 
-  useEffect(() => {
-    const listenerId = animValue.addListener(({ value }) => {
-      setDisplayValue(Math.round(value));
-    });
-
-    Animated.timing(animValue, {
-      toValue: targetValue,
-      duration,
-      useNativeDriver: false,
-    }).start();
-
-    return () => {
-      animValue.removeListener(listenerId);
-    };
-  }, [targetValue, animValue, duration]);
-
-  return displayValue;
-}
-
-function AnimatedStatCard({
-  value,
-  label,
-  icon: Icon,
-  iconBg,
-  iconColor,
-  delay = 0,
-}: {
-  value: number;
-  label: string;
-  icon: typeof Calendar;
-  iconBg: string;
-  iconColor: string;
-  delay?: number;
-}) {
-  const C = useColors();
+export default function InsightsScreen() {
+  const { state } = useApp();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
-  const displayValue = useAnimatedCounter(value);
-
-  useEffect(() => {
-    Animated.sequence([
-      Animated.delay(delay),
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-        Animated.spring(slideAnim, { toValue: 0, tension: 60, friction: 10, useNativeDriver: true }),
-      ]),
-    ]).start();
-  }, [fadeAnim, slideAnim, delay]);
-
-  return (
-    <Animated.View
-      style={[
-        styles.statCard,
-        {
-          backgroundColor: C.surface,
-          borderColor: C.borderLight,
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        },
-      ]}
-    >
-      <View style={[styles.statIconOuter, { backgroundColor: iconBg + '40' }]}>
-        <View style={[styles.statIcon, { backgroundColor: iconBg }]}>
-          <Icon size={15} color={iconColor} />
-        </View>
-      </View>
-      <Text style={[styles.statValue, { color: C.text }]}>
-        {displayValue}
-      </Text>
-      <Text style={[styles.statLabel, { color: C.textMuted }]}>{label}</Text>
-    </Animated.View>
-  );
-}
-
-export default function JourneyScreen() {
-  const { state, graceWindowRemaining } = useApp();
-  const C = useColors();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const headerSlide = useRef(new Animated.Value(-20)).current;
-
-  const completedDays = state.progress.filter(p => p.completed).length;
-  const totalMinutes = Math.round(
-    state.progress.reduce((sum, p) => sum + p.duration, 0) / 60
-  );
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.spring(headerSlide, {
-        toValue: 0,
-        tension: 50,
-        friction: 10,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 10, useNativeDriver: true }),
     ]).start();
-  }, [fadeAnim, headerSlide]);
+  }, [fadeAnim, slideAnim]);
 
-  const nextMilestone = milestones.find(m => m.day > completedDays);
-  const showGrace = graceWindowRemaining !== null && state.streakCount > 0;
-  const graceUrgent = graceWindowRemaining === 0;
+  const completedDays = state.progress.filter(p => p.completed).length;
+  const silenceMins = useMemo(() => {
+    return state.progress
+      .filter(p => p.completed)
+      .reduce((acc, p) => acc + (DAYS[Math.max(0, p.day - 1)]?.silence ?? 0), 0);
+  }, [state.progress]);
 
-  const progressPercent = Math.round((completedDays / 30) * 100);
+  const phaseTimings = state.phaseTimings ?? {};
+  const phaseLabels: Record<string, string> = {
+    focus: 'Focus', thank: 'Thank', repent: 'Repent',
+    invite: 'Invite', ask: 'Ask', declare: 'Declare',
+  };
+  const sorted = useMemo(() =>
+    Object.entries(phaseTimings)
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1]),
+    [phaseTimings] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const maxT = sorted[0]?.[1] ?? 1;
+  const topPhase = sorted[0] ? (phaseLabels[sorted[0][0]] ?? sorted[0][0]) : '—';
+
+  const reflections = state.reflections ?? [];
+  const allText = reflections.map(r => r.q1 + ' ' + r.q2 + ' ' + r.q3).join(' ').toLowerCase();
+  const stop = new Set(['the', 'and', 'to', 'a', 'i', 'in', 'of', 'my', 'for', 'is', 'it', 'that', 'this', 'me', 'you', 'with', 'have', 'was', 'on', 'not', 'be', 'we', 'are', 'so', 'but', 'as', 'at', 'by', 'do', 'if', 'or', 'an', 'he', 'she', 'they', 'his', 'her', 'from', 'what', 'when', 'how', 'just', 'more', 'than', 'can', 'get', 'all', 'one', 'would', 'been', 'will', 'had', 'has', 'them', 'then', 'which', 'there', 'their', 'about', 'also', 'into', 'after', 'its', 'our', 'who', 'him', 'did', 'felt', 'feel']);
+  const freq: Record<string, number> = {};
+  allText.split(/\s+/).forEach(w => {
+    const c = w.replace(/[^a-z]/g, '');
+    if (c.length > 3 && !stop.has(c)) freq[c] = (freq[c] || 0) + 1;
+  });
+  const topWords = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([w]) => w);
 
   return (
-    <LinearGradient
-      colors={[C.gradientStart, C.gradientMid, C.gradientEnd]}
-      style={styles.root}
-    >
+    <View style={styles.root}>
+      <LinearGradient colors={['#0A0705', '#1A120B', '#0D0906']} style={StyleSheet.absoluteFill} />
+      <View style={styles.topGlowWrap}>
+        <LinearGradient
+          colors={['rgba(200,137,74,0.08)', 'transparent']}
+          style={styles.topGlow}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
+      </View>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: headerSlide }] }}>
-            <View style={styles.titleRow}>
-              <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>Your Journey</Text>
-              {completedDays > 0 && (
-                <View style={[styles.completedBadge, { backgroundColor: C.sageBg, borderColor: C.sageLight, borderWidth: 1 }]}>
-                  <Sparkles size={11} color={C.sage} />
-                  <Text style={[styles.completedBadgeText, { color: C.sageDark }]}>{completedDays}/30</Text>
-                </View>
-              )}
-            </View>
-            <Text style={[styles.screenSubtitle, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
-              {completedDays === 0
-                ? 'Your story begins today.'
-                : `${completedDays} day${completedDays > 1 ? 's' : ''} of faithfulness.`}
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+            <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>SELF-KNOWLEDGE</Text>
+            <Text style={[styles.title, { fontFamily: Fonts.serifLight }]}>
+              Your Prayer{'\n'}
+              <Text style={{ color: '#E0A868', fontFamily: Fonts.italicMedium }}>Insights</Text>
             </Text>
+            <View style={styles.rule} />
           </Animated.View>
 
-          <View style={styles.statsRow}>
-            <AnimatedStatCard
-              value={completedDays}
-              label="Days"
-              icon={Calendar}
-              iconBg={C.accentBg}
-              iconColor={C.accentDark}
-              delay={100}
-            />
-            <AnimatedStatCard
-              value={state.streakCount}
-              label="Streak"
-              icon={Flame}
-              iconBg={C.warmLight}
-              iconColor={C.warmDeep}
-              delay={200}
-            />
-            <AnimatedStatCard
-              value={totalMinutes}
-              label="Minutes"
-              icon={Clock}
-              iconBg={C.sageBg}
-              iconColor={C.sageDark}
-              delay={300}
-            />
-          </View>
-
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <View style={[styles.overallProgressCard, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
-              <View style={styles.overallProgressHeader}>
-                <View style={[styles.overallProgressIconWrap, { backgroundColor: C.accentBg }]}>
-                  <TrendingUp size={14} color={C.accentDark} />
-                </View>
-                <Text style={[styles.overallProgressLabel, { color: C.accentDark }]}>OVERALL PROGRESS</Text>
-                <Text style={[styles.overallProgressPercent, { color: C.text }]}>{progressPercent}%</Text>
+          <Animated.View style={[styles.grid, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            <View style={styles.gridRow}>
+              <View style={styles.insCard}>
+                <Text style={[styles.insLbl, { fontFamily: Fonts.titleSemiBold }]}>DAYS COMPLETE</Text>
+                <Text style={[styles.insBig, { fontFamily: Fonts.titleLight }]}>{completedDays}</Text>
+                <Text style={[styles.insUnit, { fontFamily: Fonts.italic }]}>of 30 days</Text>
               </View>
-              <View style={[styles.overallProgressTrack, { backgroundColor: C.borderLight }]}>
-                <Animated.View
-                  style={[
-                    styles.overallProgressFill,
-                    {
-                      backgroundColor: C.accentDark,
-                      width: `${progressPercent}%`,
-                    },
-                  ]}
-                />
+              <View style={styles.insCard}>
+                <Text style={[styles.insLbl, { fontFamily: Fonts.titleSemiBold }]}>SILENCE THIS MONTH</Text>
+                <Text style={[styles.insBig, { fontFamily: Fonts.titleLight }]}>{silenceMins}</Text>
+                <Text style={[styles.insUnit, { fontFamily: Fonts.italic }]}>minutes in stillness</Text>
               </View>
-              <Text style={[styles.overallProgressNote, { color: C.textMuted }]}>
-                {completedDays === 0
-                  ? 'Begin your first session to start tracking'
-                  : `${30 - completedDays} day${30 - completedDays !== 1 ? 's' : ''} remaining`}
-              </Text>
             </View>
 
-            {showGrace && (
-              <View style={[
-                styles.graceWindowCard,
-                {
-                  backgroundColor: graceUrgent ? (state.darkMode ? '#3D1A1A' : '#FFF0F0') : (state.darkMode ? '#3A2C14' : '#FFF8EC'),
-                  borderColor: graceUrgent ? (state.darkMode ? '#7A2020' : '#E8AAAA') : (state.darkMode ? '#7A5820' : '#E8C870'),
-                },
-              ]}>
-                <View style={styles.graceWindowHeader}>
-                  <View style={[
-                    styles.graceWindowDot,
-                    { backgroundColor: graceUrgent ? '#E07070' : '#D4A050' },
-                  ]} />
-                  <Text style={[
-                    styles.graceWindowTitle,
-                    { color: graceUrgent ? (state.darkMode ? '#E07070' : '#C05050') : (state.darkMode ? '#D4A050' : '#9A7020') },
-                  ]}>
-                    {graceUrgent ? 'Streak at risk. pray today' : 'Grace window active'}
-                  </Text>
-                </View>
-                <View style={styles.graceWindowRow}>
-                  <View style={[styles.graceWindowPip, { backgroundColor: state.darkMode ? '#5A3A3A' : '#FFCCCC' }]}>
-                    <View style={[styles.graceWindowPipFill, { backgroundColor: graceUrgent ? '#E07070' : 'transparent' }]} />
-                  </View>
-                  <View style={[
-                    styles.graceWindowPip,
-                    { backgroundColor: graceUrgent ? (state.darkMode ? '#5A3A3A' : '#FFCCCC') : (state.darkMode ? '#5A4A20' : '#FFE8A0') },
-                  ]}>
-                    <View style={[
-                      styles.graceWindowPipFill,
-                      { backgroundColor: graceUrgent ? 'transparent' : '#D4A050' },
-                    ]} />
-                  </View>
-                </View>
-                <Text style={[
-                  styles.graceWindowNote,
-                  { color: graceUrgent ? (state.darkMode ? '#C05050' : '#904040') : (state.darkMode ? '#B07030' : '#806010') },
-                ]}>
-                  {graceUrgent
-                    ? "This is your last grace day. Missed days don't define you. showing up does."
-                    : "You missed yesterday. That's okay. You still have 1 grace day before your streak resets."}
-                </Text>
-              </View>
-            )}
-
-            {nextMilestone && (
-              <View style={[styles.nextMilestoneCard, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
-                <View style={styles.nextMilestoneHeader}>
-                  <Award size={16} color={C.accentDark} />
-                  <Text style={[styles.nextMilestoneLabel, { color: C.accentDark }]}>Next milestone</Text>
-                </View>
-                <Text style={[styles.nextMilestoneDay, { color: C.text }]}>Day {nextMilestone.day}</Text>
-                <View style={[styles.nextMilestoneProgress, { backgroundColor: C.borderLight }]}>
-                  <View
-                    style={[
-                      styles.nextMilestoneBar,
-                      {
-                        width: `${Math.min((completedDays / nextMilestone.day) * 100, 100)}%`,
-                        backgroundColor: C.accentDark,
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={[styles.nextMilestoneText, { color: C.textSecondary }]}>
-                  {nextMilestone.day - completedDays} day{nextMilestone.day - completedDays !== 1 ? 's' : ''} to go
-                </Text>
-              </View>
-            )}
-
-            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.serifRegular }]}>Progress</Text>
-
-            <View style={styles.weeksContainer}>
-              <WeekSection
-                label="Week 1"
-                subtitle="Fully Scripted"
-                start={1}
-                end={7}
-                progress={state.progress}
-                currentDay={state.currentDay}
-              />
-              <WeekSection
-                label="Week 2"
-                subtitle="Partially Guided"
-                start={8}
-                end={14}
-                progress={state.progress}
-                currentDay={state.currentDay}
-              />
-              <WeekSection
-                label="Week 3"
-                subtitle="Minimal Scripting"
-                start={15}
-                end={21}
-                progress={state.progress}
-                currentDay={state.currentDay}
-              />
-              <WeekSection
-                label="Week 4+"
-                subtitle="You Lead"
-                start={22}
-                end={30}
-                progress={state.progress}
-                currentDay={state.currentDay}
-              />
-            </View>
-
-            <Text style={[styles.sectionTitle, { color: C.text, fontFamily: Fonts.serifRegular }]}>Milestones</Text>
-            <View style={styles.milestonesContainer}>
-              {milestones.map((m, idx) => {
-                const reached = completedDays >= m.day;
-                const isNext = !reached && (idx === 0 || completedDays >= milestones[idx - 1].day);
-                return (
-                  <View
-                    key={m.day}
-                    style={styles.milestoneRow}
-                  >
-                    <View style={styles.milestoneLeft}>
-                      <View
-                        style={[
-                          styles.milestoneBadge,
-                          { backgroundColor: C.surfaceAlt, borderColor: C.border },
-                          reached && { backgroundColor: C.sage, borderColor: C.sage },
-                          isNext && { borderColor: C.accentDark, backgroundColor: C.accentBg },
-                        ]}
-                      >
-                        {reached ? (
-                          <Check size={12} color="#FFFFFF" strokeWidth={3} />
-                        ) : (
-                          <Text style={[
-                            styles.milestoneBadgeText,
-                            { color: C.textMuted },
-                            isNext && { color: C.accentDark },
-                          ]}>{m.day}</Text>
-                        )}
+            <View style={styles.insCardWide}>
+              <Text style={[styles.insLbl, { fontFamily: Fonts.titleSemiBold }]}>WHERE YOU LINGER LONGEST</Text>
+              {sorted.length > 0 ? (
+                <>
+                  {sorted.map(([k, v]) => (
+                    <View key={k} style={styles.barRow}>
+                      <Text style={[styles.barLbl, { fontFamily: Fonts.titleRegular }]}>{phaseLabels[k] ?? k}</Text>
+                      <View style={styles.barTrack}>
+                        <View style={[styles.barFill, { width: `${Math.round((v / maxT) * 100)}%` }]} />
                       </View>
-                      {idx < milestones.length - 1 && (
-                        <View
-                          style={[
-                            styles.milestoneConnector,
-                            { backgroundColor: C.border },
-                            reached && { backgroundColor: C.sageLight },
-                          ]}
-                        />
-                      )}
+                      <Text style={[styles.barVal, { fontFamily: Fonts.titleRegular }]}>{Math.round(v / 60)}m</Text>
                     </View>
-                    <View style={styles.milestoneContent}>
-                      <Text
-                        style={[
-                          styles.milestoneTitle,
-                          { color: C.textSecondary, fontFamily: Fonts.titleMedium },
-                          reached && { color: C.sageDark },
-                        ]}
-                      >
-                        Day {m.day}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.milestoneMessage,
-                          { color: C.textMuted, fontFamily: Fonts.titleLight },
-                          reached && { color: C.textSecondary },
-                        ]}
-                      >
-                        {m.message}
-                      </Text>
-                    </View>
+                  ))}
+                  <View style={styles.insightBar}>
+                    <Text style={styles.insightIcon}>✨</Text>
+                    <Text style={[styles.insightText, { fontFamily: Fonts.italic }]}>
+                      You spend the most time in <Text style={{ color: '#E0A868', fontFamily: Fonts.serifSemiBold }}>{topPhase}</Text> — that's where your heart is speaking.
+                    </Text>
                   </View>
-                );
-              })}
+                </>
+              ) : (
+                <Text style={[styles.insUnit, { fontFamily: Fonts.italic, paddingTop: 4, fontSize: 14 }]}>
+                  Open phases during prayer to begin tracking.
+                </Text>
+              )}
             </View>
 
-            <View style={[styles.graceNote, { backgroundColor: C.accentBg, borderColor: C.accentLight }]}>
-              <View style={[styles.graceNoteAccent, { backgroundColor: C.accentDark }]} />
-              <Text style={[styles.graceNoteText, { color: C.accentDeep, fontFamily: Fonts.italic }]}>
-                Missed a day? That{"'"}s okay.{'\n'}Grace means starting again isn{"'"}t failure. it{"'"}s growth.
-              </Text>
+            <View style={styles.insCardWide}>
+              <Text style={[styles.insLbl, { fontFamily: Fonts.titleSemiBold }]}>30-DAY JOURNEY</Text>
+              <View style={styles.pipWrap}>
+                {Array.from({ length: 30 }, (_, i) => {
+                  const done = state.progress.some(p => p.day === i + 1 && p.completed);
+                  return (
+                    <View key={i} style={[styles.pip, done && styles.pipDone]} />
+                  );
+                })}
+              </View>
             </View>
+
+            {topWords.length > 0 && (
+              <View style={styles.insCardWide}>
+                <Text style={[styles.insLbl, { fontFamily: Fonts.titleSemiBold }]}>WORDS FROM YOUR REFLECTIONS</Text>
+                <View style={styles.wordChips}>
+                  {topWords.map(w => (
+                    <View key={w} style={styles.wordChip}>
+                      <Text style={[styles.wordChipText, { fontFamily: Fonts.italic }]}>{w}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {reflections.length > 0 && (
+              <View style={styles.insCardWide}>
+                <Text style={[styles.insLbl, { fontFamily: Fonts.titleSemiBold }]}>
+                  WEEKLY REFLECTIONS · {reflections.length} SAVED
+                </Text>
+                {reflections.map(r => (
+                  <View key={`ref-${r.week}`} style={styles.reflectionItem}>
+                    <Text style={[styles.reflectionWeek, { fontFamily: Fonts.titleMedium }]}>
+                      Week {r.week} · {r.date}
+                    </Text>
+                    <Text style={[styles.reflectionAns, { fontFamily: Fonts.italic }]}>
+                      {r.q1 || '—'}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
-  );
-}
-
-function WeekSection({
-  label,
-  subtitle,
-  start,
-  end,
-  progress,
-  currentDay,
-}: {
-  label: string;
-  subtitle: string;
-  start: number;
-  end: number;
-  progress: DayProgress[];
-  currentDay: number;
-}) {
-  const C = useColors();
-  const weekCompleted = progress.filter(p => p.day >= start && p.day <= end && p.completed).length;
-  const weekTotal = end - start + 1;
-
-  return (
-    <View style={[styles.weekSection, { backgroundColor: C.surface, borderColor: C.borderLight }]}>
-      <View style={styles.weekHeader}>
-        <View>
-          <Text style={[styles.weekLabel, { color: C.text }]}>{label}</Text>
-          <Text style={[styles.weekSubtitle, { color: C.textMuted }]}>{subtitle}</Text>
-        </View>
-        <View style={styles.weekCountWrap}>
-          <Text style={[styles.weekCount, { color: C.accentDark, backgroundColor: C.accentBg }]}>
-            {weekCompleted}/{weekTotal}
-          </Text>
-        </View>
-      </View>
-      <View style={[styles.weekProgressTrack, { backgroundColor: C.borderLight }]}>
-        <View
-          style={[
-            styles.weekProgressFill,
-            {
-              width: `${(weekCompleted / weekTotal) * 100}%`,
-              backgroundColor: weekCompleted === weekTotal ? C.sage : C.accentDark,
-            },
-          ]}
-        />
-      </View>
-      <View style={styles.daysGrid}>
-        {renderDays(start, end, progress, currentDay, C)}
-      </View>
     </View>
   );
-}
-
-function renderDays(
-  start: number,
-  end: number,
-  progress: DayProgress[],
-  currentDay: number,
-  C: ReturnType<typeof useColors>
-) {
-  const days = [];
-  for (let i = start; i <= end; i++) {
-    const isCompleted = progress.some(p => p.day === i && p.completed);
-    const isCurrent = i === currentDay;
-    const isLocked = i > currentDay;
-
-    days.push(
-      <View
-        key={i}
-        style={[
-          styles.dayCell,
-          { backgroundColor: C.surfaceElevated, borderColor: C.borderLight },
-          isCompleted && { backgroundColor: C.sage, borderColor: C.sage },
-          isCurrent && { borderColor: C.accentDark, borderWidth: 2, backgroundColor: C.accentBg },
-          isLocked && { backgroundColor: C.surfaceAlt, borderColor: 'transparent' },
-        ]}
-      >
-        {isCompleted ? (
-          <Check size={13} color="#FFFFFF" strokeWidth={2.5} />
-        ) : isLocked ? (
-          <Lock size={9} color={C.textMuted} />
-        ) : (
-          <Text
-            style={[
-              styles.dayCellText,
-              { color: C.textSecondary },
-              isCurrent && { color: C.accentDark, fontWeight: '700' as const },
-            ]}
-          >
-            {i}
-          </Text>
-        )}
-      </View>
-    );
-  }
-  return days;
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: '#0A0705',
   },
   safeArea: {
     flex: 1,
   },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 12,
+  topGlowWrap: {
+    position: 'absolute',
+    top: -20,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 0,
+  },
+  topGlow: {
+    width: SCREEN_W * 1.2,
+    height: 200,
+    borderRadius: 160,
+  },
+  scroll: {
+    paddingHorizontal: 28,
+    paddingTop: 16,
     paddingBottom: 40,
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
+  eyebrow: {
+    fontSize: 9,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
+    color: '#C8894A',
+    marginBottom: 10,
   },
-  screenTitle: {
+  title: {
     fontSize: 36,
-    letterSpacing: -0.5,
-  },
-  completedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-  },
-  completedBadgeText: {
-    fontSize: 13,
-    fontWeight: '700' as const,
-  },
-  screenSubtitle: {
-    fontSize: 15,
-    marginBottom: 24,
-    fontWeight: '500' as const,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
-  statCard: {
-    flex: 1,
-    borderRadius: 20,
-    padding: 16,
-    alignItems: 'center',
-    gap: 6,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  statIconOuter: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    letterSpacing: -0.8,
-  },
-  statLabel: {
-    fontSize: 10,
-    fontWeight: '700' as const,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.8,
-  },
-  overallProgressCard: {
-    borderRadius: 22,
-    padding: 22,
-    marginBottom: 16,
-    borderWidth: 1,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 3,
-  },
-  overallProgressHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  overallProgressIconWrap: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  overallProgressLabel: {
-    fontSize: 11,
-    fontWeight: '700' as const,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase' as const,
-    flex: 1,
-  },
-  overallProgressPercent: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    letterSpacing: -0.5,
-  },
-  overallProgressTrack: {
-    height: 10,
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  overallProgressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  overallProgressNote: {
-    fontSize: 12,
-    fontWeight: '500' as const,
-  },
-  graceWindowCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1.5,
-  },
-  graceWindowHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  graceWindowDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  graceWindowTitle: {
-    fontSize: 13,
-    fontWeight: '700' as const,
-    letterSpacing: 0.2,
-  },
-  graceWindowRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginBottom: 10,
-  },
-  graceWindowPip: {
-    width: 28,
-    height: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  graceWindowPipFill: {
-    position: 'absolute' as const,
-    left: 0,
-    top: 0,
-    bottom: 0,
-    right: 0,
-  },
-  graceWindowNote: {
-    fontSize: 13,
-    lineHeight: 20,
-    fontWeight: '500' as const,
-  },
-  nextMilestoneCard: {
-    borderRadius: 20,
-    padding: 22,
-    marginBottom: 28,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  nextMilestoneHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
-  },
-  nextMilestoneLabel: {
-    fontSize: 11,
-    fontWeight: '700' as const,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase' as const,
-  },
-  nextMilestoneDay: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    marginBottom: 12,
-    letterSpacing: -0.3,
-  },
-  nextMilestoneProgress: {
-    height: 5,
-    borderRadius: 3,
-    marginBottom: 10,
-    overflow: 'hidden',
-  },
-  nextMilestoneBar: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  nextMilestoneText: {
-    fontSize: 13,
-    fontWeight: '500' as const,
-  },
-  sectionTitle: {
-    fontSize: 22,
+    lineHeight: 40,
+    color: '#F4EDE0',
     marginBottom: 14,
-    letterSpacing: -0.3,
   },
-  weeksContainer: {
-    gap: 16,
-    marginBottom: 28,
+  rule: {
+    width: 44,
+    height: 1.5,
+    backgroundColor: '#C8894A',
+    opacity: 0.55,
+    marginBottom: 20,
   },
-  weekSection: {
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
+  grid: {
+    gap: 12,
   },
-  weekHeader: {
+  gridRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    gap: 12,
+  },
+  insCard: {
+    flex: 1,
+    backgroundColor: 'rgba(39,26,10,0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.13)',
+    borderRadius: 18,
+    padding: 20,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  insCardWide: {
+    backgroundColor: 'rgba(39,26,10,0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.13)',
+    borderRadius: 18,
+    padding: 20,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  insLbl: {
+    fontSize: 8,
+    letterSpacing: 2.5,
+    textTransform: 'uppercase' as const,
+    color: 'rgba(200,137,74,0.6)',
     marginBottom: 10,
   },
-  weekLabel: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    letterSpacing: -0.2,
+  insBig: {
+    fontSize: 46,
+    letterSpacing: -1,
+    lineHeight: 50,
+    color: '#F4EDE0',
   },
-  weekSubtitle: {
-    fontSize: 12,
-    fontWeight: '500' as const,
-    marginTop: 1,
-  },
-  weekCountWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  weekCount: {
+  insUnit: {
     fontSize: 13,
-    fontWeight: '700' as const,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  weekProgressTrack: {
-    height: 3,
-    borderRadius: 2,
-    marginBottom: 12,
-    overflow: 'hidden',
-  },
-  weekProgressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  daysGrid: {
-    flexDirection: 'row',
-    gap: 7,
-    flexWrap: 'wrap',
-  },
-  dayCell: {
-    width: 38,
-    height: 38,
-    borderRadius: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 5,
-    elevation: 1,
-  },
-  dayCellText: {
-    fontSize: 12,
-    fontWeight: '600' as const,
-  },
-  milestonesContainer: {
-    marginBottom: 24,
-  },
-  milestoneRow: {
-    flexDirection: 'row',
-    gap: 14,
-    paddingBottom: 20,
-  },
-  milestoneLeft: {
-    alignItems: 'center',
-    width: 28,
-  },
-  milestoneBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-  },
-  milestoneBadgeText: {
-    fontSize: 10,
-    fontWeight: '700' as const,
-  },
-  milestoneConnector: {
-    width: 2,
-    flex: 1,
+    color: 'rgba(244,237,224,0.55)',
     marginTop: 4,
   },
-  milestoneContent: {
-    flex: 1,
-    gap: 3,
-    paddingTop: 2,
-  },
-  milestoneTitle: {
-    fontSize: 14,
-    fontWeight: '700' as const,
-  },
-  milestoneMessage: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  graceNote: {
-    borderRadius: 22,
-    padding: 24,
+  barRow: {
     flexDirection: 'row',
-    gap: 14,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
+    alignItems: 'center',
+    gap: 9,
+    marginBottom: 9,
   },
-  graceNoteAccent: {
-    width: 3,
-    borderRadius: 2,
+  barLbl: {
+    fontSize: 9,
+    letterSpacing: 0.5,
+    color: 'rgba(244,237,224,0.55)',
+    width: 46,
   },
-  graceNoteText: {
-    fontSize: 14,
-    lineHeight: 24,
+  barTrack: {
     flex: 1,
-    fontWeight: '500' as const,
-    fontStyle: 'italic' as const,
-    letterSpacing: 0.1,
+    height: 3,
+    backgroundColor: 'rgba(200,137,74,0.09)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  barFill: {
+    height: '100%',
+    borderRadius: 2,
+    backgroundColor: '#C8894A',
+  },
+  barVal: {
+    fontSize: 9,
+    color: 'rgba(200,137,74,0.7)',
+    width: 22,
+    textAlign: 'right' as const,
+  },
+  insightBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(200,137,74,0.07)',
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.18)',
+    borderRadius: 14,
+    padding: 12,
+    marginTop: 14,
+  },
+  insightIcon: {
+    fontSize: 16,
+  },
+  insightText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 22,
+    color: 'rgba(244,237,224,0.55)',
+  },
+  pipWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    marginTop: 4,
+  },
+  pip: {
+    width: 20,
+    height: 20,
+    borderRadius: 5,
+    backgroundColor: 'rgba(200,137,74,0.07)',
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.12)',
+  },
+  pipDone: {
+    backgroundColor: 'rgba(200,137,74,0.22)',
+    borderColor: 'rgba(200,137,74,0.38)',
+  },
+  wordChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 7,
+    marginTop: 4,
+  },
+  wordChip: {
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.2)',
+    borderRadius: 100,
+  },
+  wordChipText: {
+    fontSize: 13,
+    color: '#E0A868',
+  },
+  reflectionItem: {
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(200,137,74,0.08)',
+  },
+  reflectionWeek: {
+    fontSize: 9,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+    color: '#C8894A',
+    marginBottom: 6,
+  },
+  reflectionAns: {
+    fontSize: 15,
+    lineHeight: 26,
+    color: 'rgba(244,237,224,0.55)',
   },
 });

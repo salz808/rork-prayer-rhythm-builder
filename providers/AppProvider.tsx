@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Platform } from 'react-native';
-import { AppState, UserProfile, DayProgress, Soundscape, FontSize } from '@/types';
+import { AppState, UserProfile, DayProgress, Soundscape, FontSize, WeeklyReflection } from '@/types';
 
 const STORAGE_KEY = 'amen_app_state';
 
@@ -20,6 +20,8 @@ const defaultState: AppState = {
   fontSize: 'normal',
   lastOpenedDate: null,
   openStreakCount: 0,
+  reflections: [],
+  phaseTimings: {},
 };
 
 function getDateString(date: Date = new Date()): string {
@@ -122,6 +124,8 @@ export const [AppProvider, useApp] = createContextHook(() => {
         return {
           ...defaultState,
           ...parsed,
+          reflections: parsed.reflections ?? [],
+          phaseTimings: parsed.phaseTimings ?? {},
           streakCount: streak,
         };
       }
@@ -153,19 +157,11 @@ export const [AppProvider, useApp] = createContextHook(() => {
 
     const dayDiff = state.lastOpenedDate ? getDayDifference(state.lastOpenedDate, today) : 1;
     const nextOpenStreakCount = dayDiff === 1 ? state.openStreakCount + 1 : 1;
-    const shouldResetJourney = dayDiff > 1;
 
     const nextState: AppState = {
       ...state,
       lastOpenedDate: today,
       openStreakCount: nextOpenStreakCount,
-      ...(shouldResetJourney ? {
-        currentDay: 1,
-        progress: [],
-        streakCount: 0,
-        lastCompletedDate: null,
-        journeyComplete: false,
-      } : {}),
     };
 
     console.log('[AppProvider] Daily open check-in complete', {
@@ -173,7 +169,6 @@ export const [AppProvider, useApp] = createContextHook(() => {
       previousOpenDate: state.lastOpenedDate,
       dayDiff,
       nextOpenStreakCount,
-      shouldResetJourney,
     });
 
     setState(nextState);
@@ -279,6 +274,18 @@ export const [AppProvider, useApp] = createContextHook(() => {
     updateState({ fontSize });
   }, [updateState]);
 
+  const saveReflection = useCallback((reflection: WeeklyReflection) => {
+    const updated = [...state.reflections, reflection];
+    updateState({ reflections: updated });
+    console.log('[AppProvider] Saved weekly reflection for week', reflection.week);
+  }, [state.reflections, updateState]);
+
+  const updatePhaseTimings = useCallback((phase: string, seconds: number) => {
+    const current = state.phaseTimings[phase] ?? 0;
+    const updated = { ...state.phaseTimings, [phase]: current + seconds };
+    updateState({ phaseTimings: updated });
+  }, [state.phaseTimings, updateState]);
+
   return useMemo(() => ({
     state,
     isLoading: stateQuery.isLoading,
@@ -293,6 +300,8 @@ export const [AppProvider, useApp] = createContextHook(() => {
     setSoundscape,
     toggleDarkMode,
     setFontSize,
+    saveReflection,
+    updatePhaseTimings,
   }), [
     state,
     stateQuery.isLoading,
@@ -307,5 +316,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     setSoundscape,
     toggleDarkMode,
     setFontSize,
+    saveReflection,
+    updatePhaseTimings,
   ]);
 });

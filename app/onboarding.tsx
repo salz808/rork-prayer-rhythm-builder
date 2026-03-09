@@ -123,11 +123,13 @@ export default function OnboardingScreen() {
     } else if (step === 'reminder') {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const prayerLife = BLOCKER_TO_PRAYER[selectedBlocker ?? ''] ?? 'new';
+      const blockerIdx = selectedBlocker ? BLOCKER_OPTIONS.indexOf(selectedBlocker) : -1;
       completeOnboarding({
         firstName: firstName.trim(),
         prayerLife,
         reminderTime,
         onboardingComplete: true,
+        blocker: blockerIdx,
       });
       void scheduleReminderNotification(reminderTime);
       router.replace('/');
@@ -337,27 +339,21 @@ export default function OnboardingScreen() {
 
                     {step === 'promise' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>THAT FEELING IS A LIE.</Text>
+                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>YOUR INHERITANCE</Text>
                         <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>
-                          The distance{'\n'}isn't real.
+                          Not a program.{'\n'}A <Text style={{ color: C.accentDark, fontFamily: Fonts.italicSemiBold }}>journey into wholeness.</Text>
                         </Text>
+                        <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
                         <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.serifRegular }]}>
-                          The distance you feel is not the truth about where God is. He hasn't moved.{' '}
+                          Thirty days from now, you will pray without a script. You'll know your voice with God, and His voice in return.{'\n\n'}You weren't meant to live stuck in prayerless silence.{' '}
                           <Text style={{ color: C.text, fontFamily: Fonts.serifSemiBold }}>
-                            And the fact that you're here, uncertain, maybe ashamed, opening an app about prayer, is itself a movement toward Him.
+                            Freedom is possible. A deeper relationship with God is possible.
                           </Text>
-                          {' '}He doesn't meet cleaned-up people. He meets people in the middle of the mess. That's the whole story of the Gospel.{' '}
+                          {'\n\n'}You are not too far gone. Not too ordinary. Not starting too late.{' '}
                           <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium }}>
                             You are exactly the kind of person this was made for.
                           </Text>
                         </Text>
-
-                        <View style={[styles.scriptureCard, { borderLeftColor: C.accent, backgroundColor: C.accentBg }]}>
-                          <Text style={[styles.scriptureRef, { color: C.accent, fontFamily: Fonts.titleMedium }]}>ROMANS 8:38-39</Text>
-                          <Text style={[styles.scriptureText, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
-                            "Nothing in all creation will be able to separate us from the love of God."
-                          </Text>
-                        </View>
                       </View>
                     )}
 

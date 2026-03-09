@@ -3,6 +3,7 @@ export interface UserProfile {
   prayerLife: 'new' | 'inconsistent' | 'growing';
   reminderTime: string;
   onboardingComplete: boolean;
+  blocker?: number;
 }
 
 export interface DayProgress {
@@ -14,6 +15,14 @@ export interface DayProgress {
 
 export type Soundscape = 'piano' | 'rain' | 'nature' | 'silence';
 export type FontSize = 'normal' | 'large';
+
+export interface WeeklyReflection {
+  week: number;
+  q1: string;
+  q2: string;
+  q3: string;
+  date: string;
+}
 
 export interface AppState {
   user: UserProfile | null;
@@ -28,6 +37,8 @@ export interface AppState {
   fontSize: FontSize;
   lastOpenedDate: string | null;
   openStreakCount: number;
+  reflections: WeeklyReflection[];
+  phaseTimings: Record<string, number>;
 }
 
 export interface TriadItem {
@@ -51,6 +62,31 @@ export interface DayContent {
   triad: TriadItem[];
   silence: SilenceSection;
   act: string;
+  identity?: string;
+  verse?: string;
+}
+
+export interface HtmlDayData {
+  title: string;
+  subtitle: string;
+  phase: string;
+  settle: string;
+  focus: string;
+  thank: string | null;
+  thankPrompt?: string | null;
+  repent: string | null;
+  repentPrompt?: string | null;
+  invite: string | null;
+  invitePrompt?: string | null;
+  ask: string | null;
+  askPrompt?: string | null;
+  declare: string | null;
+  declarePrompt?: string | null;
+  silence: number;
+  silenceTxt: string;
+  act: string;
+  identity: string;
+  verse: string;
 }
 
 export type PrayerLifeOption = {

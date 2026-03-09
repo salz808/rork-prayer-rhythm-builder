@@ -25,10 +25,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import AnimatedPressable from '@/components/AnimatedPressable';
 import SettingsSheet from '@/components/SettingsSheet';
+import ReflectionModal from '@/components/ReflectionModal';
 import { Fonts } from '@/constants/fonts';
 import { getDayContent, getPhaseLabel } from '@/mocks/content';
 import { getDailyEncouragement } from '@/mocks/encouragements';
 import { useApp } from '@/providers/AppProvider';
+import { WeeklyReflection } from '@/types';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -56,9 +58,12 @@ export default function HomeScreen() {
     graceWindowRemaining,
     resetJourney,
     continueDaily,
+    saveReflection,
   } = useApp();
   const isLargeFont = state.fontSize === 'large';
   const [settingsVisible, setSettingsVisible] = useState<boolean>(false);
+  const [reflectionVisible, setReflectionVisible] = useState<boolean>(false);
+  const [reflectionWeek, _setReflectionWeek] = useState<number>(1);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateAnim = useRef(new Animated.Value(30)).current;
@@ -276,15 +281,11 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.wordmarkSection}>
-              <Text style={[styles.wordmark, { fontFamily: Fonts.titleLight }]}>AMEN</Text>
-              <Text style={[styles.wordmarkSub, { fontFamily: Fonts.titleLight }]}>
-                A 30-day journey to wholeness
-              </Text>
-            </View>
-
             <View style={styles.greetingSection}>
-              <Text style={[styles.greetingName, { fontFamily: Fonts.serifLight }, isLargeFont && { fontSize: 46, lineHeight: 52 }]}>
+              <Text style={[styles.greetingLabel, { fontFamily: Fonts.titleLight }]}>
+                {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'}
+              </Text>
+              <Text style={[styles.greetingName, { fontFamily: Fonts.serifRegular }, isLargeFont && { fontSize: 46, lineHeight: 52 }]}>
                 {greetingName}
               </Text>
               <Text style={[styles.greetingSub, { fontFamily: Fonts.italic }, isLargeFont && { fontSize: 18 }]}>
@@ -512,6 +513,14 @@ export default function HomeScreen() {
       </SafeAreaView>
 
       <SettingsSheet visible={settingsVisible} onClose={() => setSettingsVisible(false)} />
+      <ReflectionModal
+        visible={reflectionVisible}
+        week={reflectionWeek}
+        onSave={(reflection: WeeklyReflection) => {
+          saveReflection(reflection);
+        }}
+        onClose={() => setReflectionVisible(false)}
+      />
     </View>
   );
 }
@@ -621,6 +630,13 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     color: 'rgba(216,203,184,0.35)',
     textTransform: 'uppercase' as const,
+  },
+  greetingLabel: {
+    fontSize: 11,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
+    color: '#C89A5A',
+    marginBottom: 6,
   },
   greetingSection: {
     marginBottom: 24,
