@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { AppState, UserProfile, DayProgress, Soundscape, FontSize, WeeklyReflection } from '@/types';
+import { DEFAULT_SOUNDSCAPE, isSoundscape } from '@/constants/soundscapes';
 
 const STORAGE_KEY = 'amen_app_state';
 
@@ -15,7 +16,7 @@ const defaultState: AppState = {
   lastCompletedDate: null,
   journeyComplete: false,
   ambientMuted: false,
-  soundscape: 'piano',
+  soundscape: DEFAULT_SOUNDSCAPE,
   darkMode: true,
   fontSize: 'normal',
   lastOpenedDate: null,
@@ -120,10 +121,21 @@ export const [AppProvider, useApp] = createContextHook(() => {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as AppState;
+        const parsedRecord = parsed as unknown as Record<string, unknown>;
+        const rawSoundscape = parsedRecord.soundscape;
         const streak = calculateStreak(parsed.progress, parsed.lastCompletedDate);
+        const normalizedSoundscape = isSoundscape(rawSoundscape)
+          ? rawSoundscape
+          : DEFAULT_SOUNDSCAPE;
+        const normalizedAmbientMuted = rawSoundscape === 'silence'
+          ? true
+          : (parsed.ambientMuted ?? defaultState.ambientMuted);
+
         return {
           ...defaultState,
           ...parsed,
+          ambientMuted: normalizedAmbientMuted,
+          soundscape: normalizedSoundscape,
           reflections: parsed.reflections ?? [],
           phaseTimings: parsed.phaseTimings ?? {},
           streakCount: streak,

@@ -65,7 +65,7 @@ export default function HomeScreen() {
   const isLargeFont = state.fontSize === 'large';
   const [settingsVisible, setSettingsVisible] = useState<boolean>(false);
   const [reflectionVisible, setReflectionVisible] = useState<boolean>(false);
-  const [reflectionWeek, _setReflectionWeek] = useState<number>(1);
+  const reflectionWeek = 1;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateAnim = useRef(new Animated.Value(30)).current;
@@ -205,16 +205,27 @@ export default function HomeScreen() {
   return (
     <View style={styles.root}>
       <LinearGradient
-        colors={['#0D0804', '#1A1006', '#0D0804']}
+        colors={['#090603', '#120A05', '#1A1006', '#090603']}
         style={StyleSheet.absoluteFill}
+      />
+      <LinearGradient
+        colors={['rgba(228,167,103,0.06)', 'rgba(160,100,48,0.02)', 'rgba(11,7,4,0.12)', 'rgba(4,3,2,0.72)']}
+        locations={[0, 0.24, 0.62, 1]}
+        style={styles.ambientVeil}
       />
 
       <Animated.View style={[styles.ambientWrap, { opacity: glowPulse }]} pointerEvents="none">
         <View style={styles.ambientTopGlow}>
-          <RadialGlow size={400} maxOpacity={0.09} />
+          <RadialGlow size={560} maxOpacity={0.18} style={styles.ambientEllipse} />
         </View>
-        <View style={styles.ambientBottomGlow}>
-          <RadialGlow size={300} maxOpacity={0.05} />
+        <View style={styles.ambientTopGlowWide}>
+          <RadialGlow size={700} maxOpacity={0.12} style={styles.ambientWideEllipse} />
+        </View>
+        <View style={styles.ambientSideGlow}>
+          <RadialGlow size={360} r={222} g={152} b={92} maxOpacity={0.12} />
+        </View>
+        <View style={styles.ambientLowerGlow}>
+          <RadialGlow size={340} r={176} g={117} b={71} maxOpacity={0.08} />
         </View>
       </Animated.View>
 
@@ -262,6 +273,9 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.greetingSection}>
+              <View style={styles.greetingGlow} pointerEvents="none">
+                <RadialGlow size={300} r={223} g={161} b={97} maxOpacity={0.11} style={styles.greetingGlowShape} />
+              </View>
               <Text style={[styles.greetingLabel, { fontFamily: Fonts.titleLight }]}>
                 {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'}
               </Text>
@@ -348,6 +362,12 @@ export default function HomeScreen() {
                 end={{ x: 0.9, y: 1 }}
                 style={styles.todayCardInner}
               >
+                <View style={styles.todayCardGlow} pointerEvents="none">
+                  <RadialGlow size={240} r={228} g={165} b={103} maxOpacity={0.14} />
+                </View>
+                <View style={styles.todayCardGlowSecondary} pointerEvents="none">
+                  <RadialGlow size={180} r={160} g={100} b={48} maxOpacity={0.08} />
+                </View>
                 <LinearGradient
                   colors={['transparent', 'rgba(200,137,74,0.25)', 'transparent']}
                   start={{ x: 0, y: 0 }}
@@ -544,21 +564,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#0D0804',
   },
+  ambientVeil: {
+    ...StyleSheet.absoluteFillObject,
+  },
   ambientWrap: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 0,
   },
   ambientTopGlow: {
     position: 'absolute',
-    top: -80,
+    top: -164,
     left: '50%' as unknown as number,
-    marginLeft: -200,
+    marginLeft: -280,
   },
-  ambientBottomGlow: {
+  ambientTopGlowWide: {
     position: 'absolute',
-    bottom: -60,
+    top: -208,
     left: '50%' as unknown as number,
-    marginLeft: -150,
+    marginLeft: -350,
+    opacity: 0.92,
+  },
+  ambientEllipse: {
+    transform: [{ scaleY: 0.58 }],
+  },
+  ambientWideEllipse: {
+    transform: [{ scaleY: 0.42 }],
+  },
+  ambientSideGlow: {
+    position: 'absolute',
+    top: 144,
+    right: -128,
+    opacity: 0.78,
+  },
+  ambientLowerGlow: {
+    position: 'absolute',
+    bottom: 160,
+    left: -118,
+    opacity: 0.62,
   },
 
   topBar: {
@@ -630,7 +672,17 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   greetingSection: {
+    position: 'relative',
     marginBottom: 24,
+  },
+  greetingGlow: {
+    position: 'absolute',
+    top: -88,
+    left: -84,
+    opacity: 0.72,
+  },
+  greetingGlowShape: {
+    transform: [{ scaleY: 0.62 }, { rotate: '-10deg' }],
   },
   greetingName: {
     fontSize: 40,
@@ -727,6 +779,18 @@ const styles = StyleSheet.create({
     padding: 28,
     paddingHorizontal: 26,
     position: 'relative',
+  },
+  todayCardGlow: {
+    position: 'absolute',
+    top: -72,
+    right: -28,
+    opacity: 0.74,
+  },
+  todayCardGlowSecondary: {
+    position: 'absolute',
+    bottom: -82,
+    left: -36,
+    opacity: 0.4,
   },
   todayCardAccentLine: {
     position: 'absolute',

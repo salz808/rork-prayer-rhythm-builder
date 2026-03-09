@@ -383,7 +383,7 @@ export default function OnboardingScreen() {
                           />
                         </View>
                         <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
-                          Thirty days from now, you will pray without a script. You'll know your voice with God, and His voice in return.{'\n\n'}You weren't meant to live stuck in prayerless silence.{' '}
+                          Thirty days from now, you will pray without a script. You&apos;ll know your voice with God, and His voice in return.{'\n\n'}You weren&apos;t meant to live stuck in prayerless silence.{' '}
                           <Text style={{ color: '#F4EDE0', fontFamily: Fonts.serifSemiBold }}>
                             Freedom is possible. A deeper relationship with God is possible.
                           </Text>

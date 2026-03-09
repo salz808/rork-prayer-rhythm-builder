@@ -55,7 +55,7 @@ export default function JournalScreen() {
               <Text style={styles.emptyIcon}>📖</Text>
               <Text style={[styles.emptyTitle, { fontFamily: Fonts.serifRegular }]}>Nothing written yet.</Text>
               <Text style={[styles.emptySub, { fontFamily: Fonts.italic }]}>
-                Complete a week of prayer and you'll be prompted with three questions. Your answers live here.
+                Complete a week of prayer and you&apos;ll be prompted with three questions. Your answers live here.
               </Text>
             </Animated.View>
           ) : (

@@ -13,7 +13,7 @@ export interface DayProgress {
   duration: number;
 }
 
-export type Soundscape = 'piano' | 'rain' | 'nature' | 'silence';
+export type Soundscape = 'throughTheDoor' | 'firstLight' | 'reunion';
 export type FontSize = 'normal' | 'large';
 
 export interface WeeklyReflection {

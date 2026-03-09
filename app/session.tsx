@@ -17,19 +17,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/providers/AppProvider';
 import { getHtmlDay, getPhaseLabel, BLOCKER_OPENERS, milestones } from '@/mocks/content';
 import { HtmlDayData } from '@/types';
+import { SOUNDSCAPE_MAP } from '@/constants/soundscapes';
 import AnimatedPressable from '@/components/AnimatedPressable';
 import CelebrationParticles from '@/components/CelebrationParticles';
 import RadialGlow from '@/components/RadialGlow';
 import { Fonts } from '@/constants/fonts';
 
 
-
-const SOUNDSCAPE_URLS: Record<string, string | null> = {
-  piano: 'https://cdn.pixabay.com/audio/2024/11/04/audio_4956b4eff1.mp3',
-  rain: 'https://cdn.pixabay.com/audio/2022/05/17/audio_1808fbf07a.mp3',
-  nature: 'https://cdn.pixabay.com/audio/2022/03/15/audio_5b5f64b1e0.mp3',
-  silence: null,
-};
 
 interface PhaseSection {
   id: string;
@@ -91,7 +85,8 @@ export default function SessionScreen() {
   const audioStartedRef = useRef(false);
   const fadeInIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const audioUrl = SOUNDSCAPE_URLS[state.soundscape] ?? null;
+  const currentSoundscape = SOUNDSCAPE_MAP[state.soundscape];
+  const audioUrl = currentSoundscape?.uri ?? null;
 
   useEffect(() => {
     Animated.parallel([
@@ -117,7 +112,7 @@ export default function SessionScreen() {
         if (!mounted) { await sound.unloadAsync(); return; }
         soundRef.current = sound;
         console.log('[Session] Audio loaded');
-        if (!state.ambientMuted && state.soundscape !== 'silence') {
+        if (!state.ambientMuted) {
           audioStartedRef.current = true;
           await sound.setVolumeAsync(0);
           await sound.playAsync();
@@ -321,7 +316,7 @@ export default function SessionScreen() {
               <Text style={[styles.backText, { fontFamily: Fonts.titleLight }]}>Back</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleToggleMute} style={styles.muteBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-              {state.ambientMuted || state.soundscape === 'silence' ? (
+              {state.ambientMuted ? (
                 <VolumeX size={16} color="rgba(200,137,74,0.4)" />
               ) : (
                 <Volume2 size={16} color="#C89A5A" />
@@ -336,6 +331,9 @@ export default function SessionScreen() {
               </Text>
               <Text style={[styles.prTitle, { fontFamily: Fonts.serifLight }]}>{dayData.title}</Text>
               <Text style={[styles.prSub, { fontFamily: Fonts.italic }]}>Spirit · Soul · Body</Text>
+              <Text style={[styles.prSoundscape, { fontFamily: Fonts.titleLight }]}>
+                {'Sound · ' + currentSoundscape.label}
+              </Text>
             </Animated.View>
 
             <Animated.View style={[styles.phasesContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
@@ -365,7 +363,7 @@ export default function SessionScreen() {
                   </View>
                   <View style={styles.phaseHdrText}>
                     <Text style={[styles.phaseName, { fontFamily: Fonts.titleSemiBold }]}>FOCUS</Text>
-                    <Text style={[styles.phaseSub, { fontFamily: Fonts.italic }]}>Today's truth</Text>
+                    <Text style={[styles.phaseSub, { fontFamily: Fonts.italic }]}>Today&apos;s truth</Text>
                   </View>
                   <ChevronDown
                     size={14}
@@ -440,7 +438,7 @@ export default function SessionScreen() {
                 <View style={styles.timerCard}>
                   <Text style={[styles.timerLbl, { fontFamily: Fonts.titleSemiBold }]}>SELAH</Text>
                   <Text style={[styles.timerEyebrow, { fontFamily: Fonts.italic }]}>
-                    You've spoken. Now be still and let Him respond.
+                    You&apos;ve spoken. Now be still and let Him respond.
                   </Text>
                   <View style={styles.timerRingWrap}>
                     <View style={styles.timerRing}>
@@ -578,6 +576,13 @@ const styles = StyleSheet.create({
   prSub: {
     fontSize: 15,
     color: 'rgba(244,237,224,0.55)',
+    marginBottom: 8,
+  },
+  prSoundscape: {
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+    color: 'rgba(200,137,74,0.68)',
     marginBottom: 24,
   },
   phasesContainer: {

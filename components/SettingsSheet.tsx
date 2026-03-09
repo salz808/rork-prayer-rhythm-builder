@@ -10,20 +10,20 @@ import {
   Switch,
   Platform,
 } from 'react-native';
-import { X, Music2, CloudRain, Leaf, VolumeX, Moon, Sun, AlignLeft, Heart } from 'lucide-react-native';
+import { X, Music2, Moon, Sun, AlignLeft, Heart } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/providers/AppProvider';
 import { useColors } from '@/hooks/useColors';
 import { useRouter } from 'expo-router';
 import { Fonts } from '@/constants/fonts';
 import { Soundscape } from '@/types';
+import { SOUNDSCAPE_OPTIONS } from '@/constants/soundscapes';
 
-const SOUNDSCAPES: { id: Soundscape; label: string; description: string; Icon: typeof Music2 }[] = [
-  { id: 'piano', label: 'Piano', description: 'Soft keys', Icon: Music2 },
-  { id: 'rain', label: 'Rain', description: 'Gentle rain', Icon: CloudRain },
-  { id: 'nature', label: 'Nature', description: 'Birds & wind', Icon: Leaf },
-  { id: 'silence', label: 'Silence', description: 'No sound', Icon: VolumeX },
-];
+const SOUNDSCAPE_ICONS: Record<Soundscape, typeof Music2> = {
+  throughTheDoor: Music2,
+  firstLight: Sun,
+  reunion: Heart,
+};
 
 interface SettingsSheetProps {
   visible: boolean;
@@ -125,10 +125,13 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
             </TouchableOpacity>
           </View>
 
-          <Text style={[styles.sectionLabel, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>SOUNDSCAPE</Text>
+          <Text style={[styles.sectionLabel, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>Music</Text>
+          <Text style={[styles.sectionSub, { color: C.textMuted, fontFamily: Fonts.italic }]}>Choose what plays during prayer.</Text>
           <View style={styles.soundscapeGrid}>
-            {SOUNDSCAPES.map(({ id, label, description, Icon }) => {
+            {SOUNDSCAPE_OPTIONS.map(({ id, label, description }) => {
               const isSelected = state.soundscape === id;
+              const Icon = SOUNDSCAPE_ICONS[id];
+
               return (
                 <TouchableOpacity
                   key={id}
@@ -151,12 +154,21 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
                   >
                     <Icon size={16} color={isSelected ? C.accentDark : C.textMuted} />
                   </View>
-                  <Text style={[styles.soundscapeLabel, { color: isSelected ? C.accentDark : C.text, fontFamily: Fonts.titleMedium }]}>
-                    {label}
-                  </Text>
-                  <Text style={[styles.soundscapeDesc, { color: isSelected ? C.accent : C.textMuted, fontFamily: Fonts.titleLight }]}>
-                    {description}
-                  </Text>
+
+                  <View style={styles.soundscapeTextWrap}>
+                    <Text style={[styles.soundscapeLabel, { color: isSelected ? C.accentDark : C.text, fontFamily: Fonts.titleMedium }]}> 
+                      {label}
+                    </Text>
+                    <Text style={[styles.soundscapeDesc, { color: isSelected ? C.accent : C.textMuted, fontFamily: Fonts.titleLight }]}> 
+                      {description}
+                    </Text>
+                  </View>
+
+                  {isSelected ? (
+                    <View style={[styles.soundscapeBadge, { backgroundColor: C.accentDark }]}>
+                      <Text style={[styles.soundscapeBadgeText, { fontFamily: Fonts.titleMedium }]}>Selected</Text>
+                    </View>
+                  ) : null}
                 </TouchableOpacity>
               );
             })}
@@ -164,7 +176,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
 
           <View style={[styles.divider, { backgroundColor: C.borderLight }]} />
 
-          <Text style={[styles.sectionLabel, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>DISPLAY</Text>
+          <Text style={[styles.sectionLabel, { color: C.textMuted, fontFamily: Fonts.titleBold }]}>Display</Text>
 
           <View style={[styles.toggleRow, { borderColor: C.borderLight }]}>
             <View style={styles.toggleLeft}>
@@ -289,20 +301,25 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700' as const,
     letterSpacing: 1.2,
-    marginBottom: 12,
+    marginBottom: 6,
     textTransform: 'uppercase' as const,
   },
+  sectionSub: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 12,
+  },
   soundscapeGrid: {
-    flexDirection: 'row',
     gap: 10,
     marginBottom: 20,
   },
   soundscapeCard: {
-    flex: 1,
     borderRadius: 18,
     padding: 14,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
+    gap: 12,
     borderWidth: 1.5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -317,15 +334,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  soundscapeTextWrap: {
+    flex: 1,
+  },
   soundscapeLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700' as const,
     letterSpacing: 0.2,
+    marginBottom: 2,
   },
   soundscapeDesc: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '500' as const,
-    textAlign: 'center' as const,
+  },
+  soundscapeBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  soundscapeBadgeText: {
+    fontSize: 9,
+    letterSpacing: 1,
+    textTransform: 'uppercase' as const,
+    color: '#FFFFFF',
   },
   divider: {
     height: 1,

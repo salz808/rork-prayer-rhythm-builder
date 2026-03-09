@@ -107,7 +107,7 @@ export default function InsightsScreen() {
                   <View style={styles.insightBar}>
                     <Text style={styles.insightIcon}>✨</Text>
                     <Text style={[styles.insightText, { fontFamily: Fonts.italic }]}>
-                      You spend the most time in <Text style={{ color: '#E0A868', fontFamily: Fonts.serifSemiBold }}>{topPhase}</Text> — that's where your heart is speaking.
+                      You spend the most time in <Text style={{ color: '#E0A868', fontFamily: Fonts.serifSemiBold }}>{topPhase}</Text> — that&apos;s where your heart is speaking.
                     </Text>
                   </View>
                 </>
