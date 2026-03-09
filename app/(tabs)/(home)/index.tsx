@@ -155,7 +155,7 @@ export default function HomeScreen() {
     return (
       <View style={styles.root}>
         <LinearGradient
-          colors={['#0A0705', '#1A120B', '#0D0906']}
+          colors={['#0D0804', '#1A1006', '#0D0804']}
           style={StyleSheet.absoluteFill}
         />
         <View style={styles.topGlowWrap}>
@@ -212,14 +212,14 @@ export default function HomeScreen() {
   return (
     <View style={styles.root}>
       <LinearGradient
-        colors={['#0A0705', '#1A120B', '#0D0906']}
+        colors={['#0D0804', '#1A1006', '#0D0804']}
         style={StyleSheet.absoluteFill}
       />
 
       <View style={styles.topGlowWrap}>
         <Animated.View style={{ opacity: glowPulse }}>
           <LinearGradient
-            colors={['rgba(180,116,53,0.30)', 'rgba(160,100,40,0.14)', 'rgba(140,80,30,0.04)', 'transparent']}
+            colors={['rgba(200,137,74,0.11)', 'rgba(200,137,74,0.05)', 'transparent']}
             style={styles.topGlow}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
@@ -330,7 +330,15 @@ export default function HomeScreen() {
                       }),
                     },
                   ]}
-                />
+                >
+                  <LinearGradient
+                    colors={['#9A6232', '#C8894A', '#E0A868']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={StyleSheet.absoluteFill}
+                  />
+                  <View style={styles.progressDot} />
+                </Animated.View>
               </View>
             </View>
           </Animated.View>
@@ -354,8 +362,19 @@ export default function HomeScreen() {
               scaleValue={0.97}
               testID="begin-today"
             >
-              <View style={styles.todayCardInner}>
-                <View style={styles.todayCardAccentLine} />
+              <LinearGradient
+                colors={['#2C1E0C', '#1C1208']}
+                start={{ x: 0.1, y: 0 }}
+                end={{ x: 0.9, y: 1 }}
+                style={styles.todayCardInner}
+              >
+                <LinearGradient
+                  colors={['transparent', 'rgba(200,137,74,0.45)', 'transparent']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.todayCardAccentLine}
+                />
+                <View style={styles.todayCardGlow} />
 
                 <Text style={[styles.todayCardDay, { fontFamily: Fonts.titleMedium }]}>
                   {'Day ' + state.currentDay + ' · ' + phaseLabel}
@@ -391,10 +410,10 @@ export default function HomeScreen() {
                     <Text style={[styles.todayCardCtaText, { fontFamily: Fonts.titleMedium }]}>
                       Begin today&apos;s prayer
                     </Text>
-                    <ChevronRight size={14} color="#C89A5A" />
+                    <ChevronRight size={14} color="#C8894A" />
                   </View>
                 )}
-              </View>
+              </LinearGradient>
             </AnimatedPressable>
           </Animated.View>
 
@@ -528,21 +547,21 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0A0705',
+    backgroundColor: '#0D0804',
   },
   safeArea: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 28,
+    paddingHorizontal: 32,
     paddingTop: 8,
-    paddingBottom: 40,
+    paddingBottom: 110,
   },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0A0705',
+    backgroundColor: '#0D0804',
   },
   topGlowWrap: {
     position: 'absolute',
@@ -635,35 +654,36 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
-    color: '#C89A5A',
+    color: '#C8894A',
     marginBottom: 6,
   },
   greetingSection: {
     marginBottom: 24,
   },
   greetingName: {
-    fontSize: 42,
-    lineHeight: 48,
+    fontSize: 40,
+    lineHeight: 44,
     letterSpacing: -0.5,
-    color: '#F5EFE7',
+    color: '#F4EDE0',
     marginBottom: 6,
   },
   greetingSub: {
-    fontSize: 15,
+    fontSize: 15.5,
     lineHeight: 24,
-    color: 'rgba(216,203,184,0.5)',
+    color: 'rgba(244,237,224,0.55)',
     letterSpacing: 0.2,
   },
   streakCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-    borderRadius: 14,
+    paddingHorizontal: 17,
+    paddingVertical: 14,
+    borderRadius: 15,
     borderWidth: 1,
-    borderColor: 'rgba(200,154,90,0.12)',
-    backgroundColor: 'rgba(200,154,90,0.05)',
+    borderColor: 'rgba(200,137,74,0.13)',
+    backgroundColor: 'rgba(200,137,74,0.07)',
+    marginTop: 22,
     marginBottom: 28,
   },
   streakCardEmoji: {
@@ -691,40 +711,49 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 2.5,
     textTransform: 'uppercase' as const,
-    color: 'rgba(200,154,90,0.5)',
+    color: '#C8894A',
   },
   progressDay: {
     fontSize: 11,
-    color: 'rgba(216,203,184,0.3)',
+    color: 'rgba(244,237,224,0.28)',
   },
   progressTrack: {
     height: 2,
     borderRadius: 2,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(200,154,90,0.1)',
+    backgroundColor: 'rgba(200,137,74,0.1)',
+    position: 'relative',
   },
   progressFill: {
     height: '100%',
     borderRadius: 2,
-    backgroundColor: '#C89A5A',
+    backgroundColor: '#C8894A',
+  },
+  progressDot: {
+    position: 'absolute',
+    right: -4,
+    top: -3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E0A868',
   },
   sectionEyebrow: {
     fontSize: 9,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
     marginBottom: 14,
-    color: 'rgba(200,154,90,0.4)',
+    color: 'rgba(200,137,74,0.55)',
   },
   todayCard: {
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: 'rgba(200,154,90,0.12)',
+    borderColor: 'rgba(200,137,74,0.13)',
     overflow: 'hidden',
     marginBottom: 28,
-    backgroundColor: 'rgba(26,18,11,0.8)',
   },
   todayCardInner: {
-    padding: 24,
+    padding: 28,
+    paddingHorizontal: 26,
     position: 'relative',
   },
   todayCardAccentLine: {
@@ -733,32 +762,40 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: 'rgba(200,154,90,0.2)',
+  },
+  todayCardGlow: {
+    position: 'absolute',
+    bottom: -50,
+    right: -50,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(200,137,74,0.06)',
   },
   todayCardDay: {
     fontSize: 9,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
-    marginBottom: 12,
-    color: '#C89A5A',
+    marginBottom: 10,
+    color: '#C8894A',
   },
   todayCardTitle: {
     fontSize: 30,
-    lineHeight: 36,
-    letterSpacing: -0.5,
+    lineHeight: 34,
+    letterSpacing: -0.3,
     marginBottom: 10,
-    color: '#F5EFE7',
+    color: '#F4EDE0',
   },
   todayCardDesc: {
     fontSize: 15,
     lineHeight: 26,
     marginBottom: 18,
-    color: 'rgba(216,203,184,0.5)',
+    color: 'rgba(244,237,224,0.55)',
   },
   todayCardRule: {
     height: 1,
-    marginVertical: 14,
-    backgroundColor: 'rgba(200,154,90,0.08)',
+    marginVertical: 16,
+    backgroundColor: 'rgba(200,137,74,0.1)',
   },
   triadPills: {
     flexDirection: 'row',
@@ -770,13 +807,14 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 100,
     borderWidth: 1,
-    borderColor: 'rgba(200,154,90,0.15)',
+    borderColor: 'rgba(200,137,74,0.2)',
   },
   triadPillText: {
     fontSize: 8,
     letterSpacing: 1.2,
     textTransform: 'uppercase' as const,
-    color: 'rgba(200,154,90,0.5)',
+    color: '#C8894A',
+    opacity: 0.65,
   },
   todayCardCta: {
     flexDirection: 'row',
@@ -787,7 +825,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 2,
     textTransform: 'uppercase' as const,
-    color: '#C89A5A',
+    color: 'rgba(200,137,74,0.68)',
   },
   completedBadge: {
     width: 22,

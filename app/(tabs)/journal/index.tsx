@@ -30,7 +30,7 @@ export default function JournalScreen() {
 
   return (
     <View style={styles.root}>
-      <LinearGradient colors={['#0A0705', '#1A120B', '#0D0906']} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
       <View style={styles.topGlowWrap}>
         <LinearGradient
           colors={['rgba(200,137,74,0.08)', 'transparent']}
@@ -104,7 +104,7 @@ export default function JournalScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0A0705',
+    backgroundColor: '#0D0804',
   },
   safeArea: {
     flex: 1,
@@ -123,9 +123,9 @@ const styles = StyleSheet.create({
     borderRadius: 160,
   },
   scroll: {
-    paddingHorizontal: 28,
+    paddingHorizontal: 32,
     paddingTop: 16,
-    paddingBottom: 40,
+    paddingBottom: 120,
   },
   eyebrow: {
     fontSize: 9,
@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     lineHeight: 40,
     color: '#F4EDE0',
+    marginTop: 10,
     marginBottom: 14,
   },
   rule: {
@@ -177,13 +178,13 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   entry: {
-    backgroundColor: 'rgba(39,26,10,0.6)',
     borderWidth: 1,
     borderColor: 'rgba(200,137,74,0.13)',
     borderRadius: 20,
     padding: 22,
     position: 'relative',
     overflow: 'hidden',
+    backgroundColor: '#1A1006',
   },
   entryTopLine: {
     position: 'absolute',

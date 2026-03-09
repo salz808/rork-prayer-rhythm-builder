@@ -8,15 +8,17 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Check, RefreshCw, ArrowRight, Heart, Globe, Sprout } from 'lucide-react-native';
+import { RefreshCw } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useColors } from '@/hooks/useColors';
 import { Fonts } from '@/constants/fonts';
 import AnimatedPressable from '@/components/AnimatedPressable';
+
+const { width: SCREEN_W } = Dimensions.get('window');
 
 type PurchasesPackage = {
   identifier: string;
@@ -43,21 +45,20 @@ const Purchases = getPurchases();
 
 interface TierInfo {
   id: string;
-  icon: typeof Heart;
+  emoji: string;
   title: string;
   badge?: string;
+  badgeStyle?: 'amber' | 'moss';
   check: string;
   price: string;
   period: string;
   desc: string;
-  gradient: [string, string];
-  iconBg: string;
+  btnStyle: 'outline' | 'amber' | 'moss';
+  featured?: boolean;
   pkg?: PurchasesPackage;
 }
 
 export default function GiveScreen() {
-  const C = useColors();
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const glowPulse = useRef(new Animated.Value(0.3)).current;
@@ -130,40 +131,40 @@ export default function GiveScreen() {
   const tiers: TierInfo[] = [
     {
       id: 'free',
-      icon: Heart,
+      emoji: '🤍',
       title: 'Support Development',
       check: 'Keep the app free for all',
       price: '$0.99',
       period: '/mo',
       desc: 'Help us keep building and improving this app for everyone who needs it.',
-      gradient: ['#C8894A', '#A06228'],
-      iconBg: 'rgba(200,137,74,0.15)',
+      btnStyle: 'outline',
       pkg: packages[0],
     },
     {
       id: 'missions',
-      icon: Globe,
+      emoji: '🌍',
       title: 'Share the Gospel',
       badge: 'MISSIONS',
+      badgeStyle: 'amber',
       check: 'Fund global missions',
       price: '$9.99',
       period: '/mo',
       desc: '100% goes toward missions around the world to share the Gospel of Jesus Christ.',
-      gradient: ['#D49550', '#A86B2A'],
-      iconBg: 'rgba(212,149,80,0.18)',
+      btnStyle: 'amber',
+      featured: true,
       pkg: packages[1],
     },
     {
       id: 'partner',
-      icon: Sprout,
+      emoji: '🌱',
       title: 'Kingdom Partner',
       badge: 'PARTNER',
+      badgeStyle: 'moss',
       check: 'Development + missions combined',
       price: '$24.99',
       period: '/mo',
       desc: 'Split between keeping the app free and funding missions. For those who want to do both.',
-      gradient: ['#C8894A', '#8E5522'],
-      iconBg: 'rgba(200,137,74,0.15)',
+      btnStyle: 'moss',
       pkg: packages[2],
     },
   ];
@@ -178,114 +179,145 @@ export default function GiveScreen() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: C.background }]}>
-      <Animated.View style={[styles.glowTop, { opacity: glowPulse, backgroundColor: C.accent }]} />
-      <Animated.View style={[styles.glowBottom, { opacity: Animated.multiply(glowPulse, 0.5), backgroundColor: C.accent }]} />
+    <View style={styles.root}>
+      <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
+      <View style={styles.topGlowWrap}>
+        <Animated.View style={{ opacity: glowPulse }}>
+          <LinearGradient
+            colors={['rgba(200,137,74,0.09)', 'transparent']}
+            style={styles.topGlow}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+          />
+        </Animated.View>
+      </View>
 
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-            <View style={styles.headerSection}>
-              <View style={[styles.headerIconWrap, { backgroundColor: C.accentBg }]}>
-                <Heart size={20} color={C.accent} fill={C.accent} />
-              </View>
-              <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>
-                SUPPORT THIS CAUSE
+          <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+            <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>SUPPORT THIS CAUSE</Text>
+            <Text style={[styles.title, { fontFamily: Fonts.serifLight }]}>
+              This app is free.{'\n'}
+              <Text style={{ color: '#E0A868', fontFamily: Fonts.italicMedium }}>Always will be.</Text>
+            </Text>
+            <View style={styles.rule} />
+
+            <Text style={[styles.mission, { fontFamily: Fonts.italic }]}>
+              Your support keeps it alive and helps{' '}
+              <Text style={{ color: '#F4EDE0', fontWeight: '500' as const }}>
+                share the Gospel of Jesus Christ with the world.
               </Text>
-              <Text style={[styles.title, { color: C.text, fontFamily: Fonts.serifLight }]}>
-                This app is free.{'\n'}
-                <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium, fontSize: 32 }}>
-                  Always will be.
-                </Text>
-              </Text>
-              <View style={[styles.titleRule, { backgroundColor: C.accent }]} />
-              <Text style={[styles.mission, { color: C.textSecondary, fontFamily: Fonts.italic, fontSize: 18 }]}>
-                Your support keeps it alive and helps{' '}
-                <Text style={{ color: C.text }}>
-                  share the Gospel of Jesus Christ with the world.
-                </Text>
-              </Text>
-            </View>
+            </Text>
 
             {offeringsQuery.isLoading ? (
-              <ActivityIndicator color={C.accent} style={{ marginVertical: 40 }} />
+              <ActivityIndicator color="#C8894A" style={{ marginVertical: 40 }} />
             ) : (
               <View style={styles.tiersContainer}>
-                {tiers.map((tier, idx) => {
-                  const Icon = tier.icon;
-                  return (
-                    <AnimatedPressable
-                      key={tier.id}
-                      style={[styles.tierCard, { borderColor: C.border }]}
-                      onPress={() => handlePurchase(tier)}
-                      scaleValue={0.97}
-                      testID={`give-${tier.id}`}
+                {tiers.map((tier) => (
+                  <AnimatedPressable
+                    key={tier.id}
+                    style={[
+                      styles.tierCard,
+                      tier.featured && styles.tierCardFeatured,
+                    ]}
+                    onPress={() => handlePurchase(tier)}
+                    scaleValue={0.97}
+                    testID={`give-${tier.id}`}
+                  >
+                    <LinearGradient
+                      colors={tier.featured ? ['#2E1C08', '#1E1106'] : ['#271A0A', '#1A1006']}
+                      start={{ x: 0.1, y: 0 }}
+                      end={{ x: 0.9, y: 1 }}
+                      style={styles.tierCardInner}
                     >
                       <LinearGradient
-                        colors={[C.surfaceElevated, C.surface]}
-                        start={{ x: 0.1, y: 0 }}
-                        end={{ x: 0.9, y: 1 }}
-                        style={styles.tierCardInner}
-                      >
-                        <View style={[styles.tierCardAccent, { backgroundColor: C.accent, opacity: idx === 1 ? 0.5 : 0.25 }]} />
+                        colors={['transparent', tier.featured ? 'rgba(200,137,74,0.55)' : 'rgba(200,137,74,0.3)', 'transparent']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.tierCardTopLine}
+                      />
 
-                        <View style={styles.tierTop}>
-                          <View style={[styles.tierIco, { backgroundColor: tier.iconBg, borderColor: C.border }]}>
-                            <Icon size={18} color={C.accentDark} />
+                      <View style={styles.tierTop}>
+                        <View style={[
+                          styles.tierIco,
+                          tier.featured && styles.tierIcoWarm,
+                          tier.badgeStyle === 'moss' && styles.tierIcoMoss,
+                        ]}>
+                          <Text style={styles.tierEmojiText}>{tier.emoji}</Text>
+                        </View>
+                        <View style={styles.tierNameWrap}>
+                          <View style={styles.tierNameRow}>
+                            <Text style={[styles.tierName, { fontFamily: Fonts.titleSemiBold }]}>{tier.title}</Text>
+                            {tier.badge && (
+                              <View style={[
+                                styles.tierBadge,
+                                tier.badgeStyle === 'moss' && styles.tierBadgeMoss,
+                              ]}>
+                                <Text style={[
+                                  styles.tierBadgeText,
+                                  { fontFamily: Fonts.titleBold },
+                                  tier.badgeStyle === 'moss' && { color: '#8ED09A' },
+                                ]}>{tier.badge}</Text>
+                              </View>
+                            )}
                           </View>
-                          <View style={styles.tierNameWrap}>
-                            <View style={styles.tierNameRow}>
-                              <Text style={[styles.tierName, { color: C.text, fontFamily: Fonts.titleSemiBold }]}>{tier.title}</Text>
-                              {tier.badge && (
-                                <View style={[styles.tierBadge, { backgroundColor: C.accentBg, borderColor: C.accent + '40' }]}>
-                                  <Text style={[styles.tierBadgeText, { color: C.accentDark, fontFamily: Fonts.titleBold }]}>{tier.badge}</Text>
-                                </View>
-                              )}
-                            </View>
-                            <View style={styles.tierCheckRow}>
-                              <Check size={11} color={C.accent} strokeWidth={2} />
-                              <Text style={[styles.tierCheck, { color: C.textSecondary, fontFamily: Fonts.italic }]}>{tier.check}</Text>
-                            </View>
+                          <View style={styles.tierCheckRow}>
+                            <Text style={[styles.tierCheck, { fontFamily: Fonts.italic }]}>✓ {tier.check}</Text>
                           </View>
                         </View>
+                      </View>
 
-                        <View style={styles.tierPriceRow}>
-                          <Text style={[styles.tierPrice, { color: C.text, fontFamily: Fonts.titleLight }]}>{tier.price}</Text>
-                          <Text style={[styles.tierPeriod, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>{tier.period}</Text>
-                        </View>
+                      <View style={styles.tierPriceRow}>
+                        <Text style={[styles.tierPrice, { fontFamily: Fonts.titleLight }]}>{tier.price}</Text>
+                        <Text style={[styles.tierPeriod, { fontFamily: Fonts.titleLight }]}>{tier.period}</Text>
+                      </View>
 
-                        <Text style={[styles.tierDesc, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>{tier.desc}</Text>
+                      <Text style={[styles.tierDesc, { fontFamily: Fonts.serifRegular }]}>{tier.desc}</Text>
 
+                      {tier.btnStyle === 'outline' ? (
+                        <TouchableOpacity
+                          style={styles.tierBtnOutline}
+                          onPress={() => handlePurchase(tier)}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={[styles.tierBtnOutlineText, { fontFamily: Fonts.titleMedium }]}>Subscribe →</Text>
+                        </TouchableOpacity>
+                      ) : tier.btnStyle === 'amber' ? (
                         <View style={styles.tierBtnWrap}>
                           <LinearGradient
-                            colors={tier.gradient}
+                            colors={['#D49550', '#A86B2A']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 1 }}
                             style={styles.tierBtnGradient}
                           >
-                            <Text style={[styles.tierBtnText, { fontFamily: Fonts.titleMedium }]}>Subscribe</Text>
-                            <ArrowRight size={14} color="#fff" />
+                            <Text style={[styles.tierBtnText, { fontFamily: Fonts.titleMedium }]}>Subscribe →</Text>
                           </LinearGradient>
                         </View>
-                      </LinearGradient>
-                    </AnimatedPressable>
-                  );
-                })}
+                      ) : (
+                        <View style={styles.tierBtnWrap}>
+                          <LinearGradient
+                            colors={['#4A9E5C', '#2E7040']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.tierBtnGradient}
+                          >
+                            <Text style={[styles.tierBtnText, { fontFamily: Fonts.titleMedium }]}>Subscribe →</Text>
+                          </LinearGradient>
+                        </View>
+                      )}
+                    </LinearGradient>
+                  </AnimatedPressable>
+                ))}
               </View>
             )}
 
-            <View style={[styles.footerNote, { borderColor: C.border }]}>
-              <LinearGradient
-                colors={[C.accentBg, 'transparent']}
-                style={styles.footerNoteInner}
-              >
-                <Text style={[styles.footerNoteText, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
-                  No investors. No ads. Every dollar goes directly to app development or global missions. Just people who pray, supporting people who pray.
-                </Text>
-              </LinearGradient>
+            <View style={styles.footerNote}>
+              <Text style={[styles.footerNoteText, { fontFamily: Fonts.italic }]}>
+                No investors. No ads. Every dollar goes directly to app development or global missions. Just people who pray, supporting people who pray.
+              </Text>
             </View>
 
             <TouchableOpacity
@@ -298,16 +330,16 @@ export default function GiveScreen() {
               testID="restore-purchases-tab"
             >
               {restoreMutation.isPending ? (
-                <ActivityIndicator color={C.textMuted} size="small" />
+                <ActivityIndicator color="rgba(244,237,224,0.28)" size="small" />
               ) : (
                 <>
-                  <RefreshCw size={13} color={C.textMuted} />
-                  <Text style={[styles.restoreText, { color: C.textMuted, fontFamily: Fonts.titleRegular }]}>Restore purchases</Text>
+                  <RefreshCw size={13} color="rgba(244,237,224,0.28)" />
+                  <Text style={[styles.restoreText, { fontFamily: Fonts.titleRegular }]}>Restore purchases</Text>
                 </>
               )}
             </TouchableOpacity>
 
-            <Text style={[styles.legal, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>
+            <Text style={[styles.legal, { fontFamily: Fonts.titleLight }]}>
               Subscriptions renew monthly. Cancel anytime in your device settings.
             </Text>
           </Animated.View>
@@ -320,68 +352,53 @@ export default function GiveScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: '#0D0804',
   },
   safeArea: {
     flex: 1,
   },
-  glowTop: {
+  topGlowWrap: {
     position: 'absolute',
-    top: -120,
-    left: '50%',
-    width: 500,
-    height: 350,
-    borderRadius: 250,
-    transform: [{ translateX: -250 }],
-    opacity: 0.06,
+    top: -20,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 0,
   },
-  glowBottom: {
-    position: 'absolute',
-    bottom: -100,
-    right: -100,
-    width: 400,
-    height: 400,
-    borderRadius: 200,
-    opacity: 0.04,
+  topGlow: {
+    width: SCREEN_W * 1.2,
+    height: 200,
+    borderRadius: 160,
   },
   scroll: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
     paddingTop: 16,
-    paddingBottom: 40,
-  },
-  content: {},
-  headerSection: {
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  headerIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
+    paddingBottom: 120,
   },
   eyebrow: {
     fontSize: 9,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
+    color: '#C8894A',
     marginBottom: 10,
   },
   title: {
-    fontSize: 36,
-    lineHeight: 42,
-    letterSpacing: -0.3,
-    marginBottom: 12,
+    fontSize: 34,
+    lineHeight: 40,
+    color: '#F4EDE0',
+    marginBottom: 14,
   },
-  titleRule: {
+  rule: {
     width: 44,
     height: 1.5,
+    backgroundColor: '#C8894A',
     opacity: 0.55,
     marginBottom: 18,
   },
   mission: {
+    fontSize: 17,
     lineHeight: 30,
+    color: 'rgba(244,237,224,0.55)',
     marginBottom: 24,
   },
   tiersContainer: {
@@ -391,13 +408,17 @@ const styles = StyleSheet.create({
   tierCard: {
     borderRadius: 22,
     borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.13)',
     overflow: 'hidden',
+  },
+  tierCardFeatured: {
+    borderColor: 'rgba(200,137,74,0.45)',
   },
   tierCardInner: {
     padding: 24,
     position: 'relative',
   },
-  tierCardAccent: {
+  tierCardTopLine: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -417,6 +438,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    backgroundColor: 'rgba(200,137,74,0.1)',
+    borderColor: 'rgba(200,137,74,0.18)',
+  },
+  tierIcoWarm: {
+    backgroundColor: 'rgba(200,137,74,0.18)',
+    borderColor: 'rgba(200,137,74,0.35)',
+  },
+  tierIcoMoss: {
+    backgroundColor: 'rgba(62,130,80,0.18)',
+    borderColor: 'rgba(62,130,80,0.32)',
+  },
+  tierEmojiText: {
+    fontSize: 20,
   },
   tierNameWrap: {
     flex: 1,
@@ -428,18 +462,26 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   tierName: {
-    fontSize: 14,
-    letterSpacing: 0.2,
+    fontSize: 13,
+    letterSpacing: 0.3,
+    color: '#F4EDE0',
   },
   tierBadge: {
     paddingHorizontal: 9,
     paddingVertical: 3,
     borderRadius: 100,
     borderWidth: 1,
+    backgroundColor: 'rgba(200,137,74,0.18)',
+    borderColor: 'rgba(200,137,74,0.35)',
+  },
+  tierBadgeMoss: {
+    backgroundColor: 'rgba(62,130,80,0.18)',
+    borderColor: 'rgba(62,130,80,0.38)',
   },
   tierBadgeText: {
     fontSize: 8,
     letterSpacing: 2,
+    color: '#E0A868',
   },
   tierCheckRow: {
     flexDirection: 'row',
@@ -448,6 +490,7 @@ const styles = StyleSheet.create({
   },
   tierCheck: {
     fontSize: 13,
+    color: 'rgba(200,137,74,0.7)',
   },
   tierPriceRow: {
     flexDirection: 'row',
@@ -459,14 +502,32 @@ const styles = StyleSheet.create({
     fontSize: 46,
     letterSpacing: -1.5,
     lineHeight: 50,
+    color: '#F4EDE0',
   },
   tierPeriod: {
     fontSize: 18,
+    color: 'rgba(244,237,224,0.55)',
   },
   tierDesc: {
     fontSize: 15,
     lineHeight: 26,
     marginBottom: 18,
+    color: 'rgba(244,237,224,0.55)',
+  },
+  tierBtnOutline: {
+    width: '100%',
+    paddingVertical: 15,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tierBtnOutlineText: {
+    fontSize: 12,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase' as const,
+    color: '#E0A868',
   },
   tierBtnWrap: {
     borderRadius: 14,
@@ -488,16 +549,18 @@ const styles = StyleSheet.create({
   footerNote: {
     borderRadius: 18,
     borderWidth: 1,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  footerNoteInner: {
+    borderColor: 'rgba(62,130,80,0.2)',
+    backgroundColor: 'rgba(62,130,80,0.07)',
     padding: 22,
+    marginBottom: 20,
+    position: 'relative',
+    overflow: 'hidden',
   },
   footerNoteText: {
     fontSize: 16,
     lineHeight: 28,
     textAlign: 'center',
+    color: 'rgba(175,215,185,0.85)',
   },
   restoreBtn: {
     flexDirection: 'row',
@@ -509,12 +572,13 @@ const styles = StyleSheet.create({
   },
   restoreText: {
     fontSize: 13,
-    fontWeight: '500' as const,
+    color: 'rgba(244,237,224,0.28)',
   },
   legal: {
     fontSize: 9,
     textAlign: 'center',
     lineHeight: 16,
     letterSpacing: 0.5,
+    color: 'rgba(244,237,224,0.28)',
   },
 });

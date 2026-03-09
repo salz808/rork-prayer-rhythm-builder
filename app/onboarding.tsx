@@ -14,7 +14,7 @@ import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useColors } from '@/hooks/useColors';
+
 import { useApp, scheduleReminderNotification } from '@/providers/AppProvider';
 import { UserProfile } from '@/types';
 import { Fonts } from '@/constants/fonts';
@@ -53,7 +53,7 @@ const BLOCKER_TO_PRAYER: Record<string, UserProfile['prayerLife']> = {
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const C = useColors();
+
   const { completeOnboarding } = useApp();
   const [step, setStep] = useState<Step>('splash');
   const [firstName, setFirstName] = useState('');
@@ -160,8 +160,8 @@ export default function OnboardingScreen() {
             key={i}
             style={[
               styles.dot,
-              { backgroundColor: 'rgba(200,154,90,0.2)' },
-              i === stepIndex && [styles.dotActive, { backgroundColor: C.accent }],
+              { backgroundColor: 'rgba(200,137,74,0.18)' },
+              i === stepIndex && styles.dotActive,
             ]}
           />
         ))}
@@ -179,15 +179,15 @@ export default function OnboardingScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={[styles.root, { backgroundColor: C.background }]}>
+      <View style={styles.root}>
         <LinearGradient
           colors={['rgba(60,36,18,0.4)', 'transparent', 'rgba(60,36,18,0.2)']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         />
-        <View style={[styles.glowT, { backgroundColor: C.accent }]} />
-        <View style={[styles.glowB, { backgroundColor: C.accent }]} />
+        <View style={styles.glowT} />
+        <View style={styles.glowB} />
 
         <SafeAreaView style={styles.safeArea}>
           <KeyboardAvoidingView
@@ -197,8 +197,8 @@ export default function OnboardingScreen() {
             {step === 'splash' ? (
               <View style={styles.splashContainer}>
                 <View style={styles.splashGlowContainer}>
-                  <Animated.View style={[styles.splashGlowBottom, { backgroundColor: C.accent, opacity: orbPulse }]} />
-                  <Animated.View style={[styles.splashGlowCenter, { backgroundColor: C.accent }]} />
+                  <Animated.View style={[styles.splashGlowBottom, { opacity: orbPulse }]} />
+                  <Animated.View style={styles.splashGlowCenter} />
                 </View>
 
                 <Animated.View
@@ -207,12 +207,12 @@ export default function OnboardingScreen() {
                     { opacity: splashFade, transform: [{ translateY: splashSlide }] },
                   ]}
                 >
-                  <Text style={[styles.splashWordmark, { color: C.text, fontFamily: Fonts.serifLight }]}>Amen</Text>
+                  <Text style={[styles.splashWordmark, { fontFamily: Fonts.serifLight }]}>Amen</Text>
                 </Animated.View>
 
                 <Animated.View style={[styles.splashRuleWrap, { opacity: splashRuleFade }]}>
                   <LinearGradient
-                    colors={['transparent', C.accent, 'transparent']}
+                    colors={['transparent', '#C8894A', 'transparent']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.splashRule}
@@ -225,8 +225,8 @@ export default function OnboardingScreen() {
                     { opacity: splashRuleFade, transform: [{ translateY: splashSlide }] },
                   ]}
                 >
-                  <Text style={[styles.splashTag, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
-                    God is <Text style={[styles.splashTagEm, { color: C.accentDark, fontFamily: Fonts.italicMedium }]}>much closer</Text> than you think.
+                  <Text style={[styles.splashTag, { fontFamily: Fonts.italic }]}>
+                    God is <Text style={[styles.splashTagEm, { fontFamily: Fonts.italicMedium }]}>much closer</Text> than you think.
                   </Text>
                 </Animated.View>
 
@@ -237,14 +237,14 @@ export default function OnboardingScreen() {
                   ]}
                 >
                   <TouchableOpacity
-                    style={[styles.ghostBtn, { borderColor: C.accent }]}
+                    style={styles.ghostBtn}
                     onPress={handleNext}
                     activeOpacity={0.8}
                     testID="onboarding-begin"
                   >
-                    <Text style={[styles.ghostBtnText, { color: C.text, fontFamily: Fonts.titleLight }]}>BEGIN YOUR 30 DAYS</Text>
+                    <Text style={[styles.ghostBtnText, { fontFamily: Fonts.titleLight }]}>BEGIN YOUR 30 DAYS</Text>
                   </TouchableOpacity>
-                  <Text style={[styles.splashSub, { color: C.textMuted, fontFamily: Fonts.italic }]}>
+                  <Text style={[styles.splashSub, { fontFamily: Fonts.italic }]}>
                     No experience needed. No perfect words required.
                   </Text>
                 </Animated.View>
@@ -264,28 +264,28 @@ export default function OnboardingScreen() {
                   >
                     {step === 'name' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>A NEW BEGINNING</Text>
-                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>
-                          What do people{'\n'}call <Text style={{ color: C.accentDark, fontFamily: Fonts.italicSemiBold }}>you?</Text>
+                        <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>A NEW BEGINNING</Text>
+                        <Text style={[styles.screenTitle, { fontFamily: Fonts.serifLight }]}>
+                          What do people{'\n'}call <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>you?</Text>
                         </Text>
-                        <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.serifRegular }]}>
+                        <View style={styles.screenRule} />
+                        <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           God has known your name since before the foundations of the earth. He calls you beloved. We just want to say it back.
                         </Text>
                         <View style={styles.nameInputWrap}>
                           <TextInput
-                            style={[styles.nameInput, { color: C.text, borderBottomColor: C.accent, fontFamily: Fonts.italic }]}
+                            style={[styles.nameInput, { fontFamily: Fonts.italic }]}
                             value={firstName}
                             onChangeText={setFirstName}
                             placeholder="Your first name"
-                            placeholderTextColor={C.textMuted}
+                            placeholderTextColor="rgba(244,237,224,0.22)"
                             autoFocus
                             autoCapitalize="words"
                             returnKeyType="next"
                             onSubmitEditing={handleNext}
                             testID="onboarding-name-input"
                           />
-                          <Text style={[styles.nameHelp, { color: C.accent, fontFamily: Fonts.italic }]}>
+                          <Text style={[styles.nameHelp, { fontFamily: Fonts.italic }]}>
                             This is just between you and God, and us.
                           </Text>
                         </View>
@@ -294,14 +294,14 @@ export default function OnboardingScreen() {
 
                     {step === 'blocker' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>BE HONEST WITH US</Text>
-                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>
+                        <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>BE HONEST WITH US</Text>
+                        <Text style={[styles.screenTitle, { fontFamily: Fonts.serifLight }]}>
                           What usually{'\n'}holds back your{'\n'}
-                          <Text style={{ color: C.accentDark, fontFamily: Fonts.italicSemiBold }}>prayer life, {displayName}?</Text>
+                          <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>prayer life, {displayName}?</Text>
                         </Text>
-                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.serifRegular }]}>
+                        <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           No wrong answers here.{' '}
-                          <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium }}>Every struggle is a doorway</Text>.
+                          <Text style={{ color: '#E0A868', fontFamily: Fonts.italicMedium }}>Every struggle is a doorway</Text>.
                           {' '}Freedom is on the other side of this one.
                         </Text>
                         <View style={styles.choices}>
@@ -312,8 +312,7 @@ export default function OnboardingScreen() {
                                 key={option}
                                 style={[
                                   styles.choiceBtn,
-                                  { backgroundColor: 'transparent', borderColor: 'rgba(200,154,90,0.25)' },
-                                  isSelected && { backgroundColor: C.accentBg, borderColor: C.accent },
+                                  isSelected && styles.choiceBtnSelected,
                                 ]}
                                 onPress={() => {
                                   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -324,8 +323,8 @@ export default function OnboardingScreen() {
                                 <Text
                                   style={[
                                     styles.choiceBtnText,
-                                    { color: C.textSecondary, fontFamily: Fonts.serifRegular },
-                                    isSelected && { color: C.text },
+                                    { fontFamily: Fonts.serifRegular },
+                                    isSelected && styles.choiceBtnTextSelected,
                                   ]}
                                 >
                                   {option}
@@ -339,18 +338,18 @@ export default function OnboardingScreen() {
 
                     {step === 'promise' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>YOUR INHERITANCE</Text>
-                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>
-                          Not a program.{'\n'}A <Text style={{ color: C.accentDark, fontFamily: Fonts.italicSemiBold }}>journey into wholeness.</Text>
+                        <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>YOUR INHERITANCE</Text>
+                        <Text style={[styles.screenTitle, { fontFamily: Fonts.serifLight }]}>
+                          Not a program.{'\n'}A <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>journey into wholeness.</Text>
                         </Text>
-                        <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.serifRegular }]}>
+                        <View style={styles.screenRule} />
+                        <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           Thirty days from now, you will pray without a script. You'll know your voice with God, and His voice in return.{'\n\n'}You weren't meant to live stuck in prayerless silence.{' '}
-                          <Text style={{ color: C.text, fontFamily: Fonts.serifSemiBold }}>
+                          <Text style={{ color: '#F4EDE0', fontFamily: Fonts.serifSemiBold }}>
                             Freedom is possible. A deeper relationship with God is possible.
                           </Text>
                           {'\n\n'}You are not too far gone. Not too ordinary. Not starting too late.{' '}
-                          <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium }}>
+                          <Text style={{ color: '#E0A868', fontFamily: Fonts.italicMedium }}>
                             You are exactly the kind of person this was made for.
                           </Text>
                         </Text>
@@ -359,28 +358,25 @@ export default function OnboardingScreen() {
 
                     {step === 'framework' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>YOUR DAILY GUIDE</Text>
-                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>
+                        <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>YOUR DAILY GUIDE</Text>
+                        <Text style={[styles.screenTitle, { fontFamily: Fonts.serifLight }]}>
                           The TRIAD{'\n'}
-                          <Text style={{ color: C.accentDark, fontFamily: Fonts.italicSemiBold }}>framework</Text>
+                          <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>framework</Text>
                         </Text>
-                        <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.serifRegular, marginBottom: 22 }]}>
+                        <View style={styles.screenRule} />
+                        <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular, marginBottom: 22 }]}>
                           Five anchors covering the full range of authentic prayer: spirit, soul, and body. You learn them by doing, not by studying.
                         </Text>
                         <View style={styles.triadList}>
                           {TRIAD_ITEMS.map((item) => (
                             <View
                               key={item.name}
-                              style={[
-                                styles.triadItem,
-                                { backgroundColor: C.accentBg, borderColor: 'rgba(200,154,90,0.15)' },
-                              ]}
+                              style={styles.triadItem}
                             >
                               <Text style={styles.triadEmoji}>{item.emoji}</Text>
                               <View style={styles.triadTextWrap}>
-                                <Text style={[styles.triadName, { color: C.accent, fontFamily: Fonts.titleSemiBold }]}>{item.name.toUpperCase()}</Text>
-                                <Text style={[styles.triadDesc, { color: C.textSecondary, fontFamily: Fonts.serifRegular }]}>{item.desc}</Text>
+                                <Text style={[styles.triadName, { fontFamily: Fonts.titleSemiBold }]}>{item.name.toUpperCase()}</Text>
+                                <Text style={[styles.triadDesc, { fontFamily: Fonts.serifRegular }]}>{item.desc}</Text>
                               </View>
                             </View>
                           ))}
@@ -390,13 +386,13 @@ export default function OnboardingScreen() {
 
                     {step === 'reminder' && (
                       <View>
-                        <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>NEVER MISS A DAY</Text>
-                        <Text style={[styles.screenTitle, { color: C.text, fontFamily: Fonts.serifLight }]}>
+                        <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>NEVER MISS A DAY</Text>
+                        <Text style={[styles.screenTitle, { fontFamily: Fonts.serifLight }]}>
                           When should we{'\n'}remind{' '}
-                          <Text style={{ color: C.accentDark, fontFamily: Fonts.italicSemiBold }}>you?</Text>
+                          <Text style={{ color: '#E0A868', fontFamily: Fonts.italicSemiBold }}>you?</Text>
                         </Text>
-                        <View style={[styles.screenRule, { backgroundColor: C.accent }]} />
-                        <Text style={[styles.screenBody, { color: C.textSecondary, fontFamily: Fonts.serifRegular }]}>
+                        <View style={styles.screenRule} />
+                        <Text style={[styles.screenBody, { fontFamily: Fonts.serifRegular }]}>
                           A gentle nudge at the right moment is the difference between a habit and a wish.
                         </Text>
                         <View style={styles.reminderOptions}>
@@ -407,8 +403,7 @@ export default function OnboardingScreen() {
                                 key={time.value}
                                 style={[
                                   styles.reminderCard,
-                                  { backgroundColor: 'transparent', borderColor: 'rgba(200,154,90,0.2)' },
-                                  isSelected && { backgroundColor: C.accentBg, borderColor: C.accent },
+                                  isSelected && styles.reminderCardSelected,
                                 ]}
                                 onPress={() => {
                                   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -418,23 +413,23 @@ export default function OnboardingScreen() {
                               >
                                 <Text style={styles.reminderEmoji}>{time.emoji}</Text>
                                 <View style={styles.reminderTextWrap}>
-                                  <Text style={[styles.reminderLabel, { color: isSelected ? C.text : C.textSecondary, fontFamily: Fonts.titleRegular }]}>
+                                  <Text style={[styles.reminderLabel, { color: isSelected ? '#F4EDE0' : 'rgba(244,237,224,0.55)', fontFamily: Fonts.titleRegular }]}>
                                     {time.label}
                                   </Text>
-                                  <Text style={[styles.reminderValue, { color: isSelected ? C.accentDark : C.textMuted, fontFamily: Fonts.titleLight }]}>
+                                  <Text style={[styles.reminderValue, { color: isSelected ? '#E0A868' : 'rgba(244,237,224,0.28)', fontFamily: Fonts.titleLight }]}>
                                     {time.value}
                                   </Text>
                                 </View>
-                                <View style={[styles.reminderRadio, { borderColor: isSelected ? C.accent : 'rgba(200,154,90,0.25)' }]}>
-                                  {isSelected && <View style={[styles.reminderRadioDot, { backgroundColor: C.accent }]} />}
+                                <View style={[styles.reminderRadio, { borderColor: isSelected ? '#C8894A' : 'rgba(200,137,74,0.25)' }]}>
+                                  {isSelected && <View style={styles.reminderRadioDot} />}
                                 </View>
                               </TouchableOpacity>
                             );
                           })}
                         </View>
-                        <View style={[styles.graceBadge, { backgroundColor: C.accentBg, borderColor: 'rgba(200,154,90,0.2)' }]}>
+                        <View style={styles.graceBadge}>
                           <Text style={styles.graceEmoji}>🛡️</Text>
-                          <Text style={[styles.graceBadgeText, { color: C.accent, fontFamily: Fonts.titleMedium }]}>
+                          <Text style={[styles.graceBadgeText, { fontFamily: Fonts.titleMedium }]}>
                             Grace day: one miss forgiven per week
                           </Text>
                         </View>
@@ -448,7 +443,7 @@ export default function OnboardingScreen() {
                 <View style={styles.footer}>
                   {step === 'framework' ? (
                     <TouchableOpacity
-                      style={[styles.amberBtn, !canProceed() && styles.btnDisabled]}
+                      style={[styles.amberBtn, !canProceed() && styles.btnDisabled]} 
                       onPress={handleNext}
                       disabled={!canProceed()}
                       activeOpacity={0.8}
@@ -485,14 +480,13 @@ export default function OnboardingScreen() {
                         onPress={handleNext}
                         activeOpacity={0.7}
                       >
-                        <Text style={[styles.skipBtnText, { color: C.textMuted, fontFamily: Fonts.titleRegular }]}>Skip for now</Text>
+                        <Text style={[styles.skipBtnText, { fontFamily: Fonts.titleRegular }]}>Skip for now</Text>
                       </TouchableOpacity>
                     </View>
                   ) : (
                     <TouchableOpacity
                       style={[
                         styles.ghostBtn,
-                        { borderColor: C.accent },
                         !canProceed() && styles.btnDisabled,
                       ]}
                       onPress={handleNext}
@@ -500,7 +494,7 @@ export default function OnboardingScreen() {
                       activeOpacity={0.8}
                       testID="onboarding-next"
                     >
-                      <Text style={[styles.ghostBtnText, { color: C.text, fontFamily: Fonts.titleLight }]}>
+                      <Text style={[styles.ghostBtnText, { fontFamily: Fonts.titleLight }]}>
                         {getButtonLabel()}
                       </Text>
                     </TouchableOpacity>
@@ -518,6 +512,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: '#1A1006',
   },
   safeArea: {
     flex: 1,
@@ -532,7 +527,8 @@ const styles = StyleSheet.create({
     width: 400,
     height: 400,
     borderRadius: 200,
-    opacity: 0.04,
+    opacity: 0.06,
+    backgroundColor: '#C8894A',
     transform: [{ translateX: -200 }],
   },
   glowB: {
@@ -542,7 +538,8 @@ const styles = StyleSheet.create({
     width: 380,
     height: 380,
     borderRadius: 190,
-    opacity: 0.03,
+    opacity: 0.04,
+    backgroundColor: '#C8894A',
     transform: [{ translateX: -190 }],
   },
   splashContainer: {
@@ -562,7 +559,8 @@ const styles = StyleSheet.create({
     width: 380,
     height: 380,
     borderRadius: 190,
-    opacity: 0.08,
+    backgroundColor: '#C8894A',
+    opacity: 0.12,
     transform: [{ translateX: -190 }],
   },
   splashGlowCenter: {
@@ -572,7 +570,8 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    opacity: 0.025,
+    backgroundColor: '#C8894A',
+    opacity: 0.035,
     transform: [{ translateX: -140 }, { translateY: -140 }],
   },
   splashBrand: {
@@ -580,9 +579,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   splashWordmark: {
-    fontSize: 82,
-    letterSpacing: 16,
-    lineHeight: 90,
+    fontSize: 76,
+    letterSpacing: 11,
+    lineHeight: 84,
+    color: '#F4EDE0',
   },
   splashRuleWrap: {
     marginBottom: 22,
@@ -595,11 +595,14 @@ const styles = StyleSheet.create({
     marginBottom: 60,
   },
   splashTag: {
-    fontSize: 18,
+    fontSize: 16.5,
     textAlign: 'center',
     lineHeight: 28,
+    color: 'rgba(244,237,224,0.55)',
   },
-  splashTagEm: {},
+  splashTagEm: {
+    color: '#E0A868',
+  },
   splashActions: {
     position: 'absolute',
     bottom: 60,
@@ -611,6 +614,7 @@ const styles = StyleSheet.create({
   splashSub: {
     fontSize: 13,
     textAlign: 'center',
+    color: 'rgba(244,237,224,0.28)',
   },
   scrollContent: {
     flexGrow: 1,
@@ -622,26 +626,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   eyebrow: {
-    fontSize: 10,
+    fontSize: 9,
     letterSpacing: 3.5,
     textTransform: 'uppercase' as const,
-    marginBottom: 14,
+    color: '#C8894A',
+    marginTop: 28,
+    marginBottom: 12,
   },
   screenTitle: {
-    fontSize: 44,
-    lineHeight: 50,
+    fontSize: 42,
+    lineHeight: 46,
     letterSpacing: -0.3,
+    color: '#F4EDE0',
     marginBottom: 14,
   },
   screenRule: {
     width: 44,
     height: 1.5,
+    backgroundColor: '#C8894A',
     opacity: 0.55,
-    marginBottom: 20,
+    marginBottom: 18,
   },
   screenBody: {
-    fontSize: 19,
-    lineHeight: 34,
+    fontSize: 18,
+    lineHeight: 32,
+    color: 'rgba(244,237,224,0.55)',
   },
   nameInputWrap: {
     marginTop: 40,
@@ -651,11 +660,13 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 0,
     borderBottomWidth: 1,
+    borderBottomColor: 'rgba(200,137,74,0.32)',
+    color: '#F4EDE0',
   },
   nameHelp: {
-    fontSize: 14,
-    marginTop: 12,
-    opacity: 0.7,
+    fontSize: 13,
+    marginTop: 10,
+    color: 'rgba(200,137,74,0.48)',
   },
   choices: {
     gap: 12,
@@ -666,10 +677,20 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     borderRadius: 16,
     borderWidth: 1,
+    backgroundColor: 'rgba(34,20,8,0.55)',
+    borderColor: 'rgba(200,137,74,0.13)',
+  },
+  choiceBtnSelected: {
+    backgroundColor: 'rgba(200,137,74,0.09)',
+    borderColor: 'rgba(200,137,74,0.38)',
   },
   choiceBtnText: {
     fontSize: 18,
     lineHeight: 26,
+    color: 'rgba(244,237,224,0.55)',
+  },
+  choiceBtnTextSelected: {
+    color: '#F4EDE0',
   },
   scriptureCard: {
     borderLeftWidth: 3,
@@ -695,9 +716,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 14,
+    paddingVertical: 13,
+    borderRadius: 13,
     borderWidth: 1,
+    backgroundColor: 'rgba(200,137,74,0.045)',
+    borderColor: 'rgba(200,137,74,0.13)',
   },
   triadEmoji: {
     fontSize: 20,
@@ -711,10 +734,12 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 2,
     marginBottom: 3,
+    color: '#C8894A',
   },
   triadDesc: {
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 22,
+    color: 'rgba(244,237,224,0.55)',
   },
   reminderOptions: {
     gap: 10,
@@ -728,6 +753,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     borderWidth: 1,
+    backgroundColor: 'transparent',
+    borderColor: 'rgba(200,137,74,0.2)',
+  },
+  reminderCardSelected: {
+    backgroundColor: 'rgba(200,137,74,0.07)',
+    borderColor: '#C8894A',
   },
   reminderEmoji: {
     fontSize: 20,
@@ -756,6 +787,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
+    backgroundColor: '#C8894A',
   },
   graceBadge: {
     flexDirection: 'row',
@@ -767,6 +799,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginTop: 18,
     alignSelf: 'flex-start',
+    backgroundColor: 'rgba(200,137,74,0.07)',
+    borderColor: 'rgba(200,137,74,0.2)',
   },
   graceEmoji: {
     fontSize: 14,
@@ -775,6 +809,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 1.2,
     textTransform: 'uppercase' as const,
+    color: 'rgba(200,137,74,0.7)',
   },
   dotsRow: {
     flexDirection: 'row',
@@ -789,6 +824,7 @@ const styles = StyleSheet.create({
   dotActive: {
     width: 22,
     borderRadius: 3,
+    backgroundColor: '#C8894A',
   },
   footer: {
     paddingHorizontal: 32,
@@ -797,16 +833,18 @@ const styles = StyleSheet.create({
   },
   ghostBtn: {
     width: '100%',
-    paddingVertical: 18,
+    paddingVertical: 17,
     borderRadius: 100,
     borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.32)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   ghostBtnText: {
-    fontSize: 13,
-    letterSpacing: 2.5,
+    fontSize: 12.5,
+    letterSpacing: 2,
     textTransform: 'uppercase' as const,
+    color: '#F4EDE0',
   },
   amberBtn: {
     borderRadius: 100,
@@ -841,5 +879,6 @@ const styles = StyleSheet.create({
   },
   skipBtnText: {
     fontSize: 13,
+    color: 'rgba(244,237,224,0.28)',
   },
 });

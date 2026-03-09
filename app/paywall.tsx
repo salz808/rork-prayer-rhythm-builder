@@ -12,10 +12,10 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Check, RefreshCw, ArrowRight } from 'lucide-react-native';
+import { X, RefreshCw } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useColors } from '@/hooks/useColors';
+
 import { Fonts } from '@/constants/fonts';
 
 type PurchasesPackage = {
@@ -58,7 +58,7 @@ interface TierInfo {
 
 export default function PaywallScreen() {
   const router = useRouter();
-  const C = useColors();
+
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -175,11 +175,12 @@ export default function PaywallScreen() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: C.background }]}>
-      <View style={[styles.glowT, { backgroundColor: C.accent }]} />
+    <View style={styles.root}>
+      <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
+      <View style={styles.glowT} />
       <SafeAreaView style={styles.safeArea}>
         <TouchableOpacity
-          style={[styles.closeBtn, { backgroundColor: C.overlayLight }]}
+          style={styles.closeBtn}
           onPress={() => {
             void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             router.back();
@@ -187,7 +188,7 @@ export default function PaywallScreen() {
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           testID="paywall-close"
         >
-          <X size={18} color={C.textMuted} />
+          <X size={18} color="rgba(244,237,224,0.28)" />
         </TouchableOpacity>
 
         <ScrollView
@@ -195,22 +196,22 @@ export default function PaywallScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-            <Text style={[styles.eyebrow, { color: C.accent, fontFamily: Fonts.titleMedium }]}>SUPPORT THIS CAUSE</Text>
-            <Text style={[styles.title, { color: C.text, fontFamily: Fonts.serifLight }]}>
+            <Text style={[styles.eyebrow, { fontFamily: Fonts.titleMedium }]}>SUPPORT THIS CAUSE</Text>
+            <Text style={[styles.title, { fontFamily: Fonts.serifLight }]}>
               This app is free.{'\n'}
-              <Text style={{ color: C.accentDark, fontFamily: Fonts.italicMedium, fontSize: 32 }}>Always will be.</Text>
+              <Text style={{ color: '#E0A868', fontFamily: Fonts.italicMedium, fontSize: 32 }}>Always will be.</Text>
             </Text>
-            <View style={[styles.titleRule, { backgroundColor: C.accent }]} />
+            <View style={styles.titleRule} />
 
-            <Text style={[styles.mission, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
+            <Text style={[styles.mission, { fontFamily: Fonts.italic }]}>
               Your support keeps it alive and helps{' '}
-              <Text style={{ color: C.text }}>
+              <Text style={{ color: '#F4EDE0', fontWeight: '500' as const }}>
                 share the Gospel of Jesus Christ with the world.
               </Text>
             </Text>
 
             {offeringsQuery.isLoading ? (
-              <ActivityIndicator color={C.accent} style={{ marginVertical: 40 }} />
+              <ActivityIndicator color="#C8894A" style={{ marginVertical: 40 }} />
             ) : (
               <View style={styles.tiersContainer}>
                 {tiers.map((tier) => (
@@ -218,60 +219,57 @@ export default function PaywallScreen() {
                     key={tier.id}
                     style={[
                       styles.tierCard,
-                      { borderColor: C.border },
-                      tier.featured && { borderColor: 'rgba(200,137,74,0.45)' },
+                      tier.featured && styles.tierCardFeatured,
                     ]}
                   >
                     <LinearGradient
-                      colors={tier.featured
-                        ? [C.surfaceElevated, C.surface]
-                        : [C.surfaceElevated, C.surface]
-                      }
+                      colors={tier.featured ? ['#2E1C08', '#1E1106'] : ['#271A0A', '#1A1006']}
                       start={{ x: 0.1, y: 0 }}
                       end={{ x: 0.9, y: 1 }}
                       style={styles.tierCardInner}
                     >
-                      <View style={[styles.tierCardTopLine, { backgroundColor: C.accent, opacity: tier.featured ? 0.45 : 0.25 }]} />
+                      <LinearGradient
+                        colors={['transparent', tier.featured ? 'rgba(200,137,74,0.55)' : 'rgba(200,137,74,0.3)', 'transparent']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.tierCardTopLine}
+                      />
 
                       <View style={styles.tierTop}>
                         <View style={[
                           styles.tierIco,
-                          { backgroundColor: C.accentBg, borderColor: C.border },
-                          tier.featured && { backgroundColor: 'rgba(200,137,74,0.15)', borderColor: 'rgba(200,137,74,0.35)' },
-                          tier.badgeColor === 'moss' && { backgroundColor: 'rgba(62,130,80,0.15)', borderColor: 'rgba(62,130,80,0.32)' },
+                          tier.featured && styles.tierIcoWarm,
+                          tier.badgeColor === 'moss' && styles.tierIcoMoss,
                         ]}>
                           <Text style={styles.tierEmojiText}>{tier.emoji}</Text>
                         </View>
                         <View style={styles.tierNameWrap}>
                           <View style={styles.tierNameRow}>
-                            <Text style={[styles.tierName, { color: C.text, fontFamily: Fonts.titleSemiBold }]}>{tier.title}</Text>
+                            <Text style={[styles.tierName, { fontFamily: Fonts.titleSemiBold }]}>{tier.title}</Text>
                             {tier.badge && (
                               <View style={[
                                 styles.tierBadge,
-                                { backgroundColor: 'rgba(200,137,74,0.18)', borderColor: 'rgba(200,137,74,0.35)' },
-                                tier.badgeColor === 'moss' && { backgroundColor: 'rgba(62,130,80,0.18)', borderColor: 'rgba(62,130,80,0.38)' },
+                                tier.badgeColor === 'moss' && styles.tierBadgeMoss,
                               ]}>
                                 <Text style={[
                                   styles.tierBadgeText,
-                                  { color: C.accentDark },
                                   tier.badgeColor === 'moss' && { color: '#8ED09A' },
                                 ]}>{tier.badge}</Text>
                               </View>
                             )}
                           </View>
                           <View style={styles.tierCheckRow}>
-                            <Check size={11} color={C.accent} strokeWidth={2} />
-                            <Text style={[styles.tierCheck, { color: C.textSecondary, fontFamily: Fonts.italic }]}>{tier.check}</Text>
+                            <Text style={[styles.tierCheck, { fontFamily: Fonts.italic }]}>✓ {tier.check}</Text>
                           </View>
                         </View>
                       </View>
 
                       <View style={styles.tierPriceRow}>
-                        <Text style={[styles.tierPrice, { color: C.text, fontFamily: Fonts.serifLight }]}>{tier.price}</Text>
-                        <Text style={[styles.tierPeriod, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>{tier.period}</Text>
+                        <Text style={[styles.tierPrice, { fontFamily: Fonts.titleLight }]}>{tier.price}</Text>
+                        <Text style={[styles.tierPeriod, { fontFamily: Fonts.titleLight }]}>{tier.period}</Text>
                       </View>
 
-                      <Text style={[styles.tierDesc, { color: C.textSecondary, fontFamily: Fonts.titleLight }]}>{tier.desc}</Text>
+                      <Text style={[styles.tierDesc, { fontFamily: Fonts.serifRegular }]}>{tier.desc}</Text>
 
                       <TouchableOpacity
                         style={[
@@ -290,8 +288,7 @@ export default function PaywallScreen() {
                             end={{ x: 1, y: 1 }}
                             style={styles.tierBtnGradient}
                           >
-                            <Text style={[styles.tierBtnText, { color: '#fff' }]}>Subscribe</Text>
-                            <ArrowRight size={14} color="#fff" />
+                            <Text style={[styles.tierBtnText, { color: '#fff' }]}>Subscribe →</Text>
                           </LinearGradient>
                         ) : tier.btnStyle === 'moss' ? (
                           <LinearGradient
@@ -300,13 +297,11 @@ export default function PaywallScreen() {
                             end={{ x: 1, y: 1 }}
                             style={styles.tierBtnGradient}
                           >
-                            <Text style={[styles.tierBtnText, { color: '#fff' }]}>Subscribe</Text>
-                            <ArrowRight size={14} color="#fff" />
+                            <Text style={[styles.tierBtnText, { color: '#fff' }]}>Subscribe →</Text>
                           </LinearGradient>
                         ) : (
                           <View style={styles.tierBtnGradient}>
-                            <Text style={[styles.tierBtnText, { color: C.accentDark }]}>Subscribe</Text>
-                            <ArrowRight size={14} color={C.accentDark} />
+                            <Text style={[styles.tierBtnText, { color: '#E0A868' }]}>Subscribe →</Text>
                           </View>
                         )}
                       </TouchableOpacity>
@@ -316,15 +311,10 @@ export default function PaywallScreen() {
               </View>
             )}
 
-            <View style={[styles.footerNote, { borderColor: C.border }]}>
-              <LinearGradient
-                colors={[C.accentBg, 'transparent']}
-                style={styles.footerNoteInner}
-              >
-                <Text style={[styles.footerNoteText, { color: C.textSecondary, fontFamily: Fonts.italic }]}>
+            <View style={styles.footerNote}>
+                <Text style={[styles.footerNoteText, { fontFamily: Fonts.italic }]}>
                   No investors. No ads. Every dollar goes directly to app development or global missions. Just people who pray, supporting people who pray.
                 </Text>
-              </LinearGradient>
             </View>
 
             <TouchableOpacity
@@ -337,16 +327,16 @@ export default function PaywallScreen() {
               testID="restore-purchases"
             >
               {restoreMutation.isPending ? (
-                <ActivityIndicator color={C.textMuted} size="small" />
+                <ActivityIndicator color="rgba(244,237,224,0.28)" size="small" />
               ) : (
                 <>
-                  <RefreshCw size={13} color={C.textMuted} />
-                  <Text style={[styles.restoreText, { color: C.textMuted, fontFamily: Fonts.titleRegular }]}>Restore purchases</Text>
+                  <RefreshCw size={13} color="rgba(244,237,224,0.28)" />
+                  <Text style={[styles.restoreText, { fontFamily: Fonts.titleRegular }]}>Restore purchases</Text>
                 </>
               )}
             </TouchableOpacity>
 
-            <Text style={[styles.legal, { color: C.textMuted, fontFamily: Fonts.titleLight }]}>
+            <Text style={[styles.legal, { fontFamily: Fonts.titleLight }]}>
               Subscriptions renew monthly. Cancel anytime in your device settings.
             </Text>
           </Animated.View>
@@ -359,6 +349,7 @@ export default function PaywallScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: '#0D0804',
   },
   safeArea: {
     flex: 1,
@@ -371,6 +362,7 @@ const styles = StyleSheet.create({
     height: 280,
     borderRadius: 140,
     opacity: 0.07,
+    backgroundColor: '#C8894A',
     transform: [{ translateX: -140 }],
   },
   closeBtn: {
@@ -383,38 +375,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
+    backgroundColor: 'rgba(200,137,74,0.06)',
   },
   scroll: {
     flexGrow: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
     paddingTop: 64,
     paddingBottom: 40,
   },
   content: {},
   eyebrow: {
     fontSize: 9,
-    fontWeight: '500' as const,
     letterSpacing: 3,
     textTransform: 'uppercase' as const,
+    color: '#C8894A',
     marginBottom: 10,
   },
   title: {
     fontSize: 34,
-    fontWeight: '300' as const,
     lineHeight: 40,
     letterSpacing: -0.5,
+    color: '#F4EDE0',
     marginBottom: 12,
   },
   titleRule: {
     width: 44,
     height: 1.5,
+    backgroundColor: '#C8894A',
     opacity: 0.55,
     marginBottom: 18,
   },
   mission: {
     fontSize: 17,
-    fontStyle: 'italic' as const,
     lineHeight: 30,
+    color: 'rgba(244,237,224,0.55)',
     marginBottom: 24,
   },
   tiersContainer: {
@@ -424,7 +418,11 @@ const styles = StyleSheet.create({
   tierCard: {
     borderRadius: 22,
     borderWidth: 1,
+    borderColor: 'rgba(200,137,74,0.13)',
     overflow: 'hidden',
+  },
+  tierCardFeatured: {
+    borderColor: 'rgba(200,137,74,0.45)',
   },
   tierCardInner: {
     padding: 24,
@@ -450,6 +448,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    backgroundColor: 'rgba(200,137,74,0.1)',
+    borderColor: 'rgba(200,137,74,0.18)',
+  },
+  tierIcoWarm: {
+    backgroundColor: 'rgba(200,137,74,0.18)',
+    borderColor: 'rgba(200,137,74,0.35)',
+  },
+  tierIcoMoss: {
+    backgroundColor: 'rgba(62,130,80,0.18)',
+    borderColor: 'rgba(62,130,80,0.32)',
   },
   tierEmojiText: {
     fontSize: 20,
@@ -465,19 +473,25 @@ const styles = StyleSheet.create({
   },
   tierName: {
     fontSize: 13,
-    fontWeight: '600' as const,
     letterSpacing: 0.3,
+    color: '#F4EDE0',
   },
   tierBadge: {
     paddingHorizontal: 9,
     paddingVertical: 3,
     borderRadius: 100,
     borderWidth: 1,
+    backgroundColor: 'rgba(200,137,74,0.18)',
+    borderColor: 'rgba(200,137,74,0.35)',
+  },
+  tierBadgeMoss: {
+    backgroundColor: 'rgba(62,130,80,0.18)',
+    borderColor: 'rgba(62,130,80,0.38)',
   },
   tierBadgeText: {
     fontSize: 8,
-    fontWeight: '700' as const,
     letterSpacing: 2,
+    color: '#E0A868',
   },
   tierCheckRow: {
     flexDirection: 'row',
@@ -486,7 +500,7 @@ const styles = StyleSheet.create({
   },
   tierCheck: {
     fontSize: 13,
-    fontStyle: 'italic' as const,
+    color: 'rgba(200,137,74,0.7)',
   },
   tierPriceRow: {
     flexDirection: 'row',
@@ -496,18 +510,19 @@ const styles = StyleSheet.create({
   },
   tierPrice: {
     fontSize: 46,
-    fontWeight: '100' as const,
     letterSpacing: -1.5,
     lineHeight: 50,
+    color: '#F4EDE0',
   },
   tierPeriod: {
     fontSize: 18,
-    fontWeight: '300' as const,
+    color: 'rgba(244,237,224,0.55)',
   },
   tierDesc: {
     fontSize: 15,
     lineHeight: 26,
     marginBottom: 18,
+    color: 'rgba(244,237,224,0.55)',
   },
   tierBtn: {
     borderRadius: 14,
@@ -529,17 +544,17 @@ const styles = StyleSheet.create({
   footerNote: {
     borderRadius: 18,
     borderWidth: 1,
+    borderColor: 'rgba(62,130,80,0.2)',
+    backgroundColor: 'rgba(62,130,80,0.07)',
+    padding: 22,
     overflow: 'hidden',
     marginBottom: 20,
   },
-  footerNoteInner: {
-    padding: 22,
-  },
   footerNoteText: {
     fontSize: 16,
-    fontStyle: 'italic' as const,
     lineHeight: 28,
     textAlign: 'center',
+    color: 'rgba(175,215,185,0.85)',
   },
   restoreBtn: {
     flexDirection: 'row',
@@ -551,12 +566,13 @@ const styles = StyleSheet.create({
   },
   restoreText: {
     fontSize: 13,
-    fontWeight: '500' as const,
+    color: 'rgba(244,237,224,0.28)',
   },
   legal: {
     fontSize: 9,
     textAlign: 'center',
     lineHeight: 16,
     letterSpacing: 0.5,
+    color: 'rgba(244,237,224,0.28)',
   },
 });

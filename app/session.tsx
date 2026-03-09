@@ -261,7 +261,7 @@ export default function SessionScreen() {
       <>
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.root}>
-          <LinearGradient colors={['#0A0705', '#1A120B', '#0D0906']} style={StyleSheet.absoluteFill} />
+          <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
           <CelebrationParticles active={showCelebration} />
           <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.recapScroll} showsVerticalScrollIndicator={false}>
@@ -309,7 +309,7 @@ export default function SessionScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.root}>
-        <LinearGradient colors={['#0A0705', '#1A120B', '#0D0906']} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={['#0D0804', '#1A1006', '#0D0804']} style={StyleSheet.absoluteFill} />
         <View style={styles.topGlowWrap}>
           <LinearGradient
             colors={['rgba(200,137,74,0.09)', 'transparent']}
@@ -512,7 +512,7 @@ export default function SessionScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0A0705',
+    backgroundColor: '#0D0804',
   },
   safeArea: {
     flex: 1,
